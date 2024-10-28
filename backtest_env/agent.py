@@ -18,17 +18,18 @@ class Agent:
         self.queue = None
 
     def run(self):
-        self.process_events()
         # collect new information from the environment and send them to the strategy
         # data can be candlestick prices, agent's order history...
-        data = self.get_data()
-        # strategy will determine whether there is a trading opportunity or not
-        orders = self.strategy.run(data)
-        # validate the orders in agent's perspective
-        # orders might conflict with it current positions
-        orders = self.validate_orders(orders)
-        # submit orders using the dispatcher
-        OrderDispatcher.dispatch(orders)
+        while self.step():
+            # process events based on new data
+            self.process_events()
+            # strategy will determine whether there is a trading opportunity or not
+            orders = self.strategy.run(**kwargs)
+            # validate the orders in agent's perspective
+            # orders might conflict with it current positions
+            orders = self.validate_orders(orders)
+            # submit orders using the dispatcher
+            OrderDispatcher.dispatch(orders)
 
     def report(self):
         pass
