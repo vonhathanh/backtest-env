@@ -1,0 +1,21 @@
+{
+  "default": {},
+  "agents": [
+    {
+      "symbols": [],
+      "timeframes": [],
+      "name": "Agent 1",
+      "strategy": "Baseline",
+      "starts": [],
+      "ends": []
+    },
+    {
+      "symbols": [],
+      "timeframes": [],
+      "name": "Agent 2",
+      "strategy": "Baseline",
+      "starts": [],
+      "ends": []
+    }
+  ]
+}
