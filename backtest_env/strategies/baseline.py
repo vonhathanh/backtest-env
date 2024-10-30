@@ -3,6 +3,7 @@ from backtest_env.utils import market_order
 from backtest_env.constants import *
 
 class Baseline(Strategy):
+    # this strategy represents as an example of real trading strategy
     def __init__(self, params):
         super().__init__()
         self.params = params
