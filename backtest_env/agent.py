@@ -1,8 +1,10 @@
 import time
+from multiprocessing import shared_memory
+
+import numpy as np
 
 from backtest_env.order_dispatcher import OrderDispatcher
 from backtest_env.strategies import STRATEGIES
-from backtest_env.utils import load_data
 
 
 class Agent:
@@ -10,8 +12,10 @@ class Agent:
     # we'll simulate websocket event using a queue, API call by a middleware (OrderDispatcher)
     def __init__(self, env, params: dict):
         self.name = params["name"]
-        # load the requested data from agent params
-        env.load_data(params)
+
+        env.add_agent(self)
+        # load the requested data from agent params and store the shared_memory id for future access
+        self.shm_id = env.load_data(params)
 
         self.data = None
         # init agent's strategy
@@ -19,8 +23,12 @@ class Agent:
         # agent also has a queue to process event from the engine
         self.queue = None
 
-    def run(self, shm_id: str, data_size):
+    def run(self, shape):
+        shm = shared_memory.SharedMemory(name=self.shm_id)
+        self.data = np.ndarray(shape, dtype=np.float64, buffer=shm.buf)
+
         print(f"{self.name} is running")
+
         # collect new information from the environment and send them to the strategy
         # data can be candlestick prices, agent's order history...
         while self.step():
@@ -33,8 +41,10 @@ class Agent:
             orders = self.validate_orders(orders)
             # submit orders using the dispatcher
             OrderDispatcher.dispatch(orders)
-        time.sleep(1)
-        print(f"{self.name} is stopped")
+
+        shm.close()
+
+        print(f"{self.name} has finished back-testing")
 
     def report(self):
         pass

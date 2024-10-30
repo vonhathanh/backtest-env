@@ -2,20 +2,20 @@
   "default": {},
   "agents": [
     {
-      "symbols": [],
-      "timeframes": [],
+      "symbol": "BNBUSDT",
+      "tf": "1m",
       "name": "Agent 1",
       "strategy": "Baseline",
-      "starts": [],
-      "ends": []
+      "start": 0,
+      "end": 0
     },
     {
-      "symbols": [],
-      "timeframes": [],
+      "symbol": "BTCUSDT",
+      "tf": "15m",
       "name": "Agent 2",
       "strategy": "Baseline",
-      "starts": [],
-      "ends": []
+      "start": 0,
+      "end": 0
     }
   ]
 }
