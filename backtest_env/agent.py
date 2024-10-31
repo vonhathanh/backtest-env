@@ -22,7 +22,7 @@ class Agent:
         # agent also has a queue to process event from the engine
         self.queue = None
 
-        self.cur_idx = 0
+        self.cur_idx = -1
 
     def run(self, shape):
         shm = shared_memory.SharedMemory(name=self.shm_id)
@@ -55,12 +55,9 @@ class Agent:
         # report the backtest progress, statistic, and might even plot the results
         pass
 
-    def step(self):
-        if self.cur_idx >= len(self.data):
-            return False
-
+    def step(self) -> bool:
         self.cur_idx += 1
-        return True
+        return self.cur_idx >= len(self.data)
 
     def process_events(self):
         pass

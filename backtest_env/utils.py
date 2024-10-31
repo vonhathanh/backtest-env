@@ -1,10 +1,24 @@
 import json
+import numpy as np
+
+from os.path import join
+
+
+def load_data(data_dir: str, symbol: str, tf: str, start: int, end: int) -> np.ndarray:
+    file_name = join(data_dir, symbol + '_' + tf + '.csv')
+    # use np.genfromtxt instead of pandas.read_csv so pandas is not a dependency
+    data = np.genfromtxt(file_name, delimiter=',', skip_header=1)
+    # filter data by start and end time
+    # data must be in range of [start, end]
+    end = np.inf if end == 0 else end
+    mask = (data[:, 0] >= start) & (data[:, 0] <= end)
+
+    return data[mask]
 
 
 def load_params(config_file_path: str):
     with open(config_file_path, "r") as f:
         configs = json.load(f)
-        print(configs)
     return configs
 
 def get_sl(price: float, percent: float, side: str) -> float:

@@ -1,7 +1,9 @@
 from multiprocessing import shared_memory, Pool
 from backtest_env.agent import Agent
-
+from backtest_env.constants import DATA_DIR
 import numpy as np
+
+from backtest_env.utils import load_data
 
 
 class Env:
@@ -37,7 +39,7 @@ class Env:
         shm_id = "_".join([symbol, tf, str(start), str(end)])
 
         if shm_id not in self.shared_data:
-            data = np.random.randn(3, 2)
+            data = load_data(DATA_DIR, symbol, tf, start, end)
             shm = shared_memory.SharedMemory(create=True, size=data.size * data.itemsize, name=shm_id)
             # copy the original data into shared memory
             shared_data = np.ndarray(data.shape, dtype=data.dtype, buffer=shm.buf)

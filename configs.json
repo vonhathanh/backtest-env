@@ -3,15 +3,15 @@
   "agents": [
     {
       "symbol": "BNBUSDT",
-      "tf": "1m",
+      "tf": "1h",
       "name": "Agent 1",
       "strategy": "Base",
-      "start": 0,
+      "start": 1580572800000,
       "end": 0
     },
     {
       "symbol": "BTCUSDT",
-      "tf": "15m",
+      "tf": "1h",
       "name": "Agent 2",
       "strategy": "Baseline",
       "start": 0,
