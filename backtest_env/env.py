@@ -33,13 +33,13 @@ class Env:
             shm.unlink()
 
     def load_data(self, params: dict):
-        # create shared memory of price data for agents
         symbol, tf, start, end = params["symbol"], params["tf"], params["start"], params["end"]
 
         shm_id = "_".join([symbol, tf, str(start), str(end)])
 
         if shm_id not in self.shared_data:
             data = load_data(DATA_DIR, symbol, tf, start, end)
+            # create shared memory of price data for agents
             shm = shared_memory.SharedMemory(create=True, size=data.size * data.itemsize, name=shm_id)
             # copy the original data into shared memory
             shared_data = np.ndarray(data.shape, dtype=data.dtype, buffer=shm.buf)

@@ -10,7 +10,7 @@ def load_data(data_dir: str, symbol: str, tf: str, start: int, end: int) -> np.n
     data = np.genfromtxt(file_name, delimiter=',', skip_header=1)
     # filter data by start and end time
     # data must be in range of [start, end]
-    end = np.inf if end == 0 else end
+    end = np.inf if end == 0 else end # end's default value is zero, we have to increase it to np.inf if necessary
     mask = (data[:, 0] >= start) & (data[:, 0] <= end)
 
     return data[mask]
