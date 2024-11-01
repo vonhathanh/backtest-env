@@ -2,11 +2,12 @@ from multiprocessing import shared_memory
 
 import numpy as np
 
+from backtest_env.backend import Backend
 from backtest_env.order_dispatcher import OrderDispatcher
 from backtest_env.strategies import STRATEGIES
 
 
-class Agent:
+class Agent(Backend):
     # in reality, Agent will receive data through websocket + API call
     # we'll simulate websocket event using a queue, API call by a middleware (OrderDispatcher)
     def __init__(self, env, params: dict):
@@ -36,7 +37,7 @@ class Agent:
             # process events based on new data, check if an order can be filled/stopped, update pnl
             self.process_events()
             # strategy will determine whether there is a trading opportunity or not
-            orders = self.strategy.run({})
+            orders = self.strategy.run(self)
             print(f"{orders=}")
             # validate the orders in agent's perspective
             # orders might conflict with it current positions
