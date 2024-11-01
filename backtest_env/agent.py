@@ -13,10 +13,12 @@ class Agent(Backend):
     def __init__(self, env, params: dict):
         self.name = params["name"]
 
+        self.balance = params["init_balance"]
+
         env.add_agent(self)
         # load the requested data from agent's params and store the shared_memory id for future access
         self.shm_id = env.load_data(params)
-
+        # data will be inited by env
         self.data = None
         # init agent's strategy
         self.strategy = STRATEGIES[params["strategy"]].from_cfg(params)

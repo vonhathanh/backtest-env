@@ -1,3 +1,5 @@
+import random
+
 from backtest_env.backend import Backend
 from backtest_env.strategies.strategy import Strategy
 from backtest_env.utils import market_order
@@ -10,5 +12,14 @@ class Baseline(Strategy):
 
 
     def run(self, backend: Backend) -> list:
-        order = market_order(self.params["symbol"], BUY, 0.0, 1.0)
+        pending_orders = backend.get_pending_orders()
+        positions = backend.get_positions()
+
+        if len(pending_orders) >= 2 or len(positions) >= 2:
+            return []
+
+        side = BUY if random.random() <= 0.5 else SELL
+
+        order = market_order(self.params["symbol"], side, 0.0, 1.0)
+
         return [order]
