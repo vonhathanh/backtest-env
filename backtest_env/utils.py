@@ -1,7 +1,10 @@
 import json
+import time
+
 import numpy as np
 
 from os.path import join
+from backtest_env.constants import *
 
 
 def load_data(data_dir: str, symbol: str, tf: str, start: int, end: int) -> np.ndarray:
@@ -46,13 +49,17 @@ def market_order(symbol: str, side: str, price: float, quantity: float):
     price = round_precision(price)
     quantity = round_precision(quantity)
     return {
+        "price": price,
         "symbol": symbol,
         "side": side,
         "type": "MARKET",
-        "positionSide": side,
+        "positionSide": to_position(side),
         "quantity": quantity,
-        "newClientOrderId": f"{side}_{symbol}",
+        "newClientOrderId": f"{side}_{symbol}_{time.time()}",
     }
 
 def round_precision(num: float) -> float:
     return num
+
+def to_position(side: str) -> str:
+    return LONG if side == BUY else SHORT

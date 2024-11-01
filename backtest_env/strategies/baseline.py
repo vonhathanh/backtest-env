@@ -20,6 +20,6 @@ class Baseline(Strategy):
 
         side = BUY if random.random() <= 0.5 else SELL
 
-        order = market_order(self.params["symbol"], side, 0.0, 1.0)
+        order = market_order(self.params["symbol"], side, backend.get_prices()[4], 1.0)
 
         return [order]

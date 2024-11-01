@@ -3,6 +3,7 @@ from multiprocessing import shared_memory
 import numpy as np
 
 from backtest_env.backend import Backend
+from backtest_env.constants import LONG
 from backtest_env.order_dispatcher import OrderDispatcher
 from backtest_env.strategies import STRATEGIES
 
@@ -41,14 +42,8 @@ class Agent(Backend):
             # strategy will determine whether there is a trading opportunity or not
             orders = self.strategy.run(self)
             print(f"{orders=}")
-            # validate the orders in agent's perspective
-            # orders might conflict with it current positions
-            # we assign this task to Agent because we want Strategy to have single responsibility: create orders,
-            # Strategy can also access to current orders/positions, it depends on strategy's logics
-            # ideally, we want a stateless Strategy so it can be used in other modules
-            orders = self.validate_orders(orders)
             # submit orders using the dispatcher
-            OrderDispatcher.dispatch(orders)
+            OrderDispatcher.dispatch(orders, self)
 
         shm.close()
 
@@ -63,4 +58,54 @@ class Agent(Backend):
         return self.cur_idx >= len(self.data)
 
     def process_events(self):
-        pass
+        map(self.process_order, self.pending_orders)
+
+
+    def process_order(self, order: dict):
+        # process the order in agent's perspective
+        # orders might conflict with it current positions
+        # we assign this task to Agent because we want Strategy to have single responsibility: create orders,
+        # Strategy can also access to current orders/positions, it depends on strategy's logics
+        # ideally, we want a stateless Strategy so it can be used in other modules
+        if order["type"] == "MARKET":
+            self.fill_order(order)
+        elif order["type"] == "LIMIT":
+            pass
+        elif order["type"] == "STOP":
+            pass
+        elif order["type"] == "TAKE_PROFIT":
+            pass
+        elif order["type"] == "STOP_MARKET":
+            pass
+        elif order["type"] == "TAKE_PROFIT_MARKET":
+            pass
+        elif order["type"] == "TRAILING_STOP_MARKET":
+            pass
+        else:
+            raise ValueError("order type must be: "
+                             "MARKET, LIMIT, STOP, TAKE_PROFIT, STOP_MARKET, TAKE_PROFIT_MARKET, TRAILING_STOP_MARKET")
+
+    def get_prices(self, size: int=1) -> np.ndarray:
+        size = min(self.cur_idx, size)
+        return self.data[self.cur_idx-size:self.cur_idx] if size > 1 else self.data[self.cur_idx]
+
+    def fill_order(self, order: dict):
+        price = self.get_prices()[4] if "price" not in order else order["price"]
+        # determine the amount cash needed for the order
+        required_cash = order["quantity"] * price
+        # if not enough cash -> raise an error
+        if required_cash > self.balance:
+            print(f"{order=} can't be filled, reason, insufficient fund")
+        else:
+            self.update_position(order, required_cash)
+
+        self.pending_orders.remove(order)
+
+    def update_position(self, order: dict, required_cash: float):
+        # open/update position based on order symbol and side
+        if order["side"] == LONG:
+            self.position.long += order["quantity"]
+        else:
+            self.position.short += order["quantity"]
+        # subtract the amount of cash required for order
+        self.balance -= required_cash
