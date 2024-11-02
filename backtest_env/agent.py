@@ -3,7 +3,7 @@ from multiprocessing import shared_memory
 import numpy as np
 
 from backtest_env.backend import Backend
-from backtest_env.constants import LONG
+from backtest_env.constants import BUY
 from backtest_env.order_dispatcher import OrderDispatcher
 from backtest_env.strategies import STRATEGIES
 
@@ -13,7 +13,6 @@ class Agent(Backend):
     # we'll simulate websocket event using a queue, API call by a middleware (OrderDispatcher)
     def __init__(self, env, params: dict):
         self.name = params["name"]
-
         self.balance = params["init_balance"]
 
         env.add_agent(self)
@@ -41,9 +40,10 @@ class Agent(Backend):
             self.process_events()
             # strategy will determine whether there is a trading opportunity or not
             orders = self.strategy.run(self)
-            print(f"{orders=}")
-            # submit orders using the dispatcher
-            OrderDispatcher.dispatch(orders, self)
+            if orders:
+                print(f"{orders=}")
+                # submit orders using the dispatcher
+                OrderDispatcher.dispatch(orders, self)
 
         shm.close()
 
@@ -55,10 +55,10 @@ class Agent(Backend):
 
     def step(self) -> bool:
         self.cur_idx += 1
-        return self.cur_idx >= len(self.data)
+        return self.cur_idx < len(self.data)
 
     def process_events(self):
-        map(self.process_order, self.pending_orders)
+        _ = list(map(self.process_order, list(self.pending_orders.values())))
 
 
     def process_order(self, order: dict):
@@ -97,15 +97,16 @@ class Agent(Backend):
         if required_cash > self.balance:
             print(f"{order=} can't be filled, reason, insufficient fund")
         else:
+            print(f"order {order['id']} filled")
             self.update_position(order, required_cash)
-
-        self.pending_orders.remove(order)
+        del self.pending_orders[order["id"]]
 
     def update_position(self, order: dict, required_cash: float):
         # open/update position based on order symbol and side
-        if order["side"] == LONG:
+        if order["side"] == BUY:
             self.position.long += order["quantity"]
         else:
             self.position.short += order["quantity"]
         # subtract the amount of cash required for order
         self.balance -= required_cash
+        print(f"position: {self.position}, balance: {self.balance}, total asset: {self.get_total_wealth(price)}")

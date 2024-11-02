@@ -55,7 +55,7 @@ def market_order(symbol: str, side: str, price: float, quantity: float):
         "type": "MARKET",
         "positionSide": to_position(side),
         "quantity": quantity,
-        "newClientOrderId": f"{side}_{symbol}_{time.time()}",
+        "id": f"{side}_{symbol}_{time.time()}",
     }
 
 def round_precision(num: float) -> float:

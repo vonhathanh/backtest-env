@@ -6,6 +6,7 @@
       "tf": "1h",
       "name": "Agent 1",
       "strategy": "Base",
+      "init_balance": 100000,
       "start": 1580572800000,
       "end": 0
     },
@@ -14,6 +15,7 @@
       "tf": "1h",
       "name": "Agent 2",
       "strategy": "Baseline",
+      "init_balance": 100000,
       "start": 0,
       "end": 0
     }

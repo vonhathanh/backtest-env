@@ -1,3 +1,6 @@
+from dataclasses import dataclass
+
+@dataclass
 class Position:
     long: float = 0.0
     short: float = 0.0
@@ -7,12 +10,12 @@ class Position:
 
 class Backend:
 
-    pending_orders: list = []
-    position: Position
+    pending_orders = {}
+    position: Position = Position(0, 0)
     # available cash (in $)
     balance: float = 0.0
 
-    def get_pending_orders(self) -> list:
+    def get_pending_orders(self) -> dict:
         return self.pending_orders
 
     def get_positions(self) -> Position:
@@ -22,7 +25,14 @@ class Backend:
         return self.balance
 
     def add_orders(self, orders: list):
-        self.pending_orders += orders
+        for order in orders:
+            self.pending_orders[order["id"]] = order
+
+    def remove_order(self, order: dict):
+        del self.pending_orders[order["id"]]
 
     def get_prices(self, size: int=1):
         pass
+
+    def get_total_wealth(self, price: float):
+        return self.balance + self.position.long * price - self.position.short * price

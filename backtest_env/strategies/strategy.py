@@ -16,7 +16,7 @@ class Strategy:
         # inspect new input data: prices, indicators,... from agent
         # create orders if necessary
         # order can be normal buy/sell order or a special action such as cancel orders, close positions
-        pass
+        return []
 
     @classmethod
     def from_cfg(cls: Type[T], params):
