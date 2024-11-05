@@ -1,4 +1,7 @@
-class TrendFollower:
+from backtest_env.strategies import Strategy
+
+
+class TrendFollower(Strategy):
     """
     1) Open both long and short at daily candle close price
     2) Place limit long orders at the upper side of the entry price.
