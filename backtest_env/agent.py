@@ -22,6 +22,7 @@ class Agent(Backend):
         self.data = None
         # init agent's strategy
         self.strategy = STRATEGIES[params["strategy"]].from_cfg(params)
+        self.strategy.set_backend(self)
         # agent also has a queue to process event from the engine
         self.queue = None
         # index of current data point, data usually be time-series type
@@ -39,7 +40,7 @@ class Agent(Backend):
             # process events based on new data, check if an order can be filled/stopped, update pnl
             self.process_events()
             # strategy will determine whether there is a trading opportunity or not
-            orders = self.strategy.run(self)
+            orders = self.strategy.run()
             if orders:
                 print(f"{orders=}")
                 # submit orders using the dispatcher
@@ -112,4 +113,4 @@ class Agent(Backend):
             self.position.short += order["quantity"]
         # subtract the amount of cash required for order
         self.balance -= required_cash
-        print(f"position: {self.position}, balance: {self.balance}, total asset: {self.get_total_wealth(price)}")
+        print(f"position: {self.position}, balance: {self.balance}")

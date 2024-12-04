@@ -9,14 +9,18 @@ class Strategy:
     # contains logics to enter/exit trades, close positions
     def __init__(self, params: dict = None):
         self.params = params
+        self.backend: Backend = None
 
-    def run(self, backend: Backend):
+    def run(self):
         # agent serves as the backend for strategy to query data
         # strategy will: validate agent's state: orders, positions,...
         # inspect new input data: prices, indicators,... from agent
         # create orders if necessary
         # order can be normal buy/sell order or a special action such as cancel orders, close positions
         return []
+
+    def set_backend(self, backend: Backend):
+        self.backend = backend
 
     @classmethod
     def from_cfg(cls: Type[T], params):
