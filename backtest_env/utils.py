@@ -1,5 +1,6 @@
 import json
 import time
+from typing import Any
 
 import numpy as np
 
@@ -19,7 +20,12 @@ def load_data(data_dir: str, symbol: str, tf: str, start: int, end: int) -> np.n
     return data[mask]
 
 
-def load_params(config_file_path: str):
+def load_params(config_file_path: str) -> dict[str, Any]:
+    """
+    load config from configs.json file into memory, result is a dictionary
+    :param config_file_path: directory that store config file
+    :return: configs dict
+    """
     with open(config_file_path, "r") as f:
         configs = json.load(f)
     return configs
@@ -45,7 +51,15 @@ def get_tp(price: float, percent: float, side: str) -> float:
     """
     return price * (1 + percent) if side == "BUY" else price * (1 - percent)
 
-def market_order(symbol: str, side: str, price: float, quantity: float):
+def market_order(symbol: str, side: str, price: float, quantity: float) -> dict[str, Any]:
+    """
+    create market order (instant filled order)
+    :param symbol: name of the trading pair: BNBUSDT, BTCUSDT...
+    :param side: order side, can be: BUY, SELL
+    :param price: entry price of the order
+    :param quantity: how much token we want to buy/sell
+    :return: dictionary contains all valid parameters for the server to fill the order for us
+    """
     price = round_precision(price)
     quantity = round_precision(quantity)
     return {
@@ -62,4 +76,5 @@ def round_precision(num: float) -> float:
     return num
 
 def to_position(side: str) -> str:
+    # convert order side to position side
     return LONG if side == BUY else SHORT

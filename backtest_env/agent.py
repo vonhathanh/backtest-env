@@ -24,7 +24,7 @@ class Agent(Backend):
         self.strategy = STRATEGIES[params["strategy"]].from_cfg(params)
         # agent also has a queue to process event from the engine
         self.queue = None
-
+        # index of current data point, data usually be time-series type
         self.cur_idx = -1
 
     def run(self, shape):
@@ -54,11 +54,14 @@ class Agent(Backend):
         pass
 
     def step(self) -> bool:
+        # moves to the next data point
         self.cur_idx += 1
         return self.cur_idx < len(self.data)
 
     def process_events(self):
-        _ = list(map(self.process_order, list(self.pending_orders.values())))
+        # call process_order() repeatedly, each process_order() can only handle one order
+        # why don't we just use for loop here? I forgot why, dear God please help me to remember
+        list(map(self.process_order, list(self.pending_orders.values())))
 
 
     def process_order(self, order: dict):
