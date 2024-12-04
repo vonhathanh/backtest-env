@@ -23,24 +23,37 @@ class TrendFollower(Strategy):
         self.grid_size = params["grid_size"]
         self.trading_size = params["trading_size"]
 
-    def run(self, backend: Backend):
-        pending_orders = backend.get_pending_orders()
-        positions = backend.get_positions()
+    def run(self):
+        pending_orders = self.backend.get_pending_orders()
+        positions = self.backend.get_positions()
         if self.is_episode_end():
             self.update_grid_interval()
             # close all orders and positions
-            backend.cancel_all_pending_orders()
-            backend.close_all_positions()
+            self.backend.cancel_all_pending_orders()
+            self.backend.close_all_positions()
         else:
             # start new grid or update the current grid
             if self.is_grid_empty():
                 self.start_new_grid()
             else:
-                self.update_grid()
+                self.update_grid(pending_orders)
 
     def start_new_grid(self):
         # get latest close price
-        price = backend.get_prices()
+        price = self.backend.get_prices()
         # place grid orders
-        self.place_grid_orders(price, BUY)
-        self.place_sell_orders(price, SELL)
+        self.place_grid_orders(price)
+
+    def place_grid_orders(self, price):
+        # place long and short grid orders here
+        pass
+
+    def update_grid(self, pending_orders):
+        # split orders into two types
+        long_orders, short_orders = self.split_orders(pending_orders)
+        # check if any order is filled, if yes, refill orders depend on order type
+        if len(long_orders) < self.grid_size:
+            self.fill_missing_order(long_orders, BUY)
+
+        if len(short_orders) < self.grid_size:
+            self.fill_missing_order(short_orders, SELL)
