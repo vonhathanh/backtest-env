@@ -3,7 +3,7 @@ from typing import Optional
 
 import numpy as np
 
-from backtest_env.constants import BUY
+from backtest_env.constants import BUY, SELL
 
 
 @dataclass
@@ -93,8 +93,14 @@ class Backend:
               f"position: {self.position}, "
               f"total balance: {self.get_total_wealth()}")
 
-    def get_pending_orders(self) -> dict:
-        return self.pending_orders
+    def get_pending_orders(self, is_split=False) -> list[Order] | tuple[list[Order], list[Order]]:
+        if is_split:
+            # split the orders into two smaller lists with different side
+            long_orders = [order for order in self.pending_orders.values() if order.side == BUY]
+            short_orders = [order for order in self.pending_orders.values() if order.side == SELL]
+            return long_orders, short_orders
+
+        return list(self.pending_orders.values())
 
     def get_positions(self) -> Position:
         return self.position

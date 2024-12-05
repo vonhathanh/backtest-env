@@ -3,18 +3,9 @@
   "agents": [
     {
       "symbol": "BNBUSDT",
-      "tf": "1h",
+      "tf": "1m",
       "name": "Agent 1",
-      "strategy": "Base",
-      "init_balance": 100000,
-      "start": 1580572800000,
-      "end": 0
-    },
-    {
-      "symbol": "BTCUSDT",
-      "tf": "1h",
-      "name": "Agent 2",
-      "strategy": "Baseline",
+      "strategy": "TrendFollower",
       "init_balance": 100000,
       "start": 0,
       "end": 0

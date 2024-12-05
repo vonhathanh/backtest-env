@@ -37,8 +37,11 @@ class TrendFollower(Strategy):
         self.update_grid()
 
     def is_episode_end(self) -> bool:
-        # check if current candle is the first candle in daily candle (7:00 AM GMT)
-        pass
+        # check if current candle is the first candle in daily candle (00:00:00 AM GMT)
+        price = self.backend.get_prices()
+        # TODO: check if all daily candles start at 00:00::00 UTC
+        # price[0] = open time, time is in millisecond so we mod 86400*1000
+        return price[0] % 86_400_000 == 0 or self.backend.cur_idx == 0
 
     def update_grid_interval(self):
         # calculate average price change in hours, minutes and update the interval attribute
@@ -58,7 +61,7 @@ class TrendFollower(Strategy):
 
     def update_grid(self):
         # split orders into two types
-        long_orders, short_orders = self.backend.get_pending_orders()
+        long_orders, short_orders = self.backend.get_pending_orders(is_split=True)
         # place grid orders
         self.place_grid_orders(long_orders, BUY)
         self.place_grid_orders(short_orders, SELL)
