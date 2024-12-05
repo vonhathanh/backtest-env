@@ -24,19 +24,28 @@ class TrendFollower(Strategy):
         self.trading_size = params["trading_size"]
 
     def run(self):
-        pending_orders = self.backend.get_pending_orders()
-        positions = self.backend.get_positions()
         if self.is_episode_end():
             self.update_grid_interval()
             # close all orders and positions
             self.backend.cancel_all_pending_orders()
             self.backend.close_all_positions()
+
+        # start new grid or update the current grid
+        if self.is_grid_empty():
+            self.start_new_grid()
         else:
-            # start new grid or update the current grid
-            if self.is_grid_empty():
-                self.start_new_grid()
-            else:
-                self.update_grid(pending_orders)
+            self.update_grid()
+
+    def is_episode_end(self) -> bool:
+        # check if current candle is the first candle in daily candle (7:00 AM GMT)
+        pass
+
+    def update_grid_interval(self):
+        # calculate average price change in hours, minutes and update the interval attribute
+        pass
+
+    def is_grid_empty(self):
+        pass
 
     def start_new_grid(self):
         # get latest close price
@@ -48,9 +57,9 @@ class TrendFollower(Strategy):
         # place long and short grid orders here
         pass
 
-    def update_grid(self, pending_orders):
+    def update_grid(self):
         # split orders into two types
-        long_orders, short_orders = self.split_orders(pending_orders)
+        long_orders, short_orders = self.backend.get_pending_orders()
         # check if any order is filled, if yes, refill orders depend on order type
         if len(long_orders) < self.grid_size:
             self.fill_missing_order(long_orders, BUY)
