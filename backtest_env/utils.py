@@ -5,6 +5,8 @@ from typing import Any
 import numpy as np
 
 from os.path import join
+
+from backtest_env.backend import Order
 from backtest_env.constants import *
 
 
@@ -51,26 +53,19 @@ def get_tp(price: float, percent: float, side: str) -> float:
     """
     return price * (1 + percent) if side == "BUY" else price * (1 - percent)
 
-def market_order(symbol: str, side: str, price: float, quantity: float) -> dict[str, Any]:
+def market_order(symbol: str, side: str, price: float, quantity: float) -> Order:
     """
     create market order (instant filled order)
     :param symbol: name of the trading pair: BNBUSDT, BTCUSDT...
     :param side: order side, can be: BUY, SELL
     :param price: entry price of the order
     :param quantity: how much token we want to buy/sell
-    :return: dictionary contains all valid parameters for the server to fill the order for us
+    :return: Order object contains all parameters for the server to fill the order for us
     """
     price = round_precision(price)
     quantity = round_precision(quantity)
-    return {
-        "price": price,
-        "symbol": symbol,
-        "side": side,
-        "type": "MARKET",
-        "positionSide": to_position(side),
-        "quantity": quantity,
-        "id": f"{side}_{symbol}_{time.time()}",
-    }
+    return Order(price, symbol, side, "MARKET", to_position(side), quantity, f"{side}_{symbol}_{time.time()}")
+
 
 def round_precision(num: float) -> float:
     return num

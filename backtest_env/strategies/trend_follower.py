@@ -1,5 +1,7 @@
-from backtest_env.backend import Backend
+import backtest_env.utils as utils
+from backtest_env.backend import Order
 from backtest_env.strategies import Strategy
+from backtest_env.constants import BUY, SELL
 
 
 class TrendFollower(Strategy):
@@ -22,6 +24,7 @@ class TrendFollower(Strategy):
         self.interval = 0.0
         self.grid_size = params["grid_size"]
         self.trading_size = params["trading_size"]
+        self.symbol = params["symbol"]
 
     def run(self):
         if self.is_episode_end():
@@ -31,10 +34,7 @@ class TrendFollower(Strategy):
             self.backend.close_all_positions()
 
         # start new grid or update the current grid
-        if self.is_grid_empty():
-            self.start_new_grid()
-        else:
-            self.update_grid()
+        self.update_grid()
 
     def is_episode_end(self) -> bool:
         # check if current candle is the first candle in daily candle (7:00 AM GMT)
@@ -44,25 +44,21 @@ class TrendFollower(Strategy):
         # calculate average price change in hours, minutes and update the interval attribute
         pass
 
-    def is_grid_empty(self):
-        pass
+    def place_grid_orders(self, orders: list[Order], side: str):
+        # check if any order is filled, if yes, refill orders depend on order type
+        num_unfill_orders = self.grid_size - len(orders)
+        assert num_unfill_orders >= 0
+        # determine entry price for new order, use current price if grid is empty
+        # else use the latest order's price as starting point
+        price = self.backend.get_prices() if len(orders) == 0 else orders[-1].id
+        for i in range(0, num_unfill_orders):
+            price = utils.get_tp(price, self.interval, side)
+            self.backend.add_single_order(utils.market_order(self.symbol, side, price, self.trading_size))
 
-    def start_new_grid(self):
-        # get latest close price
-        price = self.backend.get_prices()
-        # place grid orders
-        self.place_grid_orders(price)
-
-    def place_grid_orders(self, price):
-        # place long and short grid orders here
-        pass
 
     def update_grid(self):
         # split orders into two types
         long_orders, short_orders = self.backend.get_pending_orders()
-        # check if any order is filled, if yes, refill orders depend on order type
-        if len(long_orders) < self.grid_size:
-            self.fill_missing_order(long_orders, BUY)
-
-        if len(short_orders) < self.grid_size:
-            self.fill_missing_order(short_orders, SELL)
+        # place grid orders
+        self.place_grid_orders(long_orders, BUY)
+        self.place_grid_orders(short_orders, SELL)

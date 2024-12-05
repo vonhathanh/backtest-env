@@ -9,7 +9,6 @@ class Baseline(Strategy):
     def __init__(self, params):
         super().__init__(params)
 
-
     def run(self) -> list:
         pending_orders = self.backend.get_pending_orders()
         positions = self.backend.get_positions()
