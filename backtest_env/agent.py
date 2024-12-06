@@ -67,12 +67,13 @@ class Agent(Backend):
         # we assign this task to Agent because we want Strategy to have single responsibility: create orders,
         # Strategy can also access to current orders/positions, it depends on strategy's logics
         # ideally, we want a stateless Strategy so it can be used in other modules
+
         if order.type == "MARKET":
-            self.fill_order(order)
+            self.handle_market_order(order)
         elif order.type == "LIMIT":
-            pass
+            self.handle_limit_order(order)
         elif order.type == "STOP":
-            pass
+            self.handle_stop_order(order)
         elif order.type == "TAKE_PROFIT":
             pass
         elif order.type == "STOP_MARKET":
@@ -84,3 +85,31 @@ class Agent(Backend):
         else:
             raise ValueError("order type must be: "
                              "MARKET, LIMIT, STOP, TAKE_PROFIT, STOP_MARKET, TAKE_PROFIT_MARKET, TRAILING_STOP_MARKET")
+
+    def handle_market_order(self, order: Order):
+        # use open price because order was submitted with close price of the previous candle
+        price = self.get_prices()[1] if not order.price else order.price
+        # determine the amount cash needed for the order
+        required_cash = order.quantity * price
+        # if not enough cash -> raise an error
+        if required_cash > self.get_balance():
+            raise ValueError(f"{order=} can't be filled, reason, insufficient fund")
+        else:
+            print(f"order {order.id} filled")
+            self.update_position(order, required_cash)
+        del self.pending_orders[order.id]
+
+
+    def handle_limit_order(self, order):
+        pass
+
+    def handle_stop_order(self, order):
+        p = self.get_prices()
+        # move from high to low to check if the order price is in this range
+        high, low = p[2], p[3]
+        # high > order price which means order can be filled
+        if order.price <= high and order.side == "BUY":
+            self.handle_market_order(order)
+        # low < order price which means order can be filled
+        if order.price >= low and order.side == "SELL":
+            self.handle_market_order(order)

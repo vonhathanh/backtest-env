@@ -1,7 +1,7 @@
 import random
 
 from backtest_env.strategies.strategy import Strategy
-from backtest_env.utils import market_order
+from backtest_env.utils import create_order
 from backtest_env.constants import *
 
 class Baseline(Strategy):
@@ -18,6 +18,6 @@ class Baseline(Strategy):
 
         side = BUY if random.random() <= 0.5 else SELL
 
-        order = market_order(self.params["symbol"], side, self.backend.get_prices()[4], 1.0)
+        order = create_order("MARKET", self.params["symbol"], side, self.backend.get_prices()[4], 1.0)
 
         return [order]

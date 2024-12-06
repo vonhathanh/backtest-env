@@ -8,7 +8,11 @@
       "strategy": "TrendFollower",
       "init_balance": 100000,
       "start": 0,
-      "end": 0
+      "end": 0,
+      "grid_size": 10,
+      "trading_size": 100,
+      "min_num_daily_candles": 10,
+      "step": 6
     }
   ]
 }

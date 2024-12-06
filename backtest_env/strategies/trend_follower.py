@@ -1,3 +1,6 @@
+import numpy as np
+from datetime import datetime
+
 import backtest_env.utils as utils
 from backtest_env.backend import Order
 from backtest_env.strategies import Strategy
@@ -21,31 +24,78 @@ class TrendFollower(Strategy):
     """
     def __init__(self, params):
         super().__init__(params)
-        self.interval = 0.0
+        self.interval = 0.005
         self.grid_size = params["grid_size"]
         self.trading_size = params["trading_size"]
         self.symbol = params["symbol"]
+        self.min_num_daily_candles = params["min_num_daily_candles"]
+        # interval = daily_change/step
+        self.step = params["step"]
+        # three ways to calculate self.interval
+        # 1. Hard coded
+        # 2. Add daily candle data and inference the interval from that
+        # 3. Store daily candles in self and derive the interval
+        # we'll go with 3rd method, is complicated, but works in both real and simulated env
+        self.daily_candles = []
+        # parameters of daily candle
+        self.high = 0.0
+        self.low = 2 << 64 # init low to maximum value of int64
+        self.open = 0.0
+        self.close = 0.0
 
     def run(self):
+        self.update_grid_interval()
+
         if self.is_episode_end():
-            self.update_grid_interval()
+            price = self.backend.get_prices()
+            print(f"start new daily candle at: {datetime.fromtimestamp(int(price[0])//1000)}")
+            print(f"previous candle is: {self.daily_candles[-1] if len(self.daily_candles) > 0 else None}")
             # close all orders and positions
             self.backend.cancel_all_pending_orders()
             self.backend.close_all_positions()
 
-        # start new grid or update the current grid
-        self.update_grid()
+        # only start the strategy when we've collected enough daily candles
+        if len(self.daily_candles) >= self.min_num_daily_candles:
+            # start new grid or update the current grid
+            self.update_grid()
 
     def is_episode_end(self) -> bool:
-        # check if current candle is the first candle in daily candle (00:00:00 AM GMT)
+        # check if current candle is the first candle in the day (open time = 00:00:00 AM GMT)
         price = self.backend.get_prices()
         # TODO: check if all daily candles start at 00:00::00 UTC
         # price[0] = open time, time is in millisecond so we mod 86400*1000
         return price[0] % 86_400_000 == 0 or self.backend.cur_idx == 0
 
     def update_grid_interval(self):
-        # calculate average price change in hours, minutes and update the interval attribute
-        pass
+        """
+        incharge of add new daily candle and calculate average price change based on those candles
+        """
+        candle = self.backend.get_prices()
+        # maintain a running high and low to store the highest, lowest price in a day
+        self.high = max(self.high, candle[2])
+        self.low = min(self.low, candle[3])
+
+        # to check for open and close time in a daily candle, just mod them with 86_400_000
+        if candle[0] % 86_400_000 == 0:
+            self.open = candle[1]
+        # close time is minus by 1 millisecond, so we add 1 for it
+        if (int(candle[5]) + 1) % 86_400_000 == 0:
+            self.close = candle[4]
+            # edge case, no open candle
+            if self.open == 0:
+                self.open = self.close
+            # store what we have so far
+            self.daily_candles.append((self.open, self.high, self.low, self.close))
+            # reset variables
+            self.high, self.low = 0.0, 2 << 64
+
+        # calculate grid interval if we've gathered enough candles
+        if len(self.daily_candles) >= self.min_num_daily_candles:
+            prices = np.array(self.daily_candles[-self.min_num_daily_candles:])
+            # our formula for determine change per day is: (high - low) / open / step
+            changes = np.abs(prices[:, 1] - prices[:, 2]) / prices[:, 0]
+            # interval can't be too small, so we set 0.005 as minimum
+            self.interval = round(max(np.mean(changes) / self.step, 0.005), 3)
 
     def place_grid_orders(self, orders: list[Order], side: str):
         # check if any order is filled, if yes, refill orders depend on order type
@@ -53,10 +103,12 @@ class TrendFollower(Strategy):
         assert num_unfill_orders >= 0
         # determine entry price for new order, use current price if grid is empty
         # else use the latest order's price as starting point
-        price = self.backend.get_prices() if len(orders) == 0 else orders[-1].id
+        price = self.backend.get_last_close_price() if len(orders) == 0 else orders[-1].price
+        if num_unfill_orders > 0:
+            print(f"add new {num_unfill_orders} {side} orders to the backend")
         for i in range(0, num_unfill_orders):
             price = utils.get_tp(price, self.interval, side)
-            self.backend.add_single_order(utils.market_order(self.symbol, side, price, self.trading_size))
+            self.backend.add_single_order(utils.create_order("STOP", self.symbol, side, price, self.trading_size))
 
 
     def update_grid(self):

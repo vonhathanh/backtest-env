@@ -39,14 +39,14 @@ class Backend:
     data = None
 
     def add_single_order(self, order: Order):
+        # print(f"{order=} added")
         self.pending_orders[order.id] = order
 
     def add_orders(self, orders: list[Order]):
         [self.add_single_order(order) for order in orders]
 
     def cancel_all_pending_orders(self):
-        for order_id in self.pending_orders.keys():
-            self.cancel_order(order_id)
+        self.pending_orders = {}
 
     def cancel_order(self, order_id):
         # in reality, call OrderDispatcher.cancel()
@@ -64,19 +64,7 @@ class Backend:
             self.balance -= self.position.short * price
             self.position.short = 0.0
 
-    def fill_order(self, order: Order):
-        # use open price because order was submitted with close price of the previous candle
-        price = self.get_prices()[1] if not order.price else order.price
-        # determine the amount cash needed for the order
-        required_cash = order.quantity * price
-        # if not enough cash -> raise an error
-        if required_cash > self.get_balance():
-            print(f"{order=} can't be filled, reason, insufficient fund")
-        else:
-            print(f"order {order.id} filled")
-            self.update_position(order, required_cash)
-
-        del self.pending_orders[order.id]
+        print(f"balance after close all position: {self.balance}")
 
     def update_position(self, order: Order, required_cash: float):
         # open/update position based on order symbol and side
