@@ -1,8 +1,8 @@
-from multiprocessing import shared_memory, Pool
-from backtest_env.agent import Agent
-from backtest_env.constants import DATA_DIR
+from multiprocessing import shared_memory, Process
 import numpy as np
 
+from backtest_env.agent import Agent
+from backtest_env.constants import DATA_DIR
 from backtest_env.utils import load_data
 
 
@@ -20,11 +20,14 @@ class Env:
         self.shared_data = {}
 
     def run(self):
-        # create a pool of worker processes and start agent's main loop
-        with Pool(processes=len(self.agents)) as pool:
-            for i in range(len(self.agents)):
-                _, data_size = self.shared_data[self.agents[i].shm_id]
-                pool.map(self.agents[i].run, (data_size,))
+        for i in range(len(self.agents)):
+            _, data_size = self.shared_data[self.agents[i].shm_id]
+            p = Process(target=self.agents[i].run, args=(data_size, ))
+            p.start()
+            self.processes.add(p)
+
+        for p in self.processes:
+            p.join()
 
         # free resources
         for k, v in self.shared_data.items():
