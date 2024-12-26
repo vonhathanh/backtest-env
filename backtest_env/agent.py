@@ -20,10 +20,10 @@ class Agent(Backend):
         # init agent's strategy
         self.strategy = STRATEGIES[params["strategy"]].from_cfg(params)
         self.strategy.set_backend(self)
-        # agent also has a
-        self.event_subsribers = []
+        # agent also has a queue to process event from the engine
+        self.queue = None
 
-    def run(self):
+    def run(self, shape):
         shm = shared_memory.SharedMemory(name=self.shm_id)
         self.data = np.ndarray(shape, dtype=np.float64, buffer=shm.buf)
 
