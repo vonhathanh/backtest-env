@@ -1,18 +1,24 @@
 {
-  "default": {},
-  "agents": [
-    {
-      "symbol": "BNBUSDT",
-      "tf": "1m",
-      "name": "Agent 1",
-      "strategy": "TrendFollower",
-      "init_balance": 100000,
-      "start": 0,
-      "end": 0,
-      "grid_size": 10,
-      "trading_size": 100,
-      "min_num_daily_candles": 10,
-      "step": 6
-    }
-  ]
+  "TrendFollower": {
+    "data_dir": "./data",
+    "symbol": "BNBUSDT",
+    "tf": "1m",
+    "name": "Agent 1",
+    "init_balance": 100000,
+    "start": 0,
+    "end": 0,
+    "grid_size": 10,
+    "trading_size": 100,
+    "min_num_daily_candles": 10,
+    "step": 6
+  },
+  "Baseline": {
+    "data_dir": "./data",
+    "symbol": "BNBUSDT",
+    "tf": "1m",
+    "name": "Agent 2",
+    "init_balance": 100000,
+    "start": 0,
+    "end": 0
+  }
 }

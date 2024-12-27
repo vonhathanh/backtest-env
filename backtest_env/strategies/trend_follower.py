@@ -44,11 +44,15 @@ class TrendFollower(Strategy):
         self.close = 0.0
 
     def run(self):
-        self.update_grid_interval()
+        while self.data.step():
+            self.backend.process_pending_orders()
+            self.update_grid_interval()
+            self.update()
 
+    def update(self):
         if self.is_episode_end():
-            price = self.backend.get_prices()
-            print(f"start new daily candle at: {datetime.fromtimestamp(int(price[0])//1000)}")
+            price = self.data.get_current_price()
+            print(f"start new daily candle at: {datetime.fromtimestamp(int(price.open_time)//1000)}")
             print(f"previous candle is: {self.daily_candles[-1] if len(self.daily_candles) > 0 else None}")
             # close all orders and positions
             self.backend.cancel_all_pending_orders()
@@ -61,26 +65,26 @@ class TrendFollower(Strategy):
 
     def is_episode_end(self) -> bool:
         # check if current candle is the first candle in the day (open time = 00:00:00 AM GMT)
-        price = self.backend.get_prices()
+        price = self.data.get_current_price()
         # TODO: check if all daily candles start at 00:00::00 UTC
         # price[0] = open time, time is in millisecond so we mod 86400*1000
-        return price[0] % 86_400_000 == 0 or self.backend.cur_idx == 0
+        return price.open_time % 86_400_000 == 0 or self.data.idx == 0
 
     def update_grid_interval(self):
         """
         incharge of add new daily candle and calculate average price change based on those candles
         """
-        candle = self.backend.get_prices()
+        candle = self.data.get_current_price()
         # maintain a running high and low to store the highest, lowest price in a day
-        self.high = max(self.high, candle[2])
-        self.low = min(self.low, candle[3])
+        self.high = max(self.high, candle.high)
+        self.low = min(self.low, candle.low)
 
         # to check for open and close time in a daily candle, just mod them with 86_400_000
-        if candle[0] % 86_400_000 == 0:
-            self.open = candle[1]
+        if candle.open_time % 86_400_000 == 0:
+            self.open = candle.open
         # close time is minus by 1 millisecond, so we add 1 for it
-        if (int(candle[5]) + 1) % 86_400_000 == 0:
-            self.close = candle[4]
+        if (int(candle.close_time) + 1) % 86_400_000 == 0:
+            self.close = candle.close
             # edge case, no open candle
             if self.open == 0:
                 self.open = self.close
@@ -103,17 +107,17 @@ class TrendFollower(Strategy):
         assert num_unfill_orders >= 0
         # determine entry price for new order, use current price if grid is empty
         # else use the latest order's price as starting point
-        price = self.backend.get_last_close_price() if len(orders) == 0 else orders[-1].price
+        price = self.data.get_close_price() if len(orders) == 0 else orders[-1].price
         if num_unfill_orders > 0:
             print(f"add new {num_unfill_orders} {side} orders to the backend")
         for i in range(0, num_unfill_orders):
             price = utils.get_tp(price, self.interval, side)
-            self.backend.add_single_order(utils.create_order("STOP", self.symbol, side, price, self.trading_size))
+            self.backend.add_order(utils.create_order("STOP", self.symbol, side, price, self.trading_size))
 
 
     def update_grid(self):
         # split orders into two types
-        long_orders, short_orders = self.backend.get_pending_orders(is_split=True)
+        long_orders, short_orders = self.backend.get_pending_orders_with_side()
         # place grid orders
         self.place_grid_orders(long_orders, BUY)
         self.place_grid_orders(short_orders, SELL)

@@ -1,27 +1,27 @@
-from typing import TypeVar, Type
-
 from backtest_env.backend import Backend
+from abc import ABC, abstractmethod
 
-T = TypeVar("T", bound="Strategy")
+from backtest_env.event_emitter import EventEmitter
+from backtest_env.price import PriceData
 
-class Strategy:
+
+class Strategy(ABC):
     # base class for all strategies
     # contains logics to enter/exit trades, close positions
     def __init__(self, params: dict = None):
         self.params = params
-        self.backend: Backend = None
+        self.data = PriceData(params)
+        self.backend = Backend(params["init_balance"], self.data)
+        # determine whether the strategy is being paused or not
+        self.is_paused = False
+        # used to emit events to websocket client or other subscribers
+        self.event_emitter = EventEmitter()
 
+
+    @abstractmethod
     def run(self):
-        # agent serves as the backend for strategy to query data
-        # strategy will: validate agent's state: orders, positions,...
-        # inspect new input data: prices, indicators,... from agent
+        # strategy will: validate system's state: orders, positions,...
+        # inspect new input data: prices, indicators,... from backend
         # create orders if necessary
         # order can be normal buy/sell order or a special action such as cancel orders, close positions
-        return []
-
-    def set_backend(self, backend: Backend):
-        self.backend = backend
-
-    @classmethod
-    def from_cfg(cls: Type[T], params):
-        return cls(params)
+        pass

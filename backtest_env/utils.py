@@ -7,7 +7,7 @@ import numpy as np
 
 from os.path import join
 
-from backtest_env.backend import Order
+from backtest_env.order import Order
 from backtest_env.constants import *
 
 

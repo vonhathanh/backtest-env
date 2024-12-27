@@ -9,15 +9,20 @@ class Baseline(Strategy):
     def __init__(self, params):
         super().__init__(params)
 
-    def run(self) -> list:
+    def run(self):
+        while self.data.step():
+            self.backend.process_pending_orders()
+            self.update()
+
+    def update(self):
         pending_orders = self.backend.get_pending_orders()
         positions = self.backend.get_positions()
 
         if len(pending_orders) >= 2 or len(positions) >= 2:
-            return []
+            return
 
         side = BUY if random.random() <= 0.5 else SELL
 
-        order = create_order("MARKET", self.params["symbol"], side, self.backend.get_prices()[4], 1.0)
+        order = create_order("MARKET", self.params["symbol"], side, self.data.get_close_price(), 1.0)
 
-        return [order]
+        self.backend.add_orders([order])

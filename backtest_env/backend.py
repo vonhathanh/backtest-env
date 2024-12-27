@@ -1,9 +1,8 @@
 from dataclasses import dataclass
-from typing import Optional
 
-import numpy as np
-
-from backtest_env.constants import BUY, SELL
+from backtest_env.constants import BUY
+from backtest_env.order import Order
+from backtest_env.price import PriceData
 
 
 @dataclass
@@ -14,55 +13,95 @@ class Position:
     def __len__(self):
         return 1 - (self.long == 0) + 1 - (self.short == 0)
 
-
-@dataclass
-class Order:
-    price: Optional[float]
-    symbol: str
-    side: str
-    type: str
-    positionSide: Optional[str]
-    quantity: float
-    id: str
+    def close(self):
+        self.long = 0.0
+        self.short = 0.0
 
 
 class Backend:
     # dictionary where key is order id and value is the order parameter
     pending_orders: dict[str, Order] = {}
+    deleted_orders: list[str] = []
     position: Position = Position(0, 0)
     # available cash (in $)
     balance: float = 0.0
-    # index of current data point, data usually be time-series type
-    cur_idx = -1
-    # data will be initialized by env
-    # each item is a list of: (Open time,Open,High,Low,Close,Close time)
-    data = None
 
-    def add_single_order(self, order: Order):
-        # print(f"{order=} added")
+    def __init__(self, balance: float, prices: PriceData):
+        self.balance = balance
+        self.prices = prices
+
+    def add_order(self, order: Order):
         self.pending_orders[order.id] = order
 
     def add_orders(self, orders: list[Order]):
-        [self.add_single_order(order) for order in orders]
+        [self.add_order(order) for order in orders]
 
     def cancel_all_pending_orders(self):
         self.pending_orders = {}
 
     def cancel_order(self, order_id):
-        # in reality, call OrderDispatcher.cancel()
         del self.pending_orders[order_id]
 
+    def remove_processed_orders(self):
+        # delete processed orders
+        for order_id in self.deleted_orders:
+            del self.pending_orders[order_id]
+        self.deleted_orders.clear()
+
+    def process_pending_orders(self):
+        # process all pending orders
+        for order in self.pending_orders.values():
+            if order.type == "MARKET":
+                self.handle_market_order(order)
+            elif order.type == "LIMIT":
+                self.handle_limit_order(order)
+            elif order.type == "STOP":
+                self.handle_stop_order(order)
+            elif order.type == "TAKE_PROFIT":
+                pass
+            elif order.type == "STOP_MARKET":
+                pass
+            elif order.type == "TAKE_PROFIT_MARKET":
+                pass
+            elif order.type == "TRAILING_STOP_MARKET":
+                pass
+            else:
+                raise ValueError("order type must be: "
+                                 "MARKET, LIMIT, STOP, TAKE_PROFIT, STOP_MARKET, TAKE_PROFIT_MARKET, TRAILING_STOP_MARKET")
+        self.remove_processed_orders()
+
+    def handle_market_order(self, order: Order):
+        # determine the amount cash needed for the order
+        required_cash = order.quantity * order.price
+        # if not enough cash -> raise an error
+        if required_cash > self.get_balance():
+            raise ValueError(f"{order=} can't be filled, reason, insufficient fund")
+        else:
+            print(f"order {order.id} filled")
+            self.update_position(order, required_cash)
+
+        self.deleted_orders.append(order.id)
+
+
+    def handle_limit_order(self, order):
+        pass
+
+    def handle_stop_order(self, order):
+        p = self.prices.get_current_price()
+        # move from high to low to check if the order price is in this range
+        # high > order price which means order can be filled
+        if order.price <= p.high and order.side == "BUY":
+            self.handle_market_order(order)
+        # low < order price which means order can be filled
+        if order.price >= p.low and order.side == "SELL":
+            self.handle_market_order(order)
+
     def close_all_positions(self):
-        price = self.get_last_close_price()
+        price = self.prices.get_current_price().close
         # check long & short position !=0
         # if yes, set them to 0 and update balance
-        if self.position.long != 0:
-            self.balance += self.position.long * price
-            self.position.long = 0.0
-
-        if self.position.short != 0:
-            self.balance -= self.position.short * price
-            self.position.short = 0.0
+        self.balance += (self.position.long - self.position.short) * price
+        self.position.close()
 
         print(f"balance after close all position: {self.balance}")
 
@@ -77,18 +116,23 @@ class Backend:
             # so we increase the current balance and position's debt too
             self.position.short += order.quantity
             self.balance += required_cash
-        print(f"Open price: {self.get_last_open_price()}, "
+
+        print(f"Open price: {self.prices.get_current_price().open}, "
               f"position: {self.position}, "
               f"total balance: {self.get_total_wealth()}")
 
-    def get_pending_orders(self, is_split=False) -> list[Order] | tuple[list[Order], list[Order]]:
-        if is_split:
-            # split the orders into two smaller lists with different side
-            long_orders = [order for order in self.pending_orders.values() if order.side == BUY]
-            short_orders = [order for order in self.pending_orders.values() if order.side == SELL]
-            return long_orders, short_orders
+    def get_pending_orders(self):
+        return self.pending_orders
 
-        return list(self.pending_orders.values())
+    def get_pending_orders_with_side(self):
+        longs, shorts = [], []
+        for order in self.pending_orders.values():
+            if order.side == "BUY":
+                longs.append(order)
+            else:
+                shorts.append(order)
+        return longs, shorts
+
 
     def get_positions(self) -> Position:
         return self.position
@@ -97,21 +141,11 @@ class Backend:
         """
         :return: available balance in $ (debt is also included)
         """
-        return self.balance - self.position.short * self.get_last_open_price()
-
-    def get_prices(self, size: int = 1) -> np.ndarray | float:
-        size = min(self.cur_idx, size)
-        return self.data[self.cur_idx - size:self.cur_idx] if size > 1 else self.data[self.cur_idx]
-
-    def get_last_close_price(self) -> float:
-        return self.data[self.cur_idx][4]
-
-    def get_last_open_price(self) -> float:
-        return self.data[self.cur_idx][1]
+        return self.balance - self.position.short * self.prices.get_open_price()
 
     def get_total_wealth(self):
         """
         :return: total balance in $ (long and short position's value are included)
         """
-        price = self.get_last_open_price()
-        return self.balance + self.position.long * price - self.position.short * price
+        price = self.prices.get_open_price()
+        return round(self.balance + (self.position.long - self.position.short) * price, 4)
