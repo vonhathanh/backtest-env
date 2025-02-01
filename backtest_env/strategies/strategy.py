@@ -12,8 +12,6 @@ class Strategy(ABC):
         self.params = params
         self.data = PriceData(params)
         self.backend = Backend(params["init_balance"], self.data)
-        # determine whether the strategy is being paused or not
-        self.is_paused = False
         # used to emit events to websocket client or other subscribers
         self.event_emitter = EventEmitter()
 
