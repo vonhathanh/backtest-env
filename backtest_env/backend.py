@@ -97,13 +97,9 @@ class Backend:
             self.handle_market_order(order)
 
     def close_all_positions(self):
-        price = self.prices.get_current_price().close
-        # check long & short position !=0
-        # if yes, set them to 0 and update balance
+        price = self.prices.get_close_price()
         self.balance += (self.position.long - self.position.short) * price
         self.position.close()
-
-        print(f"balance after close all position: {self.balance}")
 
     def update_position(self, order: Order, required_cash: float):
         # open/update position based on order symbol and side
