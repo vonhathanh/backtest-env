@@ -51,9 +51,6 @@ class TrendFollower(Strategy):
 
     def update(self):
         if self.is_episode_end():
-            price = self.data.get_current_price()
-            print(f"start new daily candle at: {datetime.fromtimestamp(int(price.open_time)//1000)}")
-            print(f"previous candle is: {self.daily_candles[-1] if len(self.daily_candles) > 0 else None}")
             # close all orders and positions
             self.backend.cancel_all_pending_orders()
             self.backend.close_all_positions()
@@ -110,6 +107,7 @@ class TrendFollower(Strategy):
         price = self.data.get_close_price() if len(orders) == 0 else orders[-1].price
         if num_unfill_orders > 0:
             print(f"add new {num_unfill_orders} {side} orders to the backend")
+
         for i in range(0, num_unfill_orders):
             price = utils.get_tp(price, self.interval, side)
             self.backend.add_order(utils.create_order("STOP", self.symbol, side, price, self.trading_size))
