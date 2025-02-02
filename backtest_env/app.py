@@ -1,20 +1,30 @@
-#!/usr/bin/env python
+import multiprocessing
 
-import asyncio
+from fastapi import FastAPI, WebSocket
 
-from websockets.asyncio.server import serve
+event_queue = multiprocessing.Queue()
 
+ws_clients: set[WebSocket] = set()
 
-async def handler(websocket):
-    while True:
-        message = await websocket.recv()
-        print(message)
+app = FastAPI()
 
 
-async def main():
-    async with serve(handler, "", 8001):
-        await asyncio.get_running_loop().create_future()  # run forever
+@app.get("/")
+async def index():
+    return {"status": "OK"}
 
 
-if __name__ == "__main__":
-    asyncio.run(main())
+@app.websocket("/ws")
+async def websocket_connected(websocket: WebSocket):
+    await websocket.accept()
+    await websocket.send_json({"msg": "hello websocket"})
+    ws_clients.add(websocket)
+
+
+async def send_message_to_websocket_client():
+    event = event_queue.get()
+    for client in ws_clients.copy():
+        try:
+            await client.send_text(event)
+        except:
+            ws_clients.remove(client)
