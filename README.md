@@ -1,5 +1,5 @@
 # backtest-env
+- Act as API server, FE call request -> server creates a new back-test process and run with the input params
 
-## How to pass data between backtest env and dashboard?
-  - We store trading history in a json file for future reference
-  - Its simple, easy to implement, scalable to multiple agents
+# Testing
+- Run `python -m pytest` in root folder
