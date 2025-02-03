@@ -12,7 +12,7 @@ from backtest_env.order import Order
 from backtest_env.constants import *
 
 
-def load_data(data_dir: str, symbol: str, tf: str, start: int, end: int = 0) -> np.ndarray:
+def load_price_data(data_dir: str, symbol: str, tf: str, start: int, end: int = 0) -> np.ndarray:
     file_name = join(data_dir, symbol + '_' + tf + '.csv')
     # use np.genfromtxt instead of pandas.read_csv so pandas is not a dependency
     data = np.genfromtxt(file_name, delimiter=',', skip_header=1)
@@ -79,5 +79,5 @@ def get_random_string(length: int = 10) -> str:
     return "".join(random.choice(letters) for _ in range(length))
 
 
-def convert_time_to_nanosecond(date: datetime) -> int:
-    return int(date.strftime("%Y%m%d")) * 1000
+def convert_time_to_nanosecond(date: str, date_format: str = "%M/%d/%Y") -> int:
+    return int(datetime.strptime(date, date_format).timestamp()) * 1000
