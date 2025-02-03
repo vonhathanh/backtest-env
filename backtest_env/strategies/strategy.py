@@ -3,6 +3,7 @@ from typing import TypeVar, Type
 from backtest_env.backend import Backend
 from abc import ABC, abstractmethod
 
+from backtest_env.dto import BacktestParam
 from backtest_env.price import PriceData
 
 T = TypeVar("T", bound="Strategy")
@@ -11,10 +12,9 @@ T = TypeVar("T", bound="Strategy")
 class Strategy(ABC):
     # base class for all strategies
     # contains logics to enter/exit trades, close positions
-    def __init__(self, params: dict = None):
-        self.params = params
-        self.data = PriceData(params)
-        self.backend = Backend(params["init_balance"], self.data)
+    def __init__(self, params: BacktestParam):
+        self.data = PriceData(params.symbol, params.timeframe, params.start_time, params.end_time)
+        self.backend = Backend(params.initial_balance, self.data)
 
     @abstractmethod
     def run(self):
