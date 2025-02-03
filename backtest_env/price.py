@@ -2,6 +2,7 @@ from dataclasses import dataclass
 
 import numpy as np
 
+from backtest_env.constants import DATA_DIR
 from backtest_env.utils import load_data
 
 
@@ -14,14 +15,10 @@ class Price:
     close: float
     close_time: float
 
+
 class PriceData:
-    def __init__(self, params: dict):
-        data_dir, symbol, tf, start, end = (params["data_dir"],
-                                            params["symbol"],
-                                            params["tf"],
-                                            params["start"],
-                                            params["end"])
-        self.prices: np.ndarray = load_data(data_dir, symbol, tf, start, end)
+    def __init__(self, symbol, tf, start_time: str, end_time: str = ""):
+        self.prices: np.ndarray = load_data(DATA_DIR, symbol, tf, start_time, end_time)
         self.idx = 0
 
     def get_current_price(self) -> Price:
