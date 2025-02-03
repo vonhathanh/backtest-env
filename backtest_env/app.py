@@ -18,10 +18,9 @@ class BacktestParam(BaseModel):
 @asynccontextmanager
 async def lifespan(application: FastAPI):
     yield
-    # Clean up resources
+    # Clean up resources on shutdown, must run after "yield" due to "asynccontextmanager" decorator
     for client in ws_clients:
         await client.close()
-
     for process in processes:
         process.join()
 
