@@ -3,7 +3,7 @@ from dataclasses import dataclass
 import numpy as np
 
 from backtest_env.constants import DATA_DIR
-from backtest_env.utils import load_data
+from backtest_env.utils import load_price_data, convert_time_to_nanosecond
 
 
 @dataclass
@@ -18,7 +18,10 @@ class Price:
 
 class PriceData:
     def __init__(self, symbol, tf, start_time: str, end_time: str = ""):
-        self.prices: np.ndarray = load_data(DATA_DIR, symbol, tf, start_time, end_time)
+        start = convert_time_to_nanosecond(start_time)
+        end = convert_time_to_nanosecond(end_time)
+
+        self.prices: np.ndarray = load_price_data(DATA_DIR, symbol, tf, start, end)
         self.idx = 0
 
     def get_current_price(self) -> Price:
