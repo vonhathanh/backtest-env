@@ -1,7 +1,6 @@
 from backtest_env.backend import Backend
 from abc import ABC, abstractmethod
 
-from backtest_env.event_emitter import EventEmitter
 from backtest_env.price import PriceData
 
 
@@ -12,8 +11,6 @@ class Strategy(ABC):
         self.params = params
         self.data = PriceData(params)
         self.backend = Backend(params["init_balance"], self.data)
-        # used to emit events to websocket client or other subscribers
-        self.event_emitter = EventEmitter()
 
 
     @abstractmethod
