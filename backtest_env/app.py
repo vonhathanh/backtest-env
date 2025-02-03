@@ -12,6 +12,7 @@ ws_clients: set[WebSocket] = set()
 
 processes: list[Process] = []
 
+
 @asynccontextmanager
 async def lifespan(application: FastAPI):
     yield
@@ -21,15 +22,19 @@ async def lifespan(application: FastAPI):
     for process in processes:
         process.join()
 
+
 app = FastAPI(lifespan=lifespan)
+
 
 @app.get("/")
 def index():
     return {"msg": "OK"}
 
+
 @app.get("/strategies")
 def index():
     return {"data": list(STRATEGIES.keys())}
+
 
 @app.websocket("/ws")
 async def websocket_connected(websocket: WebSocket):
@@ -37,6 +42,7 @@ async def websocket_connected(websocket: WebSocket):
     await websocket.send_json({"msg": "hello websocket"})
 
     ws_clients.add(websocket)
+
 
 @app.post("/backtest")
 def backtest(params: BacktestParam):
