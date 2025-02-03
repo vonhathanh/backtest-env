@@ -1,5 +1,7 @@
 import time
+
 from multiprocessing import Process, Queue
+from contextlib import asynccontextmanager
 
 from pydantic import BaseModel
 from fastapi import FastAPI, WebSocket
@@ -10,24 +12,24 @@ ws_clients: set[WebSocket] = set()
 
 processes: list[Process] = []
 
-app = FastAPI()
-
-
 class BacktestParam(BaseModel):
     id: int
 
-@app.get("/")
-def index():
-    return {"msg": "OK"}
-
-@app.on_event("shutdown")
-def shutdown():
+@asynccontextmanager
+async def lifespan(application: FastAPI):
+    yield
+    # Clean up resources
     for client in ws_clients:
-        client.close()
+        await client.close()
 
     for process in processes:
         process.join()
 
+app = FastAPI(lifespan=lifespan)
+
+@app.get("/")
+def index():
+    return {"msg": "OK"}
 
 @app.websocket("/ws")
 async def websocket_connected(websocket: WebSocket):
