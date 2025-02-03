@@ -1,6 +1,7 @@
 import json
 import random
 import string
+from datetime import datetime
 from typing import Any
 
 import numpy as np
@@ -11,13 +12,13 @@ from backtest_env.order import Order
 from backtest_env.constants import *
 
 
-def load_data(data_dir: str, symbol: str, tf: str, start: int, end: int) -> np.ndarray:
+def load_data(data_dir: str, symbol: str, tf: str, start: int, end: int = 0) -> np.ndarray:
     file_name = join(data_dir, symbol + '_' + tf + '.csv')
     # use np.genfromtxt instead of pandas.read_csv so pandas is not a dependency
     data = np.genfromtxt(file_name, delimiter=',', skip_header=1)
     # filter data by start and end time
     # data must be in range of [start, end]
-    end = np.inf if end == 0 else end # end's default value is zero, we have to increase it to np.inf if necessary
+    end = np.inf if end == 0 else end  # end's default value is zero, we have to increase it to np.inf if necessary
     mask = (data[:, 0] >= start) & (data[:, 0] <= end)
 
     return data[mask]
@@ -32,6 +33,7 @@ def load_params(config_file_path: str) -> dict[str, Any]:
     with open(config_file_path, "r") as f:
         configs = json.load(f)
     return configs
+
 
 def get_sl(price: float, percent: float, side: str) -> float:
     """
@@ -54,20 +56,28 @@ def get_tp(price: float, percent: float, side: str) -> float:
     """
     return price * (1 + percent) if side == "BUY" else price * (1 - percent)
 
+
 def create_order(order_type: str, symbol: str, side: str, price: float, budget: float):
     price = round_precision(price)
     quantity = round_precision(budget / price)
-    return Order(price, symbol, side, order_type, to_position(side), quantity, f"{side}_{symbol}_{get_random_string(6)}")
+    return Order(price, symbol, side, order_type, to_position(side), quantity,
+                 f"{side}_{symbol}_{get_random_string(6)}")
 
 
-def round_precision(num: float, digits: int=4) -> float:
+def round_precision(num: float, digits: int = 4) -> float:
     return round(num, digits)
+
 
 def to_position(side: str) -> str:
     # convert order side to position side
     return LONG if side == BUY else SHORT
 
+
 def get_random_string(length: int = 10) -> str:
     # choose from all lowercase letters
     letters = string.ascii_lowercase + string.digits + string.ascii_uppercase
     return "".join(random.choice(letters) for _ in range(length))
+
+
+def convert_time_to_nanosecond(date: datetime) -> int:
+    return int(date.strftime("%Y%m%d")) * 1000
