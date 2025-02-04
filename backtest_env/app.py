@@ -55,7 +55,7 @@ def backtest(params: BacktestParam):
     return {"msg": "OK"}
 
 
-def start(args: BacktestParam, strategy_id: str):
+def start(strategy_id: str, args: BacktestParam):
     strategy = STRATEGIES[strategy_id].from_cfg(args)
     strategy.run()
 
