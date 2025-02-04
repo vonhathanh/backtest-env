@@ -24,5 +24,5 @@ class Strategy(ABC):
         pass
 
     @classmethod
-    def from_cfg(cls: Type[T], params):
+    def from_cfg(cls: Type[T], params: BacktestParam):
         return cls(params)
