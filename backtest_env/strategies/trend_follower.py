@@ -26,7 +26,7 @@ class TrendFollower(Strategy):
         super().__init__(params)
         self.interval = 0.005
         self.grid_size = params["grid_size"]
-        self.trading_size = params["trading_size"]
+        self.order_size = params["order_size"]
         self.symbol = params["symbol"]
         self.min_num_daily_candles = params["min_num_daily_candles"]
         # interval = daily_change/step

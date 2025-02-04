@@ -8,7 +8,7 @@ import numpy as np
 
 from os.path import join
 
-from backtest_env.order import Order
+from backtest_env.order import Order, OrderType
 from backtest_env.constants import *
 
 
@@ -57,7 +57,7 @@ def get_tp(price: float, percent: float, side: str) -> float:
     return price * (1 + percent) if side == "BUY" else price * (1 - percent)
 
 
-def create_order(order_type: str, symbol: str, side: str, price: float, budget: float):
+def create_order(order_type: OrderType, symbol: str, side: str, price: float, budget: float):
     price = round_precision(price)
     quantity = round_precision(budget / price)
     return Order(price, symbol, side, order_type, to_position(side), quantity,
