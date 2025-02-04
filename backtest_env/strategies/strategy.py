@@ -11,17 +11,16 @@ T = TypeVar("T", bound="Strategy")
 
 class Strategy(ABC):
     # base class for all strategies
-    # contains logics to enter/exit trades, close positions
     def __init__(self, params: BacktestParam):
         self.data = PriceData(params.symbol, params.timeframe, params.start_time, params.end_time)
         self.backend = Backend(params.initial_balance, self.data)
 
     @abstractmethod
     def run(self):
-        # strategy will: validate system's state: orders, positions,...
+        # strategy will: call self.data.step() to move forward to the next price
+        # validate account's state: orders, positions,...
         # inspect new input data: prices, indicators,... from backend
-        # create orders if necessary
-        # order can be normal buy/sell order or a special action such as cancel orders, close positions
+        # determine the next action: submit buy/sell order, cancel orders, close positions, ...
         pass
 
     @classmethod

@@ -32,7 +32,7 @@ def index():
 
 
 @app.get("/strategies")
-def index():
+def strategies():
     return {"data": list(STRATEGIES.keys())}
 
 

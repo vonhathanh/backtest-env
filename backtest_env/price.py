@@ -42,13 +42,3 @@ class PriceData:
 
     def __getitem__(self, item):
         return self.prices[item]
-
-    # def get_prices(self, size: int = 1) -> np.ndarray | float:
-    #     size = min(self.cur_idx, size)
-    #     return self.data[self.cur_idx - size:self.cur_idx] if size > 1 else self.data[self.cur_idx]
-    #
-    # def get_last_close_price(self) -> float:
-    #     return self.data[self.cur_idx][4]
-    #
-    # def get_last_open_price(self) -> float:
-    #     return self.data[self.cur_idx][1]
