@@ -1,5 +1,6 @@
 import random
 
+from backtest_env.dto import BacktestParam
 from backtest_env.strategies.strategy import Strategy
 from backtest_env.utils import create_order
 from backtest_env.constants import *
@@ -7,13 +8,15 @@ from backtest_env.constants import *
 
 class Baseline(Strategy):
     # this strategy represents as an example of real trading strategy
-    def __init__(self, params):
+    def __init__(self, params: BacktestParam):
         super().__init__(params)
+        self.symbol = params.symbol
 
     def run(self):
         while self.data.step():
             self.backend.process_pending_orders()
             self.update()
+        print("Backtest finished")
 
     def update(self):
         pending_orders = self.backend.get_pending_orders()
@@ -24,6 +27,6 @@ class Baseline(Strategy):
 
         side = BUY if random.random() <= 0.5 else SELL
 
-        order = create_order("MARKET", self.params["symbol"], side, self.data.get_close_price(), 1.0)
+        order = create_order("MARKET", self.symbol, side, self.data.get_close_price(), 1.0)
 
         self.backend.add_orders([order])
