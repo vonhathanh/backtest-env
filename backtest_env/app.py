@@ -3,7 +3,7 @@ from contextlib import asynccontextmanager
 
 from fastapi import FastAPI, WebSocket
 
-from backtest_env.dto import BacktestParam
+from backtest_env.dto import BacktestParam, TrendFollowerParam
 from backtest_env.strategies import STRATEGIES
 
 event_queue = Queue()
@@ -33,7 +33,10 @@ def index():
 
 @app.get("/strategies")
 def strategies():
-    return {"data": list(STRATEGIES.keys())}
+    return {
+        "id": list(STRATEGIES.keys()),
+        "params": [BacktestParam.model_json_schema(), TrendFollowerParam.model_json_schema()]
+    }
 
 
 @app.websocket("/ws")

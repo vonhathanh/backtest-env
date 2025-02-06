@@ -10,3 +10,7 @@ class BacktestParam(BaseModel):
     timeframe: str
     start_time: str
     end_time: Optional[str]
+
+class TrendFollowerParam(BacktestParam):
+    grid_size: int
+    order_size: float
