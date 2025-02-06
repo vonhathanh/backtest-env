@@ -7,5 +7,5 @@
 - Include `-s` to display logs
 
 # Rules
-- When strategy submit orders: it uses close price
-- When position fill an order: it uses open price
+- Submit orders: use close price
+- Fill orders: use open price
