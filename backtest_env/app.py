@@ -33,10 +33,10 @@ def index():
 
 @app.get("/strategies")
 def strategies():
-    return {
-        "id": list(STRATEGIES.keys()),
-        "params": [BacktestParam.model_json_schema(), TrendFollowerParam.model_json_schema()]
-    }
+    data = {}
+    for strategy in STRATEGIES:
+        data[strategy] = STRATEGIES[strategy].get_require_params()
+    return {"data": data}
 
 
 @app.websocket("/ws")

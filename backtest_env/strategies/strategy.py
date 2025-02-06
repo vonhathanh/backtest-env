@@ -27,3 +27,7 @@ class Strategy(ABC):
     @classmethod
     def from_cfg(cls: Type[T], params: BacktestParam):
         return cls(params)
+
+    @classmethod
+    def get_require_params(cls: Type[T]):
+        return {}

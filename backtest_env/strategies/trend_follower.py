@@ -42,6 +42,10 @@ class TrendFollower(Strategy):
         self.open = 0.0
         self.close = 0.0
 
+    @classmethod
+    def get_require_params(cls):
+        return {"grid_size": "int", "order_size": "float"}
+
     def run(self):
         while self.data.step():
             self.order_manager.process_orders()
