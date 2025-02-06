@@ -1,8 +1,7 @@
 import numpy as np
-from datetime import datetime
 
 import backtest_env.utils as utils
-from backtest_env.backend import Order
+from backtest_env.order import OrderType, Order
 from backtest_env.strategies import Strategy
 from backtest_env.constants import BUY, SELL
 
@@ -39,21 +38,21 @@ class TrendFollower(Strategy):
         self.daily_candles = []
         # parameters of daily candle
         self.high = 0.0
-        self.low = 2 << 64 # init low to maximum value of int64
+        self.low = 2 << 64 # init low to 2^64
         self.open = 0.0
         self.close = 0.0
 
     def run(self):
         while self.data.step():
-            self.backend.process_pending_orders()
+            self.order_manager.process_orders()
             self.update_grid_interval()
             self.update()
 
     def update(self):
         if self.is_episode_end():
             # close all orders and positions
-            self.backend.cancel_all_pending_orders()
-            self.backend.close_all_positions()
+            self.order_manager.cancel_all_orders()
+            self.position.close()
 
         # only start the strategy when we've collected enough daily candles
         if len(self.daily_candles) >= self.min_num_daily_candles:
@@ -64,7 +63,7 @@ class TrendFollower(Strategy):
         # check if current candle is the first candle in the day (open time = 00:00:00 AM GMT)
         price = self.data.get_current_price()
         # TODO: check if all daily candles start at 00:00::00 UTC
-        # price[0] = open time, time is in millisecond so we mod 86400*1000
+        # time is in millisecond so we use 86_400_000
         return price.open_time % 86_400_000 == 0 or self.data.idx == 0
 
     def update_grid_interval(self):
@@ -106,16 +105,14 @@ class TrendFollower(Strategy):
         # else use the latest order's price as starting point
         price = self.data.get_close_price() if len(orders) == 0 else orders[-1].price
         if num_unfill_orders > 0:
-            print(f"add new {num_unfill_orders} {side} orders to the backend")
+            print(f"adding new {num_unfill_orders} {side} orders to the backend")
 
         for i in range(0, num_unfill_orders):
             price = utils.get_tp(price, self.interval, side)
-            self.backend.add_order(utils.create_order("STOP", self.symbol, side, price, self.trading_size))
-
+            self.order_manager.add_order(utils.create_order(OrderType.Limit, self.symbol, side, price, self.order_size))
 
     def update_grid(self):
-        # split orders into two types
-        long_orders, short_orders = self.backend.get_pending_orders_with_side()
-        # place grid orders
+        long_orders, short_orders = self.order_manager.split_orders_by_side()
+        # place grid orders at two sides of the current price
         self.place_grid_orders(long_orders, BUY)
         self.place_grid_orders(short_orders, SELL)

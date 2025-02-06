@@ -1,27 +1,46 @@
-from dataclasses import dataclass
-
 from backtest_env.order import Order
+from backtest_env.price import PriceData
 
 
-@dataclass
 class Position:
-    long: float = 0.0
-    short: float = 0.0
-    balance: float = 0.0
+    """
+    Short position/order is handle different from long position
+    1) Fill short order: balance += order.quantity * price, self.short += order.quantity
+    2) Close short position:
+    - we pay the debt by: balance -= self.short * price
+    - reset debt: self.short = 0.0
+    this approach makes our balance higher than what it's actually is,
+    so we need a function to calculate the real balance
+    """
+    def __init__(self, initial_balance, data: PriceData):
+        self.long: float = 0.0
+        self.short: float = 0.0
+        self._balance: float = initial_balance
+        self.data = data
 
     def __len__(self):
-        return 1 - (self.long == 0) + 1 - (self.short == 0)
+        return self.long != 0.0 + self.short != 0.0
 
-    def close(self):
+    def close(self, price: float):
+        profit = price * (self.long - self.short)
+        self._balance += profit
+
         self.long = 0.0
         self.short = 0.0
 
-    def fill(self, order: Order):
-        # determine the amount cash needed for the order
-        required_cash = order.quantity * order.price
-        # if not enough cash -> raise an error
-        if required_cash > self.get_balance():
-            raise ValueError(f"{order=} can't be filled, reason, insufficient fund")
+    def get_balance(self):
+        return self._balance + self.data.get_open_price() * (self.long - self.short)
+
+    def update(self, order: Order, cost: float):
+        if order.side == "BUY":
+            self.long += order.quantity
+            self._balance -= cost
         else:
-            print(f"order {order.id} filled")
-            self.update_position(order, required_cash)
+            self.short += order.quantity
+            self._balance += cost
+
+    def fill(self, order: Order):
+        cost = order.price * order.quantity
+        if cost <= self.get_balance():
+            raise ValueError(f"{order=} can't be filled, reason: insufficient fund")
+        self.update(order, cost)

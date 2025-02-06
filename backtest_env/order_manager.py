@@ -1,10 +1,10 @@
 from backtest_env.order import OrderType, Order
-from backtest_env.position_manager import PositionManager
+from backtest_env.position import Position
 from backtest_env.price import PriceData
 
 
 class OrderManager:
-    def __init__(self, position_mgr: PositionManager, data: PriceData):
+    def __init__(self, position: Position, data: PriceData):
         self.orders = {}
         self.order_handlers = {
             OrderType.Market: self.handle_market_order,
@@ -12,7 +12,7 @@ class OrderManager:
             OrderType.TakeProfit: self.handle_limit_order,
             OrderType.Stoploss: self.handle_limit_order,
         }
-        self.position_mgr = position_mgr
+        self.position = position
         self.data = data
 
     def get_orders(self):
@@ -41,7 +41,7 @@ class OrderManager:
             del self.orders[order_id]
 
     def handle_market_order(self, order: Order):
-        self.position_mgr.fill(order)
+        self.position.fill(order)
 
     def handle_limit_order(self, order):
         self.handle_stop_order(order)
