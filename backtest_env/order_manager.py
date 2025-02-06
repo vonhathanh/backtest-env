@@ -1,9 +1,10 @@
 from backtest_env.order import OrderType, Order
 from backtest_env.position_manager import PositionManager
+from backtest_env.price import PriceData
 
 
 class OrderManager:
-    def __init__(self, position_mgr: PositionManager):
+    def __init__(self, position_mgr: PositionManager, data: PriceData):
         self.orders = {}
         self.order_handlers = {
             OrderType.Market: self.handle_market_order,
@@ -12,6 +13,7 @@ class OrderManager:
             OrderType.Stoploss: self.handle_limit_order,
         }
         self.position_mgr = position_mgr
+        self.data = data
 
     def get_orders(self):
         return list(self.orders.values())
@@ -25,28 +27,27 @@ class OrderManager:
     def cancel_all_orders(self):
         self.orders = {}
 
+    def split_orders_by_side(self):
+        long_orders, short_orders = [], []
+        for order in self.orders.values():
+            long_orders.append(order) if order.side == "BUY" else short_orders.append(order)
+        return long_orders, short_orders
+
     def process_orders(self):
         for order_id in list(self.orders.keys()):
             order = self.orders[order_id]
-            handler = self.order_handlers[order.type]
+            handler = self.order_handlers[order.type] # handler is just a function
             handler(order)
             del self.orders[order_id]
 
     def handle_market_order(self, order: Order):
-        print("handler called", order)
-        # self.position_mgr.fill(order)
-
+        self.position_mgr.fill(order)
 
     def handle_limit_order(self, order):
         self.handle_stop_order(order)
 
     def handle_stop_order(self, order):
-        pass
-        # p = self.prices.get_current_price()
-        # # move from high to low to check if the order price is in this range
-        # # high > order price which means order can be filled
-        # if order.price <= p.high and order.side == "BUY":
-        #     self.handle_market_order(order)
-        # # low < order price which means order can be filled
-        # if order.price >= p.low and order.side == "SELL":
-        #     self.handle_market_order(order)
+        p = self.data.get_current_price()
+        # if price is in the candle body then treats it as market order
+        if p.low <= order.price <= p.high:
+            self.handle_market_order(order)

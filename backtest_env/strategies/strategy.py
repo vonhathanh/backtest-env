@@ -1,6 +1,4 @@
 from typing import TypeVar, Type
-
-from backtest_env.backend import Backend
 from abc import ABC, abstractmethod
 
 from backtest_env.dto import BacktestParam
@@ -15,8 +13,8 @@ class Strategy(ABC):
     # base class for all strategies
     def __init__(self, params: BacktestParam):
         self.data = PriceData(params.symbol, params.timeframe, params.start_time, params.end_time)
-        self.position_manager = PositionManager()
-        self.order_manager = OrderManager(self.position_manager)
+        self.position_manager = PositionManager(params.initial_balance)
+        self.order_manager = OrderManager(self.position_manager, self.data)
 
     @abstractmethod
     def run(self):
