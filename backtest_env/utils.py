@@ -24,17 +24,6 @@ def load_price_data(data_dir: str, symbol: str, tf: str, start: int, end: int = 
     return data[mask]
 
 
-def load_params(config_file_path: str) -> dict[str, Any]:
-    """
-    load config from configs.json file into memory, result is a dictionary
-    :param config_file_path: directory that store config file
-    :return: configs dict
-    """
-    with open(config_file_path, "r") as f:
-        configs = json.load(f)
-    return configs
-
-
 def get_sl(price: float, percent: float, side: str) -> float:
     """
     get stop-loss entry based on current price and pre-defined deviate percent

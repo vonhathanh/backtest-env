@@ -21,9 +21,8 @@ class Baseline(Strategy):
 
     def update(self):
         pending_orders = self.order_manager.get_orders()
-        positions = self.position_manager.get_positions()
 
-        if len(pending_orders) >= 2 or len(positions) >= 2:
+        if len(pending_orders) >= 2 or len(self.position) >= 2:
             return
 
         side = BUY if random.random() <= 0.5 else SELL

@@ -28,6 +28,7 @@ class Position:
         self.long = 0.0
         self.short = 0.0
 
+    # TODO: test get_balance()
     def get_balance(self):
         return self._balance + self.data.get_open_price() * (self.long - self.short)
 
@@ -39,8 +40,9 @@ class Position:
             self.short += order.quantity
             self._balance += cost
 
+    # TODO: test fill order
     def fill(self, order: Order):
         cost = order.price * order.quantity
-        if cost <= self.get_balance():
+        if cost > self.get_balance():
             raise ValueError(f"{order=} can't be filled, reason: insufficient fund")
         self.update_position_based_on(order, cost)
