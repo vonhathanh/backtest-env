@@ -21,8 +21,8 @@ class Position:
     def __len__(self):
         return self.long != 0.0 + self.short != 0.0
 
-    def close(self, price: float):
-        profit = price * (self.long - self.short)
+    def close(self):
+        profit = self.data.get_open_price() * (self.long - self.short)
         self._balance += profit
 
         self.long = 0.0
@@ -31,7 +31,7 @@ class Position:
     def get_balance(self):
         return self._balance + self.data.get_open_price() * (self.long - self.short)
 
-    def update(self, order: Order, cost: float):
+    def update_position_based_on(self, order: Order, cost: float):
         if order.side == "BUY":
             self.long += order.quantity
             self._balance -= cost
@@ -43,4 +43,4 @@ class Position:
         cost = order.price * order.quantity
         if cost <= self.get_balance():
             raise ValueError(f"{order=} can't be filled, reason: insufficient fund")
-        self.update(order, cost)
+        self.update_position_based_on(order, cost)
