@@ -44,7 +44,7 @@ class TrendFollower(Strategy):
 
     @classmethod
     def get_required_params(cls):
-        return {"grid_size": "number", "order_size": "number"}
+        return {"Grid Size": "number", "Order Size": "number"}
 
     def run(self):
         while self.data.step():
