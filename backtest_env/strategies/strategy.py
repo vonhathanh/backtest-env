@@ -29,5 +29,5 @@ class Strategy(ABC):
         return cls(params)
 
     @classmethod
-    def get_require_params(cls: Type[T]):
+    def get_required_params(cls: Type[T]):
         return {}

@@ -43,7 +43,7 @@ class TrendFollower(Strategy):
         self.close = 0.0
 
     @classmethod
-    def get_require_params(cls):
+    def get_required_params(cls):
         return {"grid_size": "number", "order_size": "number"}
 
     def run(self):

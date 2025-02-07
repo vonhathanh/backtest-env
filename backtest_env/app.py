@@ -2,8 +2,9 @@ from multiprocessing import Process, Queue
 from contextlib import asynccontextmanager
 
 from fastapi import FastAPI, WebSocket
+from fastapi.middleware.cors import CORSMiddleware
 
-from backtest_env.dto import BacktestParam, TrendFollowerParam
+from backtest_env.dto import BacktestParam
 from backtest_env.strategies import STRATEGIES
 
 event_queue = Queue()
@@ -11,6 +12,8 @@ event_queue = Queue()
 ws_clients: set[WebSocket] = set()
 
 processes: list[Process] = []
+
+origins = ["http://localhost:5173"]
 
 
 @asynccontextmanager
@@ -24,7 +27,12 @@ async def lifespan(application: FastAPI):
 
 
 app = FastAPI(lifespan=lifespan)
-
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=origins,
+    allow_methods=["GET", "POST"],
+    allow_headers=["*"]
+)
 
 @app.get("/")
 def index():
@@ -33,10 +41,10 @@ def index():
 
 @app.get("/strategies")
 def strategies():
-    data = {}
+    data = []
     for strategy in STRATEGIES:
-        data[strategy] = STRATEGIES[strategy].get_require_params()
-    return {"data": data}
+        data.append({"name": strategy, "params": STRATEGIES[strategy].get_required_params()})
+    return {"strategies": data}
 
 
 @app.websocket("/ws")
