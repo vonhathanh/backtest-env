@@ -16,12 +16,17 @@ class Strategy(ABC):
         self.position = Position(params.initial_balance, self.data)
         self.order_manager = OrderManager(self.position, self.data)
 
-    @abstractmethod
     def run(self):
         # strategy will: call self.data.step() to move forward to the next price
         # validate account's state: orders, positions,...
         # inspect new input data: prices, indicators,... from backend
         # determine the next action: submit buy/sell order, cancel orders, close positions, ...
+        while self.data.step():
+            self.update()
+        print("Backtest finished")
+
+    @abstractmethod
+    def update(self):
         pass
 
     @classmethod

@@ -13,13 +13,9 @@ class Baseline(Strategy):
         super().__init__(params)
         self.symbol = params.symbol
 
-    def run(self):
-        while self.data.step():
-            self.order_manager.process_orders()
-            self.update()
-        print("Backtest finished")
-
     def update(self):
+        self.order_manager.process_orders()
+
         pending_orders = self.order_manager.get_orders()
 
         if len(pending_orders) >= 2 or len(self.position) >= 2:
