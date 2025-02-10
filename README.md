@@ -9,6 +9,7 @@
 # Rules
 - Submit orders: use close price
 - Fill orders/close position: use open price
+- Every filepath string must relative with root directory (where this README is located)
 
 # Database or File-based management?
 - What do we store in db: kline prices, order history
