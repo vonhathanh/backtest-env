@@ -66,5 +66,24 @@ def get_random_string(length: int = 10) -> str:
     return "".join(random.choice(letters) for _ in range(length))
 
 
-def convert_time_to_nanosecond(date: str, date_format: str = "%M/%d/%Y") -> int:
+def convert_datetime_to_nanosecond(date: str, date_format: str = "%M/%d/%Y") -> int:
     return int(datetime.strptime(date, date_format).timestamp()) * 1000
+
+
+def convert_nanosecond_to_datetime(nanosecond: int | float) -> str:
+    return datetime.fromtimestamp(nanosecond // 1000).strftime("%Y-%m-%d")
+
+
+def extract_metadata_from_file(filenames: list[str]):
+    results = []
+
+    for name in filenames:
+        symbol, tf = name[:-4].split('_')
+
+        data = np.genfromtxt(join(DATA_DIR, name), delimiter=',', skip_header=1)
+        start_time = convert_nanosecond_to_datetime(data[0, 0])
+        end_time = convert_nanosecond_to_datetime(data[-1, 0])
+
+        results.append({"start_time": start_time,"end_time": end_time,"symbol": symbol,"tf": tf})
+
+    return results
