@@ -19,11 +19,8 @@ origins = ["http://localhost:5173"]
 @asynccontextmanager
 async def lifespan(application: FastAPI):
     yield
-    # Clean up resources on shutdown, must run after "yield" due to "asynccontextmanager" decorator
-    for client in ws_clients:
-        await client.close()
-    for process in processes:
-        process.join()
+    # run after "yield" due to "asynccontextmanager" decorator
+    await clean_resources()
 
 
 app = FastAPI(lifespan=lifespan)
@@ -78,3 +75,10 @@ async def send_message_to_websocket_client():
             await client.send_text(event)
         except:
             ws_clients.remove(client)
+
+
+async def clean_resources():
+    for client in ws_clients:
+        await client.close()
+    for process in processes:
+        process.join()
