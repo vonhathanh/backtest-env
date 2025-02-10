@@ -1,3 +1,6 @@
+import os
+import numpy as np
+
 from multiprocessing import Process, Queue
 from contextlib import asynccontextmanager
 
@@ -6,6 +9,8 @@ from fastapi.middleware.cors import CORSMiddleware
 
 from backtest_env.dto import BacktestParam
 from backtest_env.strategies import STRATEGIES
+from backtest_env.constants import DATA_DIR
+from backtest_env.utils import extract_metadata_from_file
 
 event_queue = Queue()
 
@@ -44,8 +49,10 @@ def get_strategies():
     return {"strategies": data}
 
 @app.get("/filenames")
-def get_filenames():
-    return {"filenames": ["BNBUSDT", "BTCUSDT"]}
+async def get_filenames():
+    filenames = os.listdir(DATA_DIR)
+    response = extract_metadata_from_file(filenames)
+    return {"data": response}
 
 
 @app.websocket("/ws")
@@ -70,7 +77,6 @@ def backtest(params: BacktestParam):
 def start(strategy_id: str, args: BacktestParam):
     strategy = STRATEGIES[strategy_id].from_cfg(args)
     strategy.run()
-
 
 async def send_message_to_websocket_client():
     event = event_queue.get()
