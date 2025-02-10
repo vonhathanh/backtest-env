@@ -37,11 +37,15 @@ def index():
 
 
 @app.get("/strategies")
-def strategies():
+def get_strategies():
     data = []
     for strategy in STRATEGIES:
         data.append({"name": strategy, "params": STRATEGIES[strategy].get_required_params()})
     return {"strategies": data}
+
+@app.get("/filenames")
+def get_filenames():
+    return {"filenames": ["BNBUSDT", "BTCUSDT"]}
 
 
 @app.websocket("/ws")
