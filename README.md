@@ -8,4 +8,4 @@
 
 # Rules
 - Submit orders: use close price
-- Fill orders: use open price
+- Fill orders/close position: use open price
