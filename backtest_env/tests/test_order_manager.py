@@ -3,6 +3,7 @@ from unittest.mock import Mock
 from backtest_env.order import Order, OrderType
 from backtest_env.order_manager import OrderManager
 from backtest_env.price import Price
+from backtest_env.constants import LONG, SHORT
 
 
 class TestOrderManager:
@@ -16,23 +17,23 @@ class TestOrderManager:
         assert len(long_orders) == 0 and len(short_orders) == 0
 
         # 1 buy and 0 sell order
-        self.order_mgr.add_order(Order(1.0, "BNBUSDT", "BUY", OrderType.Market, "", 1.0))
+        self.order_mgr.add_order(Order(1.0, "BNBUSDT", "BUY", OrderType.Market, LONG, 1.0))
         long_orders, short_orders = self.order_mgr.split_orders_by_side()
         assert len(long_orders) == 1 and len(short_orders) == 0
 
         # add new sell order
-        self.order_mgr.add_order(Order(1.0, "BNBUSDT", "SELL", OrderType.Market, "", 1.0))
+        self.order_mgr.add_order(Order(1.0, "BNBUSDT", "SELL", OrderType.Market, SHORT, 1.0))
         long_orders, short_orders = self.order_mgr.split_orders_by_side()
         assert len(long_orders) == 1 and len(short_orders) == 1
 
         # more than 1 sell order
-        self.order_mgr.add_order(Order(1.0, "BNBUSDT", "SELL", OrderType.Market, "", 1.0))
+        self.order_mgr.add_order(Order(1.0, "BNBUSDT", "SELL", OrderType.Market, SHORT, 1.0))
         long_orders, short_orders = self.order_mgr.split_orders_by_side()
         assert len(long_orders) == 1 and len(short_orders) == 2
 
     def test_process_orders(self):
-        market_order = Order(100.0, "BNBUSDT", "BUY", OrderType.Market, "", 1.0)
-        limit_order = Order(120.0, "BNBUSDT", "BUY", OrderType.Limit, "", 1.0)
+        market_order = Order(100.0, "BNBUSDT", "BUY", OrderType.Market, LONG, 1.0)
+        limit_order = Order(120.0, "BNBUSDT", "BUY", OrderType.Limit, LONG, 1.0)
 
         self.order_mgr.add_orders([market_order, limit_order])
 
