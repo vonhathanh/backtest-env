@@ -15,7 +15,7 @@ class OrderManager:
         self.position_manager = position_manager
         self.data = data
 
-    def get_orders(self):
+    def get_orders(self) -> list[Order]:
         return list(self.orders.values())
 
     def add_order(self, order: Order):
@@ -38,10 +38,10 @@ class OrderManager:
             order = self.orders[order_id]
             handler = self.order_handlers[order.type] # handler is just a function
             handler(order)
-            del self.orders[order_id]
 
     def handle_market_order(self, order: Order):
         self.position_manager.fill(order)
+        del self.orders[order.id]
 
     def handle_limit_order(self, order):
         self.handle_stop_order(order)
