@@ -3,7 +3,6 @@ from abc import ABC, abstractmethod
 
 from backtest_env.dto import BacktestParam
 from backtest_env.order_manager import OrderManager
-from backtest_env.position import Position
 from backtest_env.position_manager import PositionManager
 from backtest_env.price import PriceData
 
