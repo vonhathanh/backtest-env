@@ -1,15 +1,13 @@
 import os
-import numpy as np
-
-from multiprocessing import Process, Queue
 from contextlib import asynccontextmanager
+from multiprocessing import Process, Queue
 
 from fastapi import FastAPI, WebSocket
 from fastapi.middleware.cors import CORSMiddleware
 
+from backtest_env.constants import DATA_DIR
 from backtest_env.dto import BacktestParam
 from backtest_env.strategies import STRATEGIES
-from backtest_env.constants import DATA_DIR
 from backtest_env.utils import extract_metadata_in_batch
 
 event_queue = Queue()
@@ -36,6 +34,7 @@ app.add_middleware(
     allow_headers=["*"]
 )
 
+
 @app.get("/")
 def index():
     return {"msg": "OK"}
@@ -47,6 +46,7 @@ def get_strategies():
     for strategy in STRATEGIES:
         data.append({"name": strategy, "params": STRATEGIES[strategy].get_required_params()})
     return {"strategies": data}
+
 
 @app.get("/filenames")
 async def get_filenames():
@@ -77,6 +77,7 @@ def backtest(params: BacktestParam):
 def start(strategy_id: str, args: BacktestParam):
     strategy = STRATEGIES[strategy_id].from_cfg(args)
     strategy.run()
+
 
 async def send_message_to_websocket_client():
     event = event_queue.get()
