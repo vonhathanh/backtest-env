@@ -45,13 +45,6 @@ def get_tp(price: float, percent: float, side: str) -> float:
     return price * (1 + percent) if side == "BUY" else price * (1 - percent)
 
 
-def create_order(order_type: OrderType, symbol: str, side: str, price: float, budget: float):
-    price = round_precision(price)
-    quantity = round_precision(budget / price)
-    return Order(price, symbol, side, order_type, to_position(side), quantity,
-                 f"{side}_{symbol}_{get_random_string(6)}")
-
-
 def round_precision(num: float, digits: int = 4) -> float:
     return round(num, digits)
 
@@ -59,12 +52,6 @@ def round_precision(num: float, digits: int = 4) -> float:
 def to_position(side: str) -> str:
     # convert order side to position side
     return LONG if side == BUY else SHORT
-
-
-def get_random_string(length: int = 10) -> str:
-    # choose from all lowercase letters
-    letters = string.ascii_lowercase + string.digits + string.ascii_uppercase
-    return "".join(random.choice(letters) for _ in range(length))
 
 
 def convert_datetime_to_nanosecond(date: str, date_format: str = "%M/%d/%Y") -> int:

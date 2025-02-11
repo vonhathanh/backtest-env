@@ -1,6 +1,9 @@
 from dataclasses import dataclass
 from enum import Enum
 from typing import Optional
+from uuid import uuid4
+
+from pydantic import Field
 
 
 class OrderType(Enum):
@@ -17,4 +20,4 @@ class Order:
     type: OrderType
     positionSide: Optional[str]
     quantity: float
-    id: str
+    id: str = Field(default_factory=lambda: str(uuid4()))
