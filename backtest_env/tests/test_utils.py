@@ -1,4 +1,4 @@
-from backtest_env.utils import convert_time_to_nanosecond
+from backtest_env.utils import convert_datetime_to_nanosecond
 
 def test_convert_time_to_nanosecond():
     input_dates = ["01/02/2024", "02-01-2024"]
@@ -6,4 +6,4 @@ def test_convert_time_to_nanosecond():
     expected_timestamps = [1704128460000, 1704128460000]
 
     for i in range(len(input_dates)):
-        assert convert_time_to_nanosecond(input_dates[i], date_formats[i]) == expected_timestamps[i]
+        assert convert_datetime_to_nanosecond(input_dates[i], date_formats[i]) == expected_timestamps[i]
