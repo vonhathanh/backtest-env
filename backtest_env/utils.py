@@ -79,8 +79,8 @@ def extract_metadata_from_file(name: str):
     symbol, tf = name[:-4].split('_')
 
     data = np.genfromtxt(join(DATA_DIR, name), delimiter=',', skip_header=1)
-    start_time = convert_nanosecond_to_datetime(data[0, 0])
-    end_time = convert_nanosecond_to_datetime(data[-1, 0])
+    start_time = convert_nanosecond_to_datetime(data[0, 0]) # data[0,0] = first open time
+    end_time = convert_nanosecond_to_datetime(data[-1, 0]) # data[-1,0] = last open time
 
     return {"start_time": start_time, "end_time": end_time, "symbol": symbol, "tf": tf}
 
