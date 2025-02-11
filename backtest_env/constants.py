@@ -1,6 +1,10 @@
 import json
+import os
 
-with open("configs.json", "r") as f:
+BASE_DIR = os.path.dirname(os.path.abspath(__file__))
+CONFIG_PATH = os.path.join(BASE_DIR, "../configs.json")
+
+with open(CONFIG_PATH, "r") as f:
     config = json.load(f)
 
 # order sides
