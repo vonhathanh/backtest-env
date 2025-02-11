@@ -10,7 +10,7 @@ from fastapi.middleware.cors import CORSMiddleware
 from backtest_env.dto import BacktestParam
 from backtest_env.strategies import STRATEGIES
 from backtest_env.constants import DATA_DIR
-from backtest_env.utils import extract_metadata_from_file
+from backtest_env.utils import extract_metadata_in_batch
 
 event_queue = Queue()
 
@@ -51,7 +51,7 @@ def get_strategies():
 @app.get("/filenames")
 async def get_filenames():
     filenames = os.listdir(DATA_DIR)
-    response = extract_metadata_from_file(filenames)
+    response = await extract_metadata_in_batch(filenames)
     return {"data": response}
 
 

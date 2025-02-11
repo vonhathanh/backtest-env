@@ -1,5 +1,6 @@
 import random
 import string
+import asyncio
 from datetime import datetime
 
 import numpy as np
@@ -74,16 +75,15 @@ def convert_nanosecond_to_datetime(nanosecond: int | float) -> str:
     return datetime.fromtimestamp(nanosecond // 1000).strftime("%Y-%m-%d")
 
 
-def extract_metadata_from_file(filenames: list[str]):
-    results = []
+def extract_metadata_from_file(name: str):
+    symbol, tf = name[:-4].split('_')
 
-    for name in filenames:
-        symbol, tf = name[:-4].split('_')
+    data = np.genfromtxt(join(DATA_DIR, name), delimiter=',', skip_header=1)
+    start_time = convert_nanosecond_to_datetime(data[0, 0])
+    end_time = convert_nanosecond_to_datetime(data[-1, 0])
 
-        data = np.genfromtxt(join(DATA_DIR, name), delimiter=',', skip_header=1)
-        start_time = convert_nanosecond_to_datetime(data[0, 0])
-        end_time = convert_nanosecond_to_datetime(data[-1, 0])
+    return {"start_time": start_time, "end_time": end_time, "symbol": symbol, "tf": tf}
 
-        results.append({"start_time": start_time,"end_time": end_time,"symbol": symbol,"tf": tf})
 
-    return results
+async def extract_metadata_in_batch(filenames: list[str]):
+    return await asyncio.gather(*(asyncio.to_thread(extract_metadata_from_file, name) for name in filenames))
