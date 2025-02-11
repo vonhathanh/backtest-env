@@ -14,13 +14,18 @@ class Position(ABC):
         self.avg_price = 0.0
 
     def decrease(self, delta: float):
-        assert self.quantity >= delta
+        if self.quantity < delta:
+            raise ValueError("position.quantity < delta")
+
         self.quantity -= delta
 
         if self.quantity == 0.0:
             self.avg_price = 0.0
 
     def increase(self, order: Order):
+        if order.quantity <= 0:
+            raise ValueError("order's quantity is invalid (<=0)")
+
         self.avg_price = ((self.quantity * self.avg_price + order.quantity * order.price) /
                           (self.quantity + order.quantity))
         self.quantity += order.quantity
