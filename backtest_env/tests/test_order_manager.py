@@ -45,3 +45,9 @@ class TestOrderManager:
         orders = self.order_mgr.get_orders()
         assert len(orders) == 1 and orders[0].type == OrderType.Limit
 
+        # force price to contain limit order price, so it can be processed
+        self.order_mgr.data.get_current_price.return_value = Price(0, 110, 120, 100, 110, 0)
+
+        self.order_mgr.process_orders()
+        assert len(self.order_mgr.get_orders()) == 0
+
