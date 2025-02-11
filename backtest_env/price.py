@@ -13,7 +13,7 @@ class Price:
     high: float
     low: float
     close: float
-    close_time: float
+    close_time: int
 
 
 class PriceData:
