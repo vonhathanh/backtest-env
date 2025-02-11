@@ -1,10 +1,10 @@
 import random
 
 from backtest_env.dto import BacktestParam
-from backtest_env.order import OrderType
+from backtest_env.order import OrderType, Order
 from backtest_env.strategies.strategy import Strategy
-from backtest_env.utils import create_order
 from backtest_env.constants import *
+from backtest_env.utils import to_position
 
 
 class Baseline(Strategy):
@@ -18,11 +18,11 @@ class Baseline(Strategy):
 
         pending_orders = self.order_manager.get_orders()
 
-        if len(pending_orders) >= 2 or len(self.position) >= 2:
+        if len(pending_orders) >= 2 or len(self.position_manager.get_number_of_active_positions()) >= 2:
             return
 
         side = BUY if random.random() <= 0.5 else SELL
 
-        order = create_order(OrderType.Market, self.symbol, side, self.data.get_close_price(), 1.0)
+        order = Order(self.data.get_open_price(), self.symbol, side, OrderType.Market, to_position(side), 1.0)
 
         self.order_manager.add_order(order)

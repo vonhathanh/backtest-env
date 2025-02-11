@@ -116,7 +116,8 @@ class TrendFollower(Strategy):
 
         for i in range(0, num_unfill_orders):
             price = utils.get_tp(price, self.interval, side)
-            self.order_manager.add_order(utils.create_order(OrderType.Limit, self.symbol, side, price, self.order_size))
+            order = Order(price, self.symbol, side, OrderType.Limit, utils.to_position(side), self.order_size)
+            self.order_manager.add_order(order)
 
     def update_grid(self):
         long_orders, short_orders = self.order_manager.split_orders_by_side()
