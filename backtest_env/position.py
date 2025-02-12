@@ -49,7 +49,6 @@ class LongPosition(Position):
     def get_pnl(self, price: float) -> float:
         return self.quantity * (price - self.avg_price)
 
-    # TODO: test update()
     def update(self, order: Order):
         self.increase(order) if order.side == BUY else self.decrease(order.quantity)
 

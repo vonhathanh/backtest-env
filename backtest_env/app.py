@@ -42,17 +42,17 @@ def index():
 
 @app.get("/strategies")
 def get_strategies():
-    data = []
+    strategies = []
     for strategy in STRATEGIES:
-        data.append({"name": strategy, "params": STRATEGIES[strategy].get_required_params()})
-    return {"strategies": data}
+        strategies.append({"name": strategy, "params": STRATEGIES[strategy].get_required_params()})
+    return strategies
 
 
-@app.get("/filenames")
-async def get_filenames():
+@app.get("/files/metadata")
+async def get_files_metadata():
     filenames = os.listdir(DATA_DIR)
-    response = await extract_metadata_in_batch(filenames)
-    return {"data": response}
+    metadata = await extract_metadata_in_batch(filenames)
+    return metadata
 
 
 @app.websocket("/ws")
