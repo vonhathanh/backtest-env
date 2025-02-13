@@ -30,5 +30,5 @@ class PositionManager:
     def get_positions(self) -> tuple[Position, Position]:
         return self.long, self.short
 
-    def get_number_of_active_positions(self):
-        return self.long.quantity > 0.0 + self.short.quantity > 0.0
+    def get_number_of_active_positions(self) -> int:
+        return (self.long.quantity > 0.0) + (self.short.quantity > 0.0)
