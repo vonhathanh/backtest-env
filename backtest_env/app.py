@@ -21,6 +21,7 @@ origins = ["http://localhost:5173"]
 
 @asynccontextmanager
 async def lifespan(application: FastAPI):
+    os.makedirs(DATA_DIR, exist_ok=True)
     yield
     # run after "yield" due to "asynccontextmanager" decorator
     await clean_resources()
@@ -50,12 +51,8 @@ def get_strategies():
 
 @app.get("/files/metadata")
 async def get_files_metadata():
-    try:
-        filenames = os.listdir(DATA_DIR)
-        metadata = await extract_metadata_in_batch(filenames)
-        return metadata
-    except Exception as e:
-        raise HTTPException(500, {"message": str(e)})
+    filenames = os.listdir(DATA_DIR)
+    return await extract_metadata_in_batch(filenames)
 
 
 @app.websocket("/ws")
