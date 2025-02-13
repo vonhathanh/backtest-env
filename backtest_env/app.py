@@ -2,7 +2,7 @@ import os
 from contextlib import asynccontextmanager
 from multiprocessing import Process, Queue
 
-from fastapi import FastAPI, WebSocket
+from fastapi import FastAPI, WebSocket, HTTPException
 from fastapi.middleware.cors import CORSMiddleware
 
 from backtest_env.constants import DATA_DIR
@@ -50,9 +50,12 @@ def get_strategies():
 
 @app.get("/files/metadata")
 async def get_files_metadata():
-    filenames = os.listdir(DATA_DIR)
-    metadata = await extract_metadata_in_batch(filenames)
-    return metadata
+    try:
+        filenames = os.listdir(DATA_DIR)
+        metadata = await extract_metadata_in_batch(filenames)
+        return metadata
+    except Exception as e:
+        raise HTTPException(500, {"message": str(e)})
 
 
 @app.websocket("/ws")
