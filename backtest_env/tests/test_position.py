@@ -63,3 +63,40 @@ def test_decrease_short_position():
 
     p.update(Order(600.0, "BNB", BUY, OrderType.Market, SHORT, 0.3))
     assert p.quantity == 0.3 and p.avg_price == 500.0
+
+
+def test_get_long_pnl():
+    p = LongPosition()
+
+    p.update(Order(500.0, "BNB", BUY, OrderType.Market, LONG, 1.0))
+    assert p.get_pnl(500.0) == 0.0
+    assert p.get_pnl(555.3) == 55.3
+    assert p.get_pnl(452.1) == -47.9
+
+
+def test_get_short_pnl():
+    p = ShortPosition()
+
+    p.update(Order(500.0, "BNB", SELL, OrderType.Market, SHORT, 1.0))
+
+    assert p.get_pnl(500.0) == 0.0
+    assert p.get_pnl(555.3) == -55.3
+    assert p.get_pnl(452.1) == 47.9
+
+
+def test_pnl_after_multiple_long_orders():
+    p = LongPosition()
+
+    p.update(Order(500.0, "BNB", BUY, OrderType.Market, LONG, 1.0))
+    p.update(Order(560.0, "BNB", BUY, OrderType.Market, LONG, 2.0))
+
+    assert p.get_pnl(600) == 180.0
+
+
+def test_pnl_after_multiple_short_orders():
+    p = ShortPosition()
+
+    p.update(Order(500.0, "BNB", SELL, OrderType.Market, SHORT, 1.0))
+    p.update(Order(560.0, "BNB", SELL, OrderType.Market, SHORT, 0.5))
+
+    assert p.get_pnl(600.0) == -120.0
