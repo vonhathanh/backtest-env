@@ -1,3 +1,4 @@
+import time
 from enum import Enum
 from uuid import uuid4
 
@@ -24,3 +25,4 @@ class Order:
         self.price = price
         self.position_side = position_side
         self.id = order_id if order_id else uuid4().hex
+        self.created_at = int(time.time_ns())
