@@ -5,7 +5,26 @@ from datetime import datetime
 from os.path import join
 
 from backtest_env.constants import *
+from backtest_env.order import Order, OrderType
 
+
+def create_long_order(order_type: OrderType = OrderType.Market,
+                 side: str = BUY,
+                 quantity=1.0,
+                 symbol: str = "X",
+                 price: float = 100.0,
+                 position_side: str = LONG
+            ):
+    return Order(order_type, side, quantity, symbol, price, position_side)
+
+def create_short_order(order_type: OrderType = OrderType.Market,
+                 side: str = SELL,
+                 quantity=1.0,
+                 symbol: str = "X",
+                 price: float = 100.0,
+                 position_side: str = SHORT
+            ):
+    return Order(order_type, side, quantity, symbol, price, position_side)
 
 def load_price_data(data_dir: str, symbol: str, tf: str, start: int, end: int = 0) -> np.ndarray:
     file_name = join(data_dir, symbol + '_' + tf + '.csv')
