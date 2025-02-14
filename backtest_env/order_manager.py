@@ -27,11 +27,12 @@ class OrderManager:
     def cancel_all_orders(self):
         self.orders = {}
 
-    def split_orders_by_side(self):
+    def split_orders_by_side(self) -> tuple[list[Order], list[Order]]:
         long_orders, short_orders = [], []
         for order in self.orders.values():
             long_orders.append(order) if order.side == "BUY" else short_orders.append(order)
-        return long_orders, short_orders
+        return (sorted(long_orders, key=lambda x: x.created_at),
+                sorted(short_orders, key=lambda x: x.created_at))
 
     def process_orders(self):
         for order_id in list(self.orders.keys()):
