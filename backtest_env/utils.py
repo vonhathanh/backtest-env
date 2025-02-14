@@ -1,13 +1,9 @@
-import random
-import string
 import asyncio
-from datetime import datetime
-
 import numpy as np
 
+from datetime import datetime
 from os.path import join
 
-from backtest_env.order import Order, OrderType
 from backtest_env.constants import *
 
 
@@ -63,11 +59,12 @@ def convert_nanosecond_to_datetime(nanosecond: int | float) -> str:
 
 
 def extract_metadata_from_file(name: str):
+    # remove .csv suffix by :-4
     symbol, tf = name[:-4].split('_')
 
     data = np.genfromtxt(join(DATA_DIR, name), delimiter=',', skip_header=1)
-    start_time = convert_nanosecond_to_datetime(data[0, 0]) # data[0,0] = first open time
-    end_time = convert_nanosecond_to_datetime(data[-1, 0]) # data[-1,0] = last open time
+    start_time = convert_nanosecond_to_datetime(data[0, 0])
+    end_time = convert_nanosecond_to_datetime(data[-1, 0])
 
     return {"start_time": start_time, "end_time": end_time, "symbol": symbol, "tf": tf}
 

@@ -1,7 +1,7 @@
 import numpy as np
 
 import backtest_env.utils as utils
-from backtest_env.dto import TrendFollowerParam
+from backtest_env.dto import TrendFollowerArgs
 from backtest_env.order import OrderType, Order
 from backtest_env.strategies import Strategy
 from backtest_env.constants import BUY, SELL
@@ -22,13 +22,13 @@ class TrendFollower(Strategy):
     How do we reduce the risk when the market is not giving us the right candle?
     - Trail stoploss
     """
-    def __init__(self, params: TrendFollowerParam):
-        super().__init__(params)
-        self.symbol = params.symbol
+    def __init__(self, args: TrendFollowerArgs):
+        super().__init__(args)
+        self.symbol = args.symbol
         # how many grid orders will be placed
-        self.grid_size = params.grid_size
+        self.grid_size = args.grid_size
 
-        self.order_size = params.order_size
+        self.order_size = args.order_size
 
         # the difference in percentage of the next grid order compared to current order
         # example, current grid order: buy btc at 1000$, step_size = 0.01, so the next order will be placed at
@@ -36,10 +36,10 @@ class TrendFollower(Strategy):
         self.step_size = 0.01
         # used to calculate step_size dynamically, step_size = daily average change / interval
         # usually will be around [4, 8] depends on symbol and user's preference
-        self.interval = params.interval
+        self.interval = args.interval
 
         # number of 1d candles being stored to calculate daily average change
-        self.candle_cache_size = params.candle_cache_size
+        self.candle_cache_size = args.candle_cache_size
         self.candles = []
         # these values will be used to form daily candle based on smaller candles data
         self.open, self.high, self.low, self.close = 0.0, 0.0, np.inf, 0.0

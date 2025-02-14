@@ -1,7 +1,7 @@
 from typing import TypeVar, Type
 from abc import ABC, abstractmethod
 
-from backtest_env.dto import BacktestParam
+from backtest_env.dto import Args
 from backtest_env.order_manager import OrderManager
 from backtest_env.position_manager import PositionManager
 from backtest_env.price import PriceData
@@ -11,9 +11,9 @@ T = TypeVar("T", bound="Strategy")
 
 class Strategy(ABC):
     # base class for all strategies
-    def __init__(self, params: BacktestParam):
-        self.data = PriceData(params.symbol, params.timeframe, params.start_time, params.end_time)
-        self.position_manager = PositionManager(self.data, params.initial_balance)
+    def __init__(self, args: Args):
+        self.data = PriceData(args.symbol, args.timeframe, args.start_time, args.end_time)
+        self.position_manager = PositionManager(self.data, args.initial_balance)
         self.order_manager = OrderManager(self.position_manager, self.data)
 
     def run(self):
@@ -30,8 +30,8 @@ class Strategy(ABC):
         pass
 
     @classmethod
-    def from_cfg(cls: Type[T], params: BacktestParam):
-        return cls(params)
+    def from_cfg(cls: Type[T], args: Args):
+        return cls(args)
 
     @classmethod
     def get_required_params(cls: Type[T]):

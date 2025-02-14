@@ -1,6 +1,6 @@
 import random
 
-from backtest_env.dto import BacktestParam
+from backtest_env.dto import Args
 from backtest_env.order import OrderType, Order
 from backtest_env.strategies.strategy import Strategy
 from backtest_env.constants import *
@@ -9,9 +9,9 @@ from backtest_env.utils import to_position
 
 class Baseline(Strategy):
     # this strategy represents as an example of real trading strategy
-    def __init__(self, params: BacktestParam):
-        super().__init__(params)
-        self.symbol = params.symbol
+    def __init__(self, args: Args):
+        super().__init__(args)
+        self.symbol = args.symbol
 
     def update(self):
         self.order_manager.process_orders()

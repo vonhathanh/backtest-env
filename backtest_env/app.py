@@ -2,7 +2,7 @@ import os
 from contextlib import asynccontextmanager
 from multiprocessing import Process, Queue
 
-from fastapi import FastAPI, WebSocket, HTTPException
+from fastapi import FastAPI, WebSocket
 from fastapi.middleware.cors import CORSMiddleware
 
 from backtest_env.constants import DATA_DIR
