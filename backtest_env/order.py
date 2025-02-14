@@ -8,11 +8,19 @@ class OrderType(Enum):
     Stoploss= 4
 
 class Order:
-    def __init__(self, price, symbol, side, order_type, position_side, quantity, id: str = ""):
-        self.price = price
-        self.symbol = symbol
-        self.side = side
+    # common sense: limit buy 1.0 bnb at price = 500.0
+    def __init__(self,
+                 order_type: OrderType,
+                 side: str,
+                 quantity: float,
+                 symbol: str,
+                 price: float,
+                 position_side: str,
+                 order_id: str = ""):
         self.type = order_type
-        self.position_side = position_side
+        self.side = side
         self.quantity = quantity
-        self.id = uuid4().hex if not id else id
+        self.symbol = symbol
+        self.price = price
+        self.position_side = position_side
+        self.id = order_id if order_id else uuid4().hex

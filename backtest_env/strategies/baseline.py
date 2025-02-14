@@ -23,6 +23,6 @@ class Baseline(Strategy):
 
         side = BUY if random.random() <= 0.5 else SELL
 
-        order = Order(self.data.get_open_price(), self.symbol, side, OrderType.Market, to_position(side), 1.0)
+        order = Order(OrderType.Market, side, 1.0, self.symbol, self.data.get_open_price(), to_position(side))
 
         self.order_manager.add_order(order)
