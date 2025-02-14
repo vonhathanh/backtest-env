@@ -12,7 +12,7 @@ class TrendFollower(Strategy):
     1) Open both long and short at daily candle close price
     2) Place n limit long orders at the upper side of the entry price.
     3) Place n limit short orders at the lower side of the entry price.
-       Each long/short order has equal price difference with its predecessor/successor
+       Each long/short order has equal step size with its predecessor/successor
     4) Price difference is the average 1h-4h candle's length
     5) To avoid complexity, we'll place 20 orders at both sides
     6) Close all positions/orders at the end of the next daily candle (we can consider another closing strategy)
@@ -34,8 +34,8 @@ class TrendFollower(Strategy):
         # example, current grid order: buy btc at 1000$, step_size = 0.01, so the next order will be placed at
         # 1000*(1+0.01) = 1010$
         self.step_size = 0.01
-        # used to calculate step_size dynamically, step_size = daily average change / interval
-        # usually will be around [4, 8] depends on symbol and user's preference
+        # interval is used to calculate step_size dynamically, step_size = daily average change / interval.
+        # interval usually will be around [4, 8] depends on symbol and user's preference
         self.interval = args.interval
 
         # number of 1d candles being stored to calculate daily average change
@@ -80,7 +80,7 @@ class TrendFollower(Strategy):
         self.high = max(self.high, price.high)
         self.low = min(self.low, price.low)
 
-        # to check for open and close time in a daily price, just mod them with 86_400_000
+        # to check for open time in candle, just mod it with 86_400_000
         if price.open_time % 86_400_000 == 0:
             self.open = price.open
         # close time is smaller than next open time by 1 millisecond
@@ -101,8 +101,14 @@ class TrendFollower(Strategy):
         prices = np.array(self.candles[-self.candle_cache_size:])
         # our formula for determine change per day is: (high - low) / open / step
         changes = np.abs(prices[:, 1] - prices[:, 2]) / prices[:, 0]
-        # interval can't be too small, so we set 0.005 as minimum
-        self.interval = round(max(np.mean(changes) / self.interval, 0.005), 3)
+        # step_size can't be too small, so we set 0.005 as minimum
+        self.step_size = round(max(np.mean(changes) / self.interval, 0.005), 3)
+
+    def update_grid(self):
+        long_orders, short_orders = self.order_manager.split_orders_by_side()
+        # place grid orders at two sides of the current price
+        self.place_grid_orders(long_orders, BUY)
+        self.place_grid_orders(short_orders, SELL)
 
     def place_grid_orders(self, orders: list[Order], side: str):
         num_unfill_orders = self.grid_size - len(orders)
@@ -112,15 +118,9 @@ class TrendFollower(Strategy):
 
         # determine entry price for new order, use current price if grid is empty
         # else use the latest order's price as starting point
-        price = self.data.get_close_price() if len(orders) == 0 else orders[-1].price
+        price = self.data.get_close_price() if not orders else orders[-1].price
 
         for i in range(0, num_unfill_orders):
-            price = utils.get_tp(price, self.interval, side)
+            price = utils.get_tp(price, self.step_size, side)
             order = Order(OrderType.Limit, side, self.order_size, self.symbol, price, utils.to_position(side))
             self.order_manager.add_order(order)
-
-    def update_grid(self):
-        long_orders, short_orders = self.order_manager.split_orders_by_side()
-        # place grid orders at two sides of the current price
-        self.place_grid_orders(long_orders, BUY)
-        self.place_grid_orders(short_orders, SELL)
