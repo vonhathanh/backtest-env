@@ -29,14 +29,15 @@ class OrderManager:
 
     def split_orders_by_side(self) -> tuple[list[Order], list[Order]]:
         long_orders, short_orders = [], []
-        for order in self.orders.values():
+        orders = sorted(self.orders.values(), key=lambda x: x.created_at)
+
+        for order in orders:
             long_orders.append(order) if order.side == "BUY" else short_orders.append(order)
-        return (sorted(long_orders, key=lambda x: x.created_at),
-                sorted(short_orders, key=lambda x: x.created_at))
+
+        return long_orders, short_orders
 
     def process_orders(self):
-        for order_id in list(self.orders.keys()):
-            order = self.orders[order_id]
+        for order in list(self.orders.values()):
             handler = self.order_handlers[order.type] # handler is just a function
             handler(order)
 
