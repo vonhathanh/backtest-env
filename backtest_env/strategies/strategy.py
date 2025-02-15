@@ -34,5 +34,5 @@ class Strategy(ABC):
         return cls(args)
 
     @classmethod
-    def get_required_params(cls: Type[T]):
+    def get_required_params(cls: Type[T]) -> dict:
         return {}

@@ -20,7 +20,7 @@ class PositionManager:
             self.short.update(order)
             self.margin += order.quantity * order.price
 
-    def close(self):
+    def close_all_positions(self):
         price = self.data.get_open_price()
         self.balance += (self.long.quantity - self.short.quantity) * price + self.margin
         self.margin = 0.0
@@ -32,3 +32,7 @@ class PositionManager:
 
     def get_number_of_active_positions(self) -> int:
         return (self.long.quantity > 0.0) + (self.short.quantity > 0.0)
+
+    def get_pnl(self):
+        price = self.data.get_open_price()
+        return self.long.get_pnl(price) + self.short.get_pnl(price)
