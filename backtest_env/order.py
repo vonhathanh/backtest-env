@@ -26,3 +26,6 @@ class Order:
         self.position_side = position_side
         self.id = order_id if order_id else uuid4().hex
         self.created_at = int(time.time_ns())
+
+    def __str__(self):
+        return f"{self.type} {self.side} {self.quantity} {self.symbol} at {self.price}, position side = {self.position_side}"
