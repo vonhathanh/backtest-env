@@ -14,11 +14,21 @@ class Baseline(Strategy):
         self.symbol = args.symbol
 
     def update(self):
+        self.process_previous_orders_and_current_positions()
+        self.look_for_opportunities()
+
+    def process_previous_orders_and_current_positions(self):
         self.order_manager.process_orders()
 
+        pnl = self.position_manager.get_pnl()
+
+        if pnl > 0.1:
+            self.position_manager.close_all_positions()
+
+    def look_for_opportunities(self):
         pending_orders = self.order_manager.get_orders()
 
-        if len(pending_orders) >= 2 or len(self.position_manager.get_number_of_active_positions()) >= 2:
+        if len(pending_orders) >= 1 or self.position_manager.get_number_of_active_positions() >= 1:
             return
 
         side = BUY if random.random() <= 0.5 else SELL
