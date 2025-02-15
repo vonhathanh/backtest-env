@@ -37,7 +37,7 @@ class TestPositionManager:
 
         # close long position at price = 300
         self.data.get_open_price.return_value = 300.0
-        self.position_mgr.close()
+        self.position_mgr.close_all_positions()
 
         assert self.position_mgr.long.quantity == 0.0
         assert self.position_mgr.long.avg_price == 0.0
@@ -48,7 +48,7 @@ class TestPositionManager:
 
         # close long position at price = 300
         self.data.get_open_price.return_value = 300.0
-        self.position_mgr.close()
+        self.position_mgr.close_all_positions()
 
         assert self.position_mgr.short.quantity == 0.0
         assert self.position_mgr.short.avg_price == 0.0

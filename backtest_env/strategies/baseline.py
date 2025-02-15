@@ -14,10 +14,10 @@ class Baseline(Strategy):
         self.symbol = args.symbol
 
     def update(self):
-        self.process_previous_orders_and_current_positions()
+        self.update_orders_and_positions()
         self.look_for_opportunities()
 
-    def process_previous_orders_and_current_positions(self):
+    def update_orders_and_positions(self):
         self.order_manager.process_orders()
 
         pnl = self.position_manager.get_pnl()
