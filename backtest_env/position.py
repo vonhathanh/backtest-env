@@ -14,18 +14,12 @@ class Position(ABC):
         self.avg_price = 0.0
 
     def decrease(self, delta: float):
-        if self.quantity < delta:
-            raise ValueError("position.quantity < delta")
-
         self.quantity -= delta
 
         if self.quantity == 0.0:
             self.avg_price = 0.0
 
     def increase(self, order: Order):
-        if order.quantity <= 0:
-            raise ValueError("order's quantity is invalid (<=0)")
-
         self.avg_price = round(((self.quantity * self.avg_price + order.quantity * order.price) /
                           (self.quantity + order.quantity)), 4)
         self.quantity += order.quantity
@@ -38,6 +32,10 @@ class Position(ABC):
     def update(self, order: Order):
         pass
 
+    @abstractmethod
+    def validate(self, order: Order):
+        pass
+
 
 class LongPosition(Position):
 
@@ -45,11 +43,16 @@ class LongPosition(Position):
         super().__init__()
         self.side = LONG
 
-    # TODO: test pnl()
     def get_pnl(self, price: float) -> float:
         return round(self.quantity * (price - self.avg_price), 4)
 
+    def validate(self, order: Order):
+        assert order.quantity > 0
+        if order.side == SELL:
+            assert order.quantity <= self.quantity
+
     def update(self, order: Order):
+        self.validate(order)
         self.increase(order) if order.side == BUY else self.decrease(order.quantity)
 
 
@@ -62,5 +65,11 @@ class ShortPosition(Position):
     def get_pnl(self, price: float) -> float:
         return round(self.quantity * (self.avg_price - price), 4)
 
+    def validate(self, order: Order):
+        assert order.quantity > 0
+        if order.side == BUY:
+            assert order.quantity <= self.quantity
+
     def update(self, order: Order):
+        self.validate(order)
         self.increase(order) if order.side == SELL else self.decrease(order.quantity)
