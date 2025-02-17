@@ -13,6 +13,12 @@ class Position(ABC):
         self.quantity = 0.0
         self.avg_price = 0.0
 
+    def cost(self) -> float:
+        return self.quantity * self.avg_price
+
+    def value(self, price: float):
+        return self.quantity * price
+
     def decrease(self, delta: float):
         self.quantity -= delta
 
