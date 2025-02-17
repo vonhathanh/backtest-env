@@ -8,6 +8,7 @@ class PositionManager:
     def __init__(self, data: PriceData, initial_balance: float):
         self.long = LongPosition()
         self.short = ShortPosition()
+        self.initial_balance = initial_balance # used to check real pnl
         self.balance = initial_balance
         self.margin = 0.0
         self.data = data
@@ -33,6 +34,6 @@ class PositionManager:
     def get_number_of_active_positions(self) -> int:
         return (self.long.quantity > 0.0) + (self.short.quantity > 0.0)
 
-    def get_pnl(self):
-        price = self.data.get_open_price()
-        return self.long.get_pnl(price) + self.short.get_pnl(price)
+    def get_pnl(self, price: float = 0.0):
+        price = price if price else self.data.get_open_price()
+        return self.long.value(price) - self.short.value(price) + self.balance - self.initial_balance + self.margin
