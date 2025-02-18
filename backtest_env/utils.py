@@ -69,7 +69,7 @@ def to_position(side: str) -> str:
     return LONG if side == BUY else SHORT
 
 
-def convert_datetime_to_nanosecond(date: str, date_format: str = "%M/%d/%Y") -> int:
+def convert_datetime_to_nanosecond(date: str, date_format: str = "%Y-%m-%d") -> int:
     return int(datetime.strptime(date, date_format).timestamp()) * 1000
 
 
