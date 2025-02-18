@@ -93,7 +93,5 @@ async def send_message_to_websocket_client():
 
 
 async def clean_resources():
-    for client in ws_clients:
-        await client.close()
     for process in processes:
         process.join()
