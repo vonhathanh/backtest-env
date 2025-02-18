@@ -6,7 +6,6 @@ from backtest_env.order import OrderType, Order
 from backtest_env.strategies import Strategy
 from backtest_env.constants import BUY, SELL
 
-
 class TrendFollower(Strategy):
     """
     1) Open both long and short at daily candle close price
@@ -26,9 +25,9 @@ class TrendFollower(Strategy):
         super().__init__(args)
         self.symbol = args.symbol
         # how many grid orders will be placed
-        self.grid_size = args.grid_size
+        self.grid_size = args.gridSize
 
-        self.order_size = args.order_size
+        self.order_size = args.orderSize
 
         # the difference in percentage of the next grid order compared to current order
         # example, current grid order: buy btc at 1000$, step_size = 0.01, so the next order will be placed at
@@ -39,10 +38,15 @@ class TrendFollower(Strategy):
         self.interval = args.interval
 
         # number of 1d candles being stored to calculate daily average change
-        self.candle_cache_size = args.candle_cache_size
+        self.candle_cache_size = args.candleCacheSize
         self.candles = []
         # these values will be used to form daily candle based on smaller candles data
         self.open, self.high, self.low, self.close = 0.0, 0.0, np.inf, 0.0
+
+    @classmethod
+    def from_cfg(cls, kwargs):
+        args = TrendFollowerArgs(**kwargs)
+        return cls(args)
 
     @classmethod
     def get_required_params(cls):

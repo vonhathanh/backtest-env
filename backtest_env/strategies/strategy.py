@@ -12,8 +12,8 @@ T = TypeVar("T", bound="Strategy")
 class Strategy(ABC):
     # base class for all strategies
     def __init__(self, args: Args):
-        self.data = PriceData(args.symbol, args.timeframe, args.start_time, args.end_time)
-        self.position_manager = PositionManager(self.data, args.initial_balance)
+        self.data = PriceData(args.symbol, args.timeframe, args.startTime, args.endTime)
+        self.position_manager = PositionManager(self.data, args.initialBalance)
         self.order_manager = OrderManager(self.position_manager, self.data)
 
     def run(self):
@@ -30,7 +30,8 @@ class Strategy(ABC):
         pass
 
     @classmethod
-    def from_cfg(cls: Type[T], args: Args):
+    def from_cfg(cls: Type[T], kwargs):
+        args = Args(**kwargs)
         return cls(args)
 
     @classmethod

@@ -1,19 +1,22 @@
-from typing import Optional
+from typing import Optional, Any
 
 from pydantic import BaseModel
 
 class Args(BaseModel):
-    initial_balance: float
+    initialBalance: float
     symbol: str
     timeframe: str
-    start_time: str
-    end_time: Optional[str]
+    startTime: str
+    endTime: Optional[str]
 
 class TrendFollowerArgs(Args):
-    grid_size: int
-    order_size: float
+    gridSize: int
+    orderSize: float
+    interval: int
+    candleCacheSize: int
 
-class BacktestParam(Args):
-    strategies: list[str]
+class BacktestConfig(BaseModel):
+    strategies: list[Any]
+    generalConfig: Args
 
 

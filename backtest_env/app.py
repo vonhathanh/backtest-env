@@ -6,7 +6,7 @@ from fastapi import FastAPI, WebSocket
 from fastapi.middleware.cors import CORSMiddleware
 
 from backtest_env.constants import DATA_DIR
-from backtest_env.dto import BacktestParam
+from backtest_env.dto import Args, BacktestConfig
 from backtest_env.strategies import STRATEGIES
 from backtest_env.utils import extract_metadata_in_batch
 
@@ -64,9 +64,9 @@ async def websocket_connected(websocket: WebSocket):
 
 
 @app.post("/backtest")
-def backtest(params: BacktestParam):
-    for strategy in params.strategies:
-        backtest_process = Process(target=start, args=(strategy, params))
+def backtest(config: BacktestConfig):
+    for strategy in config.strategies:
+        backtest_process = Process(target=start, args=(strategy, config.generalConfig))
         backtest_process.start()
 
         processes.append(backtest_process)
@@ -74,8 +74,12 @@ def backtest(params: BacktestParam):
     return {"msg": "OK"}
 
 
-def start(strategy_id: str, args: BacktestParam):
-    strategy = STRATEGIES[strategy_id].from_cfg(args)
+def start(strategy: tuple, general_config: Args):
+    strategy_name, strategy_params = strategy
+    # merge two dictionaries
+    args = {**strategy_params, **general_config.model_dump()}
+
+    strategy = STRATEGIES[strategy_name].from_cfg(args)
     strategy.run()
 
 
