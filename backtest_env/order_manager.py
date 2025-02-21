@@ -1,10 +1,10 @@
 from backtest_env.order import OrderType, Order
 from backtest_env.position_manager import PositionManager
-from backtest_env.price import PriceData
+from backtest_env.price import PriceDataSet
 
 
 class OrderManager:
-    def __init__(self, position_manager: PositionManager, data: PriceData):
+    def __init__(self, position_manager: PositionManager, price_dataset: PriceDataSet):
         self.orders = {}
         self.order_handlers = {
             OrderType.Market: self.handle_market_order,
@@ -13,7 +13,7 @@ class OrderManager:
             OrderType.Stoploss: self.handle_limit_order,
         }
         self.position_manager = position_manager
-        self.data = data
+        self.price_dataset = price_dataset
 
     def get_orders(self) -> list[Order]:
         return list(self.orders.values())
@@ -49,7 +49,7 @@ class OrderManager:
         self.handle_stop_order(order)
 
     def handle_stop_order(self, order):
-        p = self.data.get_current_price()
+        p = self.price_dataset.get_current_price()
         # if price is in the candle body then treats it as market order
         if p.low <= order.price <= p.high:
             self.handle_market_order(order)

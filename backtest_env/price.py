@@ -15,14 +15,25 @@ class Price:
     close: float
     close_time: int
 
+    def to_json(self):
+        return {
+            "open_time": self.open_time,
+            "open": self.open,
+            "high": self.high,
+            "low": self.low,
+            "close": self.close,
+            "close_time": self.close_time,
+        }
 
-class PriceData:
+
+
+class PriceDataSet:
     def __init__(self, symbol, tf, start_time: str, end_time: str = ""):
         start = convert_datetime_to_nanosecond(start_time)
         end = convert_datetime_to_nanosecond(end_time)
 
         self.prices: np.ndarray = load_price_data(DATA_DIR, symbol, tf, start, end)
-        self.idx = 0
+        self.idx = -1
 
     def get_current_price(self) -> Price:
         return Price(*self[self.idx])
