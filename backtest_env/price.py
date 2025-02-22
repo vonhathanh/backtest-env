@@ -6,7 +6,6 @@ from backtest_env.constants import DATA_DIR
 from backtest_env.utils import load_price_data, convert_datetime_to_nanosecond
 
 
-@dataclass
 class Price:
     open_time: int
     open: float
@@ -14,6 +13,15 @@ class Price:
     low: float
     close: float
     close_time: int
+
+    def __init__(self, open_time, open_price, high, low, close, close_time):
+        self.open_time = int(open_time)
+        self.open = float(open_price)
+        self.high = float(high)
+        self.low = float(low)
+        self.close = float(close)
+        self.close_time = int(close_time)
+
 
     def to_json(self):
         return {
@@ -24,7 +32,6 @@ class Price:
             "close": self.close,
             "close_time": self.close_time,
         }
-
 
 
 class PriceDataSet:
