@@ -16,3 +16,4 @@ LONG = "LONG"
 SHORT = "SHORT"
 
 DATA_DIR = config["data_dir"]
+WEBSOCKET_URL = config["websocket_uri"]

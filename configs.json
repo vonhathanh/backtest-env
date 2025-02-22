@@ -1,3 +1,4 @@
 {
-  "data_dir": "./backtest_env/data"
+  "data_dir": "./backtest_env/data",
+  "websocket_uri": "ws://localhost:8000/ws"
 }
