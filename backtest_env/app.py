@@ -1,18 +1,17 @@
 import os
 from contextlib import asynccontextmanager
-from multiprocessing import Process, Queue
+from multiprocessing import Process
 
-from fastapi import FastAPI, WebSocket
+from fastapi import FastAPI, WebSocket, WebSocketDisconnect
 from fastapi.middleware.cors import CORSMiddleware
 
 from backtest_env.constants import DATA_DIR
 from backtest_env.dto import Args, BacktestConfig
 from backtest_env.strategies import STRATEGIES
 from backtest_env.utils import extract_metadata_in_batch
+from backtest_env.websocket_manager import WebsocketManager
 
-event_queue = Queue()
-
-ws_clients: set[WebSocket] = set()
+websocket_manager = WebsocketManager()
 
 processes: list[Process] = []
 
@@ -57,10 +56,13 @@ async def get_files_metadata():
 
 @app.websocket("/ws")
 async def websocket_connected(websocket: WebSocket):
-    await websocket.accept()
-    await websocket.send_json({"msg": "hello websocket"})
-
-    ws_clients.add(websocket)
+    await websocket_manager.connect(websocket)
+    while True:
+        try:
+            message = await websocket.receive_text()
+            await websocket_manager.broadcast(message)
+        except WebSocketDisconnect:
+            websocket_manager.disconnect(websocket)
 
 
 @app.post("/backtest")
@@ -81,15 +83,6 @@ def start(strategy: tuple, general_config: Args):
 
     strategy = STRATEGIES[strategy_name].from_cfg(args)
     strategy.run()
-
-
-async def send_message_to_websocket_client():
-    event = event_queue.get()
-    for client in ws_clients.copy():
-        try:
-            await client.send_text(event)
-        except:
-            ws_clients.remove(client)
 
 
 async def clean_resources():
