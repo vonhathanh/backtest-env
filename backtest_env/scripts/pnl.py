@@ -1,7 +1,6 @@
 from backtest_env.order_manager import OrderManager
 from backtest_env.position_manager import PositionManager
 from backtest_env.utils import create_long_order, create_short_order
-from backtest_env.constants import SELL
 
 
 position_manager = PositionManager(None, 10000)
