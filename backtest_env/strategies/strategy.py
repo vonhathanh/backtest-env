@@ -19,7 +19,7 @@ class Strategy(ABC):
         self.data = PriceDataSet(args.symbol, args.timeframe, args.startTime, args.endTime)
         self.position_manager = PositionManager(self.data, args.initialBalance)
         self.order_manager = OrderManager(self.position_manager, self.data)
-        self.sleep_interval = 0.01
+        self.sleep_interval = 0.1
         # client_id in websocket communication
         self.client_id = self.__class__.__name__
         try:
@@ -40,7 +40,7 @@ class Strategy(ABC):
         if self.websocket:
             self.websocket.send(json.dumps({
                 "type": event_type,
-                "messsage": message,
+                "message": message,
                 "client_id": self.client_id
             }))
 
