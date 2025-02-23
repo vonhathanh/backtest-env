@@ -50,7 +50,10 @@ class TrendFollower(Strategy):
 
     @classmethod
     def get_required_params(cls):
-        return {"Grid Size": "number", "Order Size": "number", "Interval": "number", "Candle Cache Size": "number"}
+        return {"Grid Size": {"type": "int", "defaultValue": 5},
+                "Order Size": {"type": "int", "defaultValue": 100},
+                "Interval": {"type": "int", "defaultValue": 4},
+                "Candle Cache Size": {"type": "int", "defaultValue": 10}}
 
     def update(self):
         self.update_statistic()
