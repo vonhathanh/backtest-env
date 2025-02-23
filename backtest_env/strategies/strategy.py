@@ -63,5 +63,5 @@ class Strategy(ABC):
 
     @classmethod
     def get_required_params(cls: Type[T]) -> dict:
-        # same as from_cfg(), subclass might have other required params, and they can specify them in this method
+        # similar to from_cfg(), subclass might have other required params, and they can specify them here
         return {}
