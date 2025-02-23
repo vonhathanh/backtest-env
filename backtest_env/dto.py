@@ -8,15 +8,10 @@ class Args(BaseModel):
     timeframe: str
     startTime: str
     endTime: Optional[str]
+    strategy: str
 
 class TrendFollowerArgs(Args):
     gridSize: int
     orderSize: float
     interval: int
     candleCacheSize: int
-
-class BacktestConfig(BaseModel):
-    strategies: list[Any]
-    generalConfig: Args
-
-
