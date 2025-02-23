@@ -39,7 +39,7 @@ class TestOrderManager:
         self.order_mgr.add_orders([market_order, limit_order])
 
         # force price to return 100 so limit order not filled
-        self.order_mgr.data.get_current_price.return_value = Price(0, 100, 100, 100, 100, 0)
+        self.order_mgr.price_dataset.get_current_price.return_value = Price(0, 100, 100, 100, 100, 0)
 
         # process only market order so limit order will stay
         self.order_mgr.process_orders()
@@ -47,7 +47,7 @@ class TestOrderManager:
         assert len(orders) == 1 and orders[0].type == OrderType.Limit
 
         # force price to contain limit order price, so it can be processed
-        self.order_mgr.data.get_current_price.return_value = Price(0, 110, 120, 100, 110, 0)
+        self.order_mgr.price_dataset.get_current_price.return_value = Price(0, 110, 120, 100, 110, 0)
 
         self.order_mgr.process_orders()
         assert len(self.order_mgr.get_orders()) == 0

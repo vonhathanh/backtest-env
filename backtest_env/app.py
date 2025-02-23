@@ -67,7 +67,7 @@ async def websocket_connected(websocket: WebSocket):
 
 async def handle_websocket(websocket: WebSocket):
     message = await websocket.receive_json()
-    if message["type"] == "backtest":
+    if message.get("type", "") == "backtest":
         backtest(message["params"])
     else:
         await websocket_manager.broadcast(message)

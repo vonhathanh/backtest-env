@@ -57,7 +57,6 @@ class TrendFollower(Strategy):
         self.order_manager.process_orders()
 
         if self.is_episode_end():
-            # close all orders and positions
             self.order_manager.cancel_all_orders()
             self.position_manager.close_all_positions()
 
