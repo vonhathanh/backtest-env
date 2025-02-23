@@ -12,24 +12,25 @@ class TestOrderManager:
     position_mgr = Mock()
     order_mgr = OrderManager(position_mgr, data)
 
-    def test_split_orders_by_side(self):
+    def test_get_open_orders(self):
         # empty orders
-        long_orders, short_orders = self.order_mgr.split_orders_by_side()
-        assert len(long_orders) == 0 and len(short_orders) == 0
+        orders = self.order_mgr.get_open_orders(BUY)
+        assert len(orders) == 0
 
         # 1 buy and 0 sell order
         self.order_mgr.add_order(create_long_order(side=BUY))
-        long_orders, short_orders = self.order_mgr.split_orders_by_side()
+        long_orders = self.order_mgr.get_open_orders(BUY)
+        short_orders = self.order_mgr.get_open_orders(SELL)
         assert len(long_orders) == 1 and len(short_orders) == 0
 
         # add new sell order
         self.order_mgr.add_order(create_long_order(side=SELL))
-        long_orders, short_orders = self.order_mgr.split_orders_by_side()
+        short_orders = self.order_mgr.get_open_orders(SELL)
         assert len(long_orders) == 1 and len(short_orders) == 1
 
         # more than 1 sell order
         self.order_mgr.add_order(create_long_order(side=SELL))
-        long_orders, short_orders = self.order_mgr.split_orders_by_side()
+        short_orders = self.order_mgr.get_open_orders(SELL)
         assert len(long_orders) == 1 and len(short_orders) == 2
 
     def test_process_orders(self):
