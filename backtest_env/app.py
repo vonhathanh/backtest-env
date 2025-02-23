@@ -6,7 +6,7 @@ from fastapi import FastAPI, WebSocket, WebSocketDisconnect
 from fastapi.middleware.cors import CORSMiddleware
 
 from backtest_env.constants import DATA_DIR
-from backtest_env.dto import Args, BacktestConfig
+from backtest_env.dto import Args
 from backtest_env.strategies import STRATEGIES
 from backtest_env.utils import extract_metadata_in_batch
 from backtest_env.websocket_manager import WebsocketManager
@@ -59,29 +59,31 @@ async def websocket_connected(websocket: WebSocket):
     await websocket_manager.connect(websocket)
     while True:
         try:
-            message = await websocket.receive_text()
-            await websocket_manager.broadcast(message)
+            await handle_websocket(websocket)
         except WebSocketDisconnect:
-            websocket_manager.disconnect(websocket)
+            break
+    websocket_manager.disconnect(websocket)
 
 
-@app.post("/backtest")
-def backtest(config: BacktestConfig):
-    for strategy in config.strategies:
-        backtest_process = Process(target=start, args=(strategy, config.generalConfig))
-        backtest_process.start()
+async def handle_websocket(websocket: WebSocket):
+    message = await websocket.receive_json()
+    if message["type"] == "backtest":
+        backtest(message["params"])
+    else:
+        await websocket_manager.broadcast(message)
 
-        processes.append(backtest_process)
+
+def backtest(args: dict):
+    backtest_process = Process(target=start, args=(args,))
+    backtest_process.start()
+
+    processes.append(backtest_process)
 
     return {"msg": "OK"}
 
 
-def start(strategy: tuple, general_config: Args):
-    strategy_name, strategy_params = strategy
-    # merge two dictionaries
-    args = {**strategy_params, **general_config.model_dump()}
-
-    strategy = STRATEGIES[strategy_name].from_cfg(args)
+def start(args: Args):
+    strategy = STRATEGIES[args["strategy"]].from_cfg(args)
     strategy.run()
 
 
