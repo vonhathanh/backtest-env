@@ -1,3 +1,5 @@
+import json
+import time
 from typing import TypeVar, Type
 from abc import ABC, abstractmethod
 from websockets.sync.client import connect
@@ -17,8 +19,9 @@ class Strategy(ABC):
         self.data = PriceDataSet(args.symbol, args.timeframe, args.startTime, args.endTime)
         self.position_manager = PositionManager(self.data, args.initialBalance)
         self.order_manager = OrderManager(self.position_manager, self.data)
+        self.sleep_interval = 0.01
         # client_id in websocket communication
-        self.client_id = f"{self.__class__.__name__}_{args.symbol}_{args.timeframe}"
+        self.client_id = self.__class__.__name__
         try:
             self.websocket = connect(WEBSOCKET_URL)
         except Exception as e:
@@ -26,18 +29,16 @@ class Strategy(ABC):
             self.websocket = None
 
     def run(self):
-        # strategy will: call self.data.step() to move forward to the next price
-        # validate account's state: orders, positions,...
-        # inspect new input data: prices, indicators,... from backend
-        # determine the next action: submit buy/sell order, cancel orders, close positions, ...
+        # get new OHLC candle
         while self.data.step():
             self.emit(self.data.get_current_price().to_json())
             self.update()
+            time.sleep(self.sleep_interval)
         print("Backtest finished")
 
     def emit(self, message: dict, event_type: str = "new_candle"):
         if self.websocket:
-            self.websocket.send(str({
+            self.websocket.send(json.dumps({
                 "type": event_type,
                 "messsage": message,
                 "client_id": self.client_id
@@ -45,6 +46,9 @@ class Strategy(ABC):
 
     @abstractmethod
     def update(self):
+        # validate account's state: orders, positions,...
+        # inspect new input data: prices, indicators,... from backend
+        # determine the next action: submit buy/sell order, cancel orders, close positions, ...
         pass
 
     @classmethod
