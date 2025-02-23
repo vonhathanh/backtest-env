@@ -35,5 +35,5 @@ class PositionManager:
         return (self.long.quantity > 0.0) + (self.short.quantity > 0.0)
 
     def get_pnl(self, price: float = 0.0):
-        price = price if price else self.price_dataset.get_open_price()
+        price = price if price != 0.0 else self.price_dataset.get_open_price()
         return self.long.value(price) - self.short.value(price) + self.balance - self.initial_balance + self.margin

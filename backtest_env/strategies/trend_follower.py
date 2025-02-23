@@ -108,17 +108,13 @@ class TrendFollower(Strategy):
         self.step_size = round(max(np.mean(changes) / self.interval, 0.005), 3)
 
     def update_grid(self):
-        long_orders, short_orders = self.order_manager.split_orders_by_side()
-        # place grid orders at two sides of the current price
-        self.place_grid_orders(long_orders, BUY)
-        self.place_grid_orders(short_orders, SELL)
+        self.place_grid_orders(BUY)
+        self.place_grid_orders(SELL)
 
-    def place_grid_orders(self, orders: list[Order], side: str):
+    def place_grid_orders(self, side: str):
+        orders = self.order_manager.get_open_orders(side=side)
         num_unfill_orders = self.grid_size - len(orders)
         assert num_unfill_orders >= 0
-        if num_unfill_orders > 0:
-            print(f"adding new {num_unfill_orders} {side} orders to the backend")
-
         # determine entry price for new order, use current price if grid is empty
         # else use the latest order's price as starting point
         price = self.data.get_close_price() if not orders else orders[-1].price

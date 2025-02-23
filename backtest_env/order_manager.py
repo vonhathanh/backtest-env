@@ -22,23 +22,18 @@ class OrderManager:
         self.orders[order.id] = order
 
     def add_orders(self, orders: list[Order]):
-        [self.add_order(order) for order in orders]
+        map(self.add_order, orders)
 
     def cancel_all_orders(self):
         self.orders = {}
 
-    def split_orders_by_side(self) -> tuple[list[Order], list[Order]]:
-        long_orders, short_orders = [], []
-        orders = sorted(self.orders.values(), key=lambda x: x.created_at)
-
-        for order in orders:
-            long_orders.append(order) if order.side == "BUY" else short_orders.append(order)
-
-        return long_orders, short_orders
+    def get_open_orders(self, side: str) -> list[Order]:
+        orders = filter(lambda order: order.side == side, self.orders.values())
+        return sorted(orders, key=lambda x: x.created_at)
 
     def process_orders(self):
         for order in list(self.orders.values()):
-            handler = self.order_handlers[order.type] # handler is just a function
+            handler = self.order_handlers[order.type]  # handler is just a function
             handler(order)
 
     def handle_market_order(self, order: Order):
