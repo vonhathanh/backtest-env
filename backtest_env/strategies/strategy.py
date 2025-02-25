@@ -1,14 +1,11 @@
-import json
-import time
 from typing import TypeVar, Type
 from abc import ABC, abstractmethod
-from websockets.sync.client import connect
 
-from backtest_env.constants import WEBSOCKET_URL
 from backtest_env.dto import Args
 from backtest_env.order_manager import OrderManager
 from backtest_env.position_manager import PositionManager
 from backtest_env.price import PriceDataSet
+from backtest_env.logger import logger
 
 T = TypeVar("T", bound="Strategy")
 
@@ -19,33 +16,14 @@ class Strategy(ABC):
         self.data = PriceDataSet(args.symbol, args.timeframe, args.startTime, args.endTime)
         self.position_manager = PositionManager(self.data, args.initialBalance)
         self.order_manager = OrderManager(self.position_manager, self.data)
-        # some sleep time for front-end to render, otherwise it would be too fast to see what's going on
-        self.sleep_interval = 0.1
-        # client_id in websocket communication
-        self.client_id = self.__class__.__name__
-        try:
-            self.websocket = connect(WEBSOCKET_URL)
-        except Exception as e:
-            print(f"Can't connect to websocket server, reason: {e}")
-            self.websocket = None
-            self.sleep_interval = 0.0
 
     def run(self):
         # main event loop: getting new candle stick and then process data based on update() logic
         # child class must override update() to specify their own trading logic
         while self.data.step():
-            self.emit(self.data.get_current_price().to_json())
             self.update()
-            time.sleep(self.sleep_interval)
-        print("Backtest finished")
+        logger.info("Backtest finished")
 
-    def emit(self, message: dict, event_type: str = "new_candle"):
-        if self.websocket:
-            self.websocket.send(json.dumps({
-                "type": event_type,
-                "message": message,
-                "client_id": self.client_id
-            }))
 
     @abstractmethod
     def update(self):
