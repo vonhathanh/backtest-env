@@ -10,13 +10,13 @@ from backtest_env.dto import Args
 from backtest_env.strategies import STRATEGIES
 from backtest_env.utils import extract_metadata_in_batch
 from backtest_env.websocket_manager import WebsocketManager
+from backtest_env.logger import logger
 
 websocket_manager = WebsocketManager()
 
 processes: list[Process] = []
 
 origins = ["http://localhost:5173"]
-
 
 @asynccontextmanager
 async def lifespan(application: FastAPI):
@@ -60,7 +60,8 @@ async def websocket_connected(websocket: WebSocket):
     while True:
         try:
             await handle_websocket(websocket)
-        except WebSocketDisconnect:
+        except WebSocketDisconnect as e:
+            logger.info(f"ws disconnected: reason: {e}")
             break
     websocket_manager.disconnect(websocket)
 
