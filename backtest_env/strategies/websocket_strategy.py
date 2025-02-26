@@ -32,7 +32,7 @@ class WebsocketStrategy(Strategy, ABC):
             try:
                 # ignore all other messages except "render_finished"
                 message = json.loads(self.websocket.recv(1))
-                if message["message"] == "render_finished":
+                if message["message"] == "frontend_updated":
                     return
             except (ConnectionClosed, ConcurrencyError, JSONDecodeError, TypeError, TimeoutError) as e:
                 logger.error(f"process client message error: {e}")
