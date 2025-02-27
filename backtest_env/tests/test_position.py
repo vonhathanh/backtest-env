@@ -13,13 +13,13 @@ def test_increase_long_position():
     assert excinfo.type is AssertionError
 
     p.update(create_long_order(price=500.0, quantity=1.0))
-    assert p.avg_price == 500.0 and p.quantity == 1.0
+    assert p.average_price == 500.0 and p.quantity == 1.0
 
     p.update(create_long_order(price=400.0, quantity=1.0))
-    assert p.avg_price == 450.0 and p.quantity == 2.0
+    assert p.average_price == 450.0 and p.quantity == 2.0
 
     p.update(create_long_order(price=650.0, quantity=2.0))
-    assert p.avg_price == 550.0 and p.quantity == 4.0
+    assert p.average_price == 550.0 and p.quantity == 4.0
 
 
 def test_decrease_long_position():
@@ -32,7 +32,7 @@ def test_decrease_long_position():
     assert excinfo.type is AssertionError
 
     p.update(create_long_order(side=SELL, quantity=0.3, price=600.0))
-    assert p.quantity == 0.3 and p.avg_price == 500.0
+    assert p.quantity == 0.3 and p.average_price == 500.0
 
 
 def test_increase_short_position():
@@ -43,13 +43,13 @@ def test_increase_short_position():
     assert excinfo.type is AssertionError
 
     p.update(create_short_order(price=12.0))
-    assert p.avg_price == 12.0 and p.quantity == 1.0
+    assert p.average_price == 12.0 and p.quantity == 1.0
 
     p.update(create_short_order(price=7.0))
-    assert p.avg_price == 9.5 and p.quantity == 2.0
+    assert p.average_price == 9.5 and p.quantity == 2.0
 
     p.update(create_short_order(price=10.5, quantity=2.0))
-    assert p.avg_price == 10.0 and p.quantity == 4.0
+    assert p.average_price == 10.0 and p.quantity == 4.0
 
 
 def test_decrease_short_position():
@@ -62,7 +62,7 @@ def test_decrease_short_position():
     assert excinfo.type is AssertionError
 
     p.update(create_short_order(price=600.0, quantity=0.3, side=BUY))
-    assert p.quantity == 0.3 and p.avg_price == 500.0
+    assert p.quantity == 0.3 and p.average_price == 500.0
 
 
 def test_get_long_pnl():

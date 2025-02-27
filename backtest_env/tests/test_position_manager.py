@@ -40,7 +40,7 @@ class TestPositionManager:
         self.position_mgr.close_all_positions()
 
         assert self.position_mgr.long.quantity == 0.0
-        assert self.position_mgr.long.avg_price == 0.0
+        assert self.position_mgr.long.average_price == 0.0
         assert self.position_mgr.balance == self.initial_balance - 200
 
     def test_close_short_position(self):
@@ -51,5 +51,5 @@ class TestPositionManager:
         self.position_mgr.close_all_positions()
 
         assert self.position_mgr.short.quantity == 0.0
-        assert self.position_mgr.short.avg_price == 0.0
+        assert self.position_mgr.short.average_price == 0.0
         assert self.position_mgr.balance == self.initial_balance + 200

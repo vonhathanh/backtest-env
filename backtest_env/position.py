@@ -8,14 +8,14 @@ class Position(ABC):
     def __init__(self):
         self.side = ''
         self.quantity = 0.0
-        self.avg_price = 0.0
+        self.average_price = 0.0
 
     def close(self):
         self.quantity = 0.0
-        self.avg_price = 0.0
+        self.average_price = 0.0
 
     def cost(self) -> float:
-        return self.quantity * self.avg_price
+        return self.quantity * self.average_price
 
     def value(self, price: float):
         return self.quantity * price
@@ -24,18 +24,18 @@ class Position(ABC):
         self.quantity -= delta
 
         if self.quantity == 0.0:
-            self.avg_price = 0.0
+            self.average_price = 0.0
 
     def increase(self, order: Order):
-        self.avg_price = round(((self.quantity * self.avg_price + order.quantity * order.price) /
-                                (self.quantity + order.quantity)), 4)
+        self.average_price = round(((self.quantity * self.average_price + order.quantity * order.price) /
+                                    (self.quantity + order.quantity)), 4)
         self.quantity += order.quantity
 
     def json(self):
         return {
             "side": self.side,
             "quantity": self.quantity,
-            "averagePrice": self.avg_price
+            "averagePrice": self.average_price
         }
 
     @abstractmethod
@@ -58,7 +58,7 @@ class LongPosition(Position):
         self.side = LONG
 
     def get_pnl(self, price: float) -> float:
-        return round(self.quantity * (price - self.avg_price), 4)
+        return round(self.quantity * (price - self.average_price), 4)
 
     def validate(self, order: Order):
         assert order.quantity > 0
@@ -77,7 +77,7 @@ class ShortPosition(Position):
         self.side = SHORT
 
     def get_pnl(self, price: float) -> float:
-        return round(self.quantity * (self.avg_price - price), 4)
+        return round(self.quantity * (self.average_price - price), 4)
 
     def validate(self, order: Order):
         assert order.quantity > 0
