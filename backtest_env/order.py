@@ -29,3 +29,14 @@ class Order:
 
     def __str__(self):
         return f"{self.type} {self.side} {self.quantity} {self.symbol} at {self.price}, position side = {self.position_side}"
+
+    def json(self):
+        return {
+            "side": self.side,
+            "quantity": self.quantity,
+            "symbol": self.symbol,
+            "price": self.price,
+            "positionSide": self.position_side,
+            "id": self.id,
+            "createdAt": self.created_at
+        }

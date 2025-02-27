@@ -39,20 +39,18 @@ class WebsocketStrategy(Strategy, ABC):
                 return
 
     def emit_system_states(self):
-        price = self.data.get_current_price().json()
+        price = self.data.get_current_price()
         long, short = self.position_manager.get_positions()
         orders = self.order_manager.get_orders()
 
         message = json.dumps({
             "type": "update",
             "message": {
-                "price": price,
+                "price": price.json(),
                 "positions": [long.json(), short.json()],
-                "orders": orders
+                "orders": [order.json() for order in orders]
             },
             "client_id": self.client_id
         })
-
-        logger.info(f"message: {message}")
 
         self.websocket.send(message)
