@@ -23,8 +23,8 @@ class WebsocketStrategy(Strategy, ABC):
     def run(self):
         while self.data.step():
             self.process_client_messages()
-            self.emit(self.data.get_current_price().to_json())
             self.update()
+            self.emit_system_states()
         logger.info("Backtest finished")
 
     def process_client_messages(self):
@@ -38,9 +38,21 @@ class WebsocketStrategy(Strategy, ABC):
                 logger.error(f"process client message error: {e}")
                 return
 
-    def emit(self, message: dict, event_type: str = "new_candle"):
-        self.websocket.send(json.dumps({
-            "type": event_type,
-            "message": message,
+    def emit_system_states(self):
+        price = self.data.get_current_price().json()
+        long, short = self.position_manager.get_positions()
+        orders = self.order_manager.get_orders()
+
+        message = json.dumps({
+            "type": "update",
+            "message": {
+                "price": price,
+                "positions": [long.json(), short.json()],
+                "orders": orders
+            },
             "client_id": self.client_id
-        }))
+        })
+
+        logger.info(f"message: {message}")
+
+        self.websocket.send(message)
