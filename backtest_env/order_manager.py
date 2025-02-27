@@ -22,7 +22,8 @@ class OrderManager:
         self.orders[order.id] = order
 
     def add_orders(self, orders: list[Order]):
-        map(self.add_order, orders)
+        for order in orders:
+            self.add_order(order)
 
     def cancel_all_orders(self):
         self.orders = {}
