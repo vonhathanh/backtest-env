@@ -17,7 +17,7 @@ class Price:
         self.close_time = int(close_time)
 
 
-    def to_json(self):
+    def json(self):
         return {
             "open_time": self.open_time,
             "open": self.open,
