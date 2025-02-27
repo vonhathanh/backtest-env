@@ -6,6 +6,7 @@ from abc import ABC, abstractmethod
 class Position(ABC):
 
     def __init__(self):
+        self.side = ''
         self.quantity = 0.0
         self.avg_price = 0.0
 
@@ -27,8 +28,15 @@ class Position(ABC):
 
     def increase(self, order: Order):
         self.avg_price = round(((self.quantity * self.avg_price + order.quantity * order.price) /
-                          (self.quantity + order.quantity)), 4)
+                                (self.quantity + order.quantity)), 4)
         self.quantity += order.quantity
+
+    def json(self):
+        return {
+            "side": self.side,
+            "quantity": self.quantity,
+            "averagePrice": self.avg_price
+        }
 
     @abstractmethod
     def get_pnl(self, price: float) -> float:
