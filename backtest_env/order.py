@@ -24,11 +24,16 @@ class Order:
         self.symbol = symbol
         self.price = price
         self.position_side = position_side
-        self.id = order_id if order_id else uuid4().hex
+        self.id = order_id if order_id else uuid4().hex[:16]
         self.created_at = int(time.time_ns())
 
     def __str__(self):
-        return f"{self.type} {self.side} {self.quantity} {self.symbol} at {self.price}, position side = {self.position_side}"
+        return (f"{self.type} "
+                f"{self.side} "
+                f"{self.quantity} "
+                f"{self.symbol} "
+                f"at {self.price}, "
+                f"position side = {self.position_side}")
 
     def json(self):
         return {
