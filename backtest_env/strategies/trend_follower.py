@@ -51,9 +51,9 @@ class TrendFollower(WebsocketStrategy):
     @classmethod
     def get_required_params(cls):
         return {"Grid Size": {"type": "int", "defaultValue": 5},
-                "Order Size": {"type": "int", "defaultValue": 100},
+                "Order Size": {"type": "int", "defaultValue": 1},
                 "Interval": {"type": "int", "defaultValue": 4},
-                "Candle Cache Size": {"type": "int", "defaultValue": 10}}
+                "Candle Cache Size": {"type": "int", "defaultValue": 5}}
 
     def update(self):
         self.update_statistic()
