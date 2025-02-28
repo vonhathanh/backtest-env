@@ -25,7 +25,8 @@ class WebsocketStrategy(Strategy, ABC):
             self.process_client_messages()
             self.update()
             self.emit_system_states()
-        logger.info("Backtest finished")
+        self.cleanup()
+        self.report()
 
     def process_client_messages(self):
         while True:

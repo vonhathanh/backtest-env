@@ -22,7 +22,8 @@ class Strategy(ABC):
         # child class must override update() to specify their own trading logic
         while self.data.step():
             self.update()
-        logger.info("Backtest finished")
+        self.cleanup()
+        self.report()
 
 
     @abstractmethod
@@ -31,6 +32,13 @@ class Strategy(ABC):
         # inspect new input data: prices, indicators,... from other sources
         # determine the next action: submit buy/sell order, cancel orders, close positions, ...
         pass
+
+    def cleanup(self):
+        self.order_manager.cancel_all_orders()
+        self.position_manager.close_all_positions()
+
+    def report(self):
+        logger.info(f"Backtest finished, pnl: {self.position_manager.get_pnl()}")
 
     @classmethod
     def from_cfg(cls: Type[T], kwargs):
