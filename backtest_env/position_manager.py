@@ -17,12 +17,14 @@ class PositionManager:
         if order.position_side == LONG:
             self.long.update(order)
             self.balance -= order.quantity * order.price
+            assert self.balance >= 0
         else:
             self.short.update(order)
             self.margin += order.quantity * order.price
+            assert self.margin <= self.balance
 
     def close_all_positions(self):
-        price = self.price_dataset.get_open_price()
+        price = self.price_dataset.get_last_price().open
         self.balance += (self.long.quantity - self.short.quantity) * price + self.margin
         self.margin = 0.0
         self.long.close()
@@ -34,6 +36,9 @@ class PositionManager:
     def get_number_of_active_positions(self) -> int:
         return (self.long.quantity > 0.0) + (self.short.quantity > 0.0)
 
-    def get_pnl(self, price: float = 0.0):
+    def get_unrealized_pnl(self, price: float = 0.0):
         price = price if price != 0.0 else self.price_dataset.get_open_price()
         return self.long.value(price) - self.short.value(price) + self.balance - self.initial_balance + self.margin
+
+    def get_pnl(self):
+        return self.balance - self.initial_balance
