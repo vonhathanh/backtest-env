@@ -6,6 +6,7 @@ from backtest_env.price import PriceDataSet
 class OrderManager:
     def __init__(self, position_manager: PositionManager, price_dataset: PriceDataSet):
         self.orders = {}
+        self.filled_orders = []
         self.order_handlers = {
             OrderType.Market: self.handle_market_order,
             OrderType.Limit: self.handle_limit_order,
@@ -17,6 +18,9 @@ class OrderManager:
 
     def get_orders(self) -> list[Order]:
         return list(self.orders.values())
+
+    def get_order_history(self) -> list[Order]:
+        return self.filled_orders
 
     def add_order(self, order: Order):
         self.orders[order.id] = order
@@ -39,6 +43,7 @@ class OrderManager:
 
     def handle_market_order(self, order: Order):
         self.position_manager.fill(order)
+        self.filled_orders.append(order)
         del self.orders[order.id]
 
     def handle_limit_order(self, order):

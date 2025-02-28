@@ -42,13 +42,15 @@ class WebsocketStrategy(Strategy, ABC):
         price = self.data.get_current_price()
         long, short = self.position_manager.get_positions()
         orders = self.order_manager.get_orders()
+        order_history = self.order_manager.get_order_history()
 
         message = json.dumps({
             "type": "update",
             "message": {
                 "price": price.json(),
                 "positions": [long.json(), short.json()],
-                "orders": [order.json() for order in orders]
+                "orders": [order.json() for order in orders],
+                "orderHistory": [order.json() for order in order_history]
             },
             "client_id": self.client_id
         })
