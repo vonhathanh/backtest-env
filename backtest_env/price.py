@@ -1,5 +1,3 @@
-from dataclasses import dataclass
-
 import numpy as np
 
 from backtest_env.constants import DATA_DIR
@@ -38,13 +36,16 @@ class PriceDataSet:
         self.idx = -1
 
     def get_current_price(self) -> Price:
-        return Price(*self[self.idx])
+        return Price(*self.prices[self.idx])
 
     def get_open_price(self):
         return self.get_current_price().open
 
     def get_close_price(self):
         return self.get_current_price().close
+
+    def get_last_price(self):
+        return self[-1]
 
     def step(self):
         self.idx += 1
@@ -53,5 +54,5 @@ class PriceDataSet:
     def __len__(self):
         return len(self.prices)
 
-    def __getitem__(self, item):
-        return self.prices[item]
+    def __getitem__(self, index: int):
+        return Price(*self.prices[index])
