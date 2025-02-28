@@ -15,5 +15,5 @@ SELL = "SELL"
 LONG = "LONG"
 SHORT = "SHORT"
 
-DATA_DIR = config["data_dir"]
+DATA_DIR = os.path.join(BASE_DIR, "data")
 WEBSOCKET_URL = config["websocket_uri"]
