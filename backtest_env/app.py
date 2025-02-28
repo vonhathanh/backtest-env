@@ -2,6 +2,7 @@ import os
 from contextlib import asynccontextmanager
 from multiprocessing import Process
 
+import uvicorn
 from fastapi import FastAPI, WebSocket, WebSocketDisconnect
 from fastapi.middleware.cors import CORSMiddleware
 
@@ -91,3 +92,6 @@ def start(args: Args):
 async def clean_resources():
     for process in processes:
         process.join()
+
+if __name__ == '__main__':
+    uvicorn.run(app, host="0.0.0.0", port=8000)
