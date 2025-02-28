@@ -2,6 +2,7 @@ from unittest.mock import Mock
 
 
 from backtest_env.position_manager import PositionManager
+from backtest_env.price import Price
 from backtest_env.utils import create_long_order, create_short_order
 
 
@@ -36,7 +37,7 @@ class TestPositionManager:
         self.position_mgr.fill(create_long_order(price=500.0))
 
         # close long position at price = 300
-        self.data.get_open_price.return_value = 300.0
+        self.data.get_last_price.return_value = Price(0, 300.0, 0, 0, 0, 0)
         self.position_mgr.close_all_positions()
 
         assert self.position_mgr.long.quantity == 0.0
@@ -47,7 +48,7 @@ class TestPositionManager:
         self.position_mgr.fill(create_short_order(price=500.0))
 
         # close long position at price = 300
-        self.data.get_open_price.return_value = 300.0
+        self.data.get_last_price.return_value = Price(0, 300.0, 0, 0, 0, 0)
         self.position_mgr.close_all_positions()
 
         assert self.position_mgr.short.quantity == 0.0
