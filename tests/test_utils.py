@@ -1,5 +1,6 @@
 from backtest_env.utils import convert_datetime_to_nanosecond
 
+
 def test_convert_time_to_nanosecond():
     input_dates = ["01/02/2024", "02-01-2024"]
     date_formats = ["%M/%d/%Y", "%d-%M-%Y"]

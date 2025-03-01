@@ -13,5 +13,5 @@
 
 # Scripting
 - Run `python -m scripts.your_script_name_without.py_extension` to run the script.
-The reason is that python treats script as top-level module, it won't be able to find backtest_env
+The reason is that python treats script as top-level module, it won't be able to find backtest_env.
 We can add hacky methods like try catch, append sys.path, install this as a module using setup.py but I don't like them

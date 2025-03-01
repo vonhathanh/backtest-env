@@ -2,6 +2,7 @@ from typing import Optional
 
 from pydantic import BaseModel
 
+
 class Args(BaseModel):
     initialBalance: float
     symbol: str
@@ -9,6 +10,7 @@ class Args(BaseModel):
     startTime: str
     endTime: Optional[str]
     strategy: str
+
 
 class TrendFollowerArgs(Args):
     gridSize: int

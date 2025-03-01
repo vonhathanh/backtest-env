@@ -25,7 +25,6 @@ class Strategy(ABC):
         self.cleanup()
         self.report()
 
-
     @abstractmethod
     def update(self):
         # validate account's state: orders, positions,...
