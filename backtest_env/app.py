@@ -19,6 +19,7 @@ processes: list[Process] = []
 
 origins = ["http://localhost:5173"]
 
+
 @asynccontextmanager
 async def lifespan(application: FastAPI):
     os.makedirs(DATA_DIR, exist_ok=True)
@@ -43,36 +44,31 @@ def index():
 
 @app.get("/strategies")
 def get_strategies():
-    strategies = []
-    for strategy in STRATEGIES:
-        strategies.append({"name": strategy, "params": STRATEGIES[strategy].get_required_params()})
-    return strategies
+    return [{"name": strategy, "params": STRATEGIES[strategy].get_required_params()} for strategy in STRATEGIES]
 
 
 @app.get("/files/metadata")
 async def get_files_metadata():
-    filenames = os.listdir(DATA_DIR)
-    return await extract_metadata_in_batch(filenames)
+    return await extract_metadata_in_batch(os.listdir(DATA_DIR))
 
 
 @app.websocket("/ws")
 async def websocket_connected(websocket: WebSocket):
     await websocket_manager.connect(websocket)
-    while True:
-        try:
-            await handle_websocket(websocket)
-        except WebSocketDisconnect as e:
-            logger.info(f"ws disconnected: reason: {e}")
-            break
+    try:
+        await handle_websocket(websocket)
+    except WebSocketDisconnect as e:
+        logger.info(f"ws disconnected: reason: {e}")
     websocket_manager.disconnect(websocket)
 
 
 async def handle_websocket(websocket: WebSocket):
-    message = await websocket.receive_json()
-    if message.get("type", "") == "backtest":
-        backtest(message["params"])
-    else:
-        await websocket_manager.broadcast(message)
+    while True:
+        message = await websocket.receive_json()
+        if message.get("type", "") == "backtest":
+            backtest(message["params"])
+        else:
+            await websocket_manager.broadcast(message)
 
 
 def backtest(args: dict):
