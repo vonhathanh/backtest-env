@@ -35,6 +35,7 @@ class PriceDataSet:
         self.idx = -1
 
     def get_current_price(self) -> Price:
+        assert self.idx != -1
         return Price(*self.prices[self.idx])
 
     def get_open_price(self):
