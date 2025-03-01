@@ -14,24 +14,24 @@ class TestOrderManager:
 
     def test_get_open_orders(self):
         # empty orders
-        orders = self.order_mgr.get_open_orders(BUY)
+        orders = self.order_mgr.get_orders_by_side(BUY)
         assert len(orders) == 0
 
         # 1 buy and 0 sell order
         self.order_mgr.add_order(create_long_order(side=BUY))
-        long_orders = self.order_mgr.get_open_orders(BUY)
-        short_orders = self.order_mgr.get_open_orders(SELL)
+        long_orders = self.order_mgr.get_orders_by_side(BUY)
+        short_orders = self.order_mgr.get_orders_by_side(SELL)
         assert len(long_orders) == 1 and len(short_orders) == 0
 
         # add new sell order
         self.order_mgr.add_order(create_long_order(side=SELL))
-        short_orders = self.order_mgr.get_open_orders(SELL)
-        assert len(long_orders) == 1 and len(short_orders) == 1
+        short_orders = self.order_mgr.get_orders_by_side(SELL)
+        assert len(short_orders) == 1
 
         # more than 1 sell order
         self.order_mgr.add_order(create_long_order(side=SELL))
-        short_orders = self.order_mgr.get_open_orders(SELL)
-        assert len(long_orders) == 1 and len(short_orders) == 2
+        short_orders = self.order_mgr.get_orders_by_side(SELL)
+        assert len(short_orders) == 2
 
     def test_process_orders(self):
         market_order = create_long_order(side=BUY, price=100.0)
@@ -44,12 +44,12 @@ class TestOrderManager:
 
         # process only market order so limit order will stay
         self.order_mgr.process_orders()
-        orders = self.order_mgr.get_orders()
+        orders = self.order_mgr.get_all_orders()
         assert len(orders) == 1 and orders[0].type == OrderType.Limit
 
         # force price to contain limit order price, so it can be processed
         self.order_mgr.price_dataset.get_current_price.return_value = Price(0, 110, 120, 100, 110, 0)
 
         self.order_mgr.process_orders()
-        assert len(self.order_mgr.get_orders()) == 0
+        assert len(self.order_mgr.get_all_orders()) == 0
 

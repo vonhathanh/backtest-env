@@ -42,7 +42,7 @@ class WebsocketStrategy(Strategy, ABC):
     def emit_system_states(self):
         price = self.data.get_current_price()
         long, short = self.position_manager.get_positions()
-        orders = self.order_manager.get_orders()
+        orders = self.order_manager.get_all_orders()
         order_history = self.order_manager.get_order_history()
 
         message = json.dumps({

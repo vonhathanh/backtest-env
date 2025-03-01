@@ -6,6 +6,7 @@ from backtest_env.order import OrderType, Order
 from backtest_env.strategies.websocket_strategy import WebsocketStrategy
 from backtest_env.constants import BUY, SELL
 
+
 class TrendFollower(WebsocketStrategy):
     """
     1) Open both long and short at daily candle close price
@@ -21,6 +22,7 @@ class TrendFollower(WebsocketStrategy):
     How do we reduce the risk when the market is not giving us the right candle?
     - Trail stoploss
     """
+
     def __init__(self, args: TrendFollowerArgs):
         super().__init__(args)
         self.symbol = args.symbol
@@ -115,7 +117,7 @@ class TrendFollower(WebsocketStrategy):
         self.place_grid_orders(SELL)
 
     def place_grid_orders(self, side: str):
-        orders = self.order_manager.get_open_orders(side=side)
+        orders = self.order_manager.get_orders_by_side(side=side)
         num_unfill_orders = self.grid_size - len(orders)
         assert num_unfill_orders >= 0
         # determine entry price for new order, use current price if grid is empty

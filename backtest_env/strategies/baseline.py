@@ -26,7 +26,7 @@ class Baseline(WebsocketStrategy):
             self.position_manager.close_all_positions()
 
     def look_for_opportunities(self):
-        pending_orders = self.order_manager.get_orders()
+        pending_orders = self.order_manager.get_all_orders()
 
         if len(pending_orders) >= 1 or self.position_manager.get_number_of_active_positions() >= 1:
             return
