@@ -17,6 +17,4 @@ for i in range(1, 11):
 order_manager.add_orders(orders)
 order_manager.process_orders()
 
-print(position_manager.get_pnl(50))
-
-
+print(position_manager.get_unrealized_pnl(50))

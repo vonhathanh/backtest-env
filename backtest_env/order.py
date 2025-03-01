@@ -2,11 +2,13 @@ import time
 from enum import Enum
 from uuid import uuid4
 
+
 class OrderType(Enum):
     Market = 1,
     Limit = 2,
     TakeProfit = 3,
-    Stoploss= 4
+    Stoploss = 4
+
 
 class Order:
     # common sense: limit buy 1.0 bnb at price = 500.0

@@ -8,7 +8,7 @@ class PositionManager:
     def __init__(self, price_dataset: PriceDataSet, initial_balance: float):
         self.long = LongPosition()
         self.short = ShortPosition()
-        self.initial_balance = initial_balance # used to check real pnl
+        self.initial_balance = initial_balance  # used to check real pnl
         self.balance = initial_balance
         self.margin = 0.0
         self.price_dataset = price_dataset

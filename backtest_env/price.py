@@ -14,7 +14,6 @@ class Price:
         self.close = float(close)
         self.close_time = int(close_time)
 
-
     def json(self):
         return {
             "open_time": self.open_time,
