@@ -41,9 +41,6 @@ class PriceDataSet:
     def get_open_price(self):
         return self.get_current_price().open
 
-    def get_close_price(self):
-        return self.get_current_price().close
-
     def get_last_price(self):
         return self[-1]
 
