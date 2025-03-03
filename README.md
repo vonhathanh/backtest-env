@@ -7,8 +7,8 @@
 - Include `-s` to display logs
 
 # Rules
-- Submit orders: use close price
-- Fill orders/close position: use open price
+- Submit orders: use open price
+- Fill orders/close position: use close price
 - Every filepath string must relative with root directory (where this README is located)
 
 # Scripting

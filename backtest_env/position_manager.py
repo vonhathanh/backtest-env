@@ -24,7 +24,7 @@ class PositionManager:
             assert self.margin <= self.balance
 
     def close_all_positions(self):
-        price = self.price_dataset.get_last_price().open
+        price = self.price_dataset.get_last_price().close
         self.balance += (self.long.quantity - self.short.quantity) * price + self.margin
         self.margin = 0.0
         self.long.close()
