@@ -48,7 +48,7 @@ def get_sl(price: float, percent: float, side: str) -> float:
     :param side: current trading side of the parent order that we want to make SL for
     :return: entry price for stop-loss to be triggered
     """
-    return price * (1 - percent) if side == "BUY" else price * (1 + percent)
+    return round(price * (1 - percent) if side == "BUY" else price * (1 + percent), 4)
 
 
 def get_tp(price: float, percent: float, side: str) -> float:
@@ -59,11 +59,7 @@ def get_tp(price: float, percent: float, side: str) -> float:
     :param side: current trading side of the parent order that we want to make TP for
     :return: entry price for take-profit to be triggered
     """
-    return price * (1 + percent) if side == "BUY" else price * (1 - percent)
-
-
-def round_precision(num: float, digits: int = 4) -> float:
-    return round(num, digits)
+    return round(price * (1 + percent) if side == "BUY" else price * (1 - percent), 4)
 
 
 def to_position(side: str) -> str:
