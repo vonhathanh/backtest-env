@@ -104,7 +104,7 @@ class TrendFollower(Strategy):
             self.open = self.close
 
         self.candles.append((self.open, self.high, self.low, self.close))
-        # reset variables, open & close aren't resetted because their value are determined by time
+        # reset variables, open & close aren't included because their value are determined by time
         self.high, self.low = 0.0, np.inf
 
     def update_step_size(self):

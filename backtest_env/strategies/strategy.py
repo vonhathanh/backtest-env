@@ -21,7 +21,8 @@ class Strategy(ABC):
         self.order_manager = OrderManager(self.position_manager, self.data)
         self.ws_client: WebsocketClient = None
         if args.allowLiveUpdates:
-            self.ws_client = WebsocketClient(self.__class__.__name__)
+            # add 0.5 second buffer for FE to render + transfer messages
+            self.ws_client = WebsocketClient(self.__class__.__name__, args.delay + 0.5)
 
     def run(self):
         # main event loop: getting new candle stick and then process data based on update() logic

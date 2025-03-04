@@ -11,6 +11,7 @@ class Args(BaseModel):
     endTime: Optional[str]  # YYYY-mm-dd format
     strategy: str
     allowLiveUpdates: bool  # decide whether front-end can monitor the backtest progress
+    delay: Optional[float]
 
 
 class TrendFollowerArgs(Args):
