@@ -20,7 +20,7 @@ class Strategy(ABC):
         self.position_manager = PositionManager(self.data, args.initialBalance)
         self.order_manager = OrderManager(self.position_manager, self.data)
         self.ws_client: WebsocketClient = None
-        if args.isMonitor:
+        if args.allowLiveUpdates:
             self.ws_client = WebsocketClient(self.__class__.__name__)
 
     def run(self):
