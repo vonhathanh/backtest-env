@@ -3,11 +3,11 @@ import numpy as np
 import backtest_env.utils as utils
 from backtest_env.dto import TrendFollowerArgs
 from backtest_env.order import OrderType, Order
-from backtest_env.strategies.websocket_strategy import WebsocketStrategy
+from backtest_env.strategies.strategy import Strategy
 from backtest_env.constants import BUY, SELL
 
 
-class TrendFollower(WebsocketStrategy):
+class TrendFollower(Strategy):
     """
     1) Open both long and short at daily candle close price
     2) Place n limit long orders at the upper side of the entry price.
