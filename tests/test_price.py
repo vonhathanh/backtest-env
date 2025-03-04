@@ -4,8 +4,12 @@ import numpy as np
 
 from backtest_env.price import PriceDataSet, Price
 
-mock_data = np.array([[1740589200000, 10.0, 11.0, 9.0, 9.5, 1740675599999],
-                      [1740675600000, 9.5, 12.0, 9.4, 10, 1740761999999]])
+mock_data = np.array(
+    [
+        [1740589200000, 10.0, 11.0, 9.0, 9.5, 1740675599999],
+        [1740675600000, 9.5, 12.0, 9.4, 10, 1740761999999],
+    ]
+)
 
 
 def assert_price(price: Price, true_value: list | np.ndarray):

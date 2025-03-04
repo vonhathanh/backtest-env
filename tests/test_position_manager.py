@@ -7,7 +7,6 @@ from backtest_env.utils import create_long_order, create_short_order
 
 
 class TestPositionManager:
-
     def setup_method(self):
         self.data = Mock()
         self.initial_balance = 10000.0

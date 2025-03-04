@@ -35,7 +35,13 @@ class WebsocketStrategy(Strategy, ABC):
                 message = json.loads(self.websocket.recv(1))
                 if message["message"] == "frontend_updated":
                     return
-            except (ConnectionClosed, ConcurrencyError, JSONDecodeError, TypeError, TimeoutError) as e:
+            except (
+                ConnectionClosed,
+                ConcurrencyError,
+                JSONDecodeError,
+                TypeError,
+                TimeoutError,
+            ) as e:
                 logger.error(f"process client message error: {e}")
                 return
 
@@ -45,15 +51,17 @@ class WebsocketStrategy(Strategy, ABC):
         orders = self.order_manager.get_all_orders()
         order_history = self.order_manager.get_order_history()
 
-        message = json.dumps({
-            "type": "update",
-            "message": {
-                "price": price.json(),
-                "positions": [long.json(), short.json()],
-                "orders": [order.json() for order in orders],
-                "orderHistory": [order.json() for order in order_history]
-            },
-            "client_id": self.client_id
-        })
+        message = json.dumps(
+            {
+                "type": "update",
+                "message": {
+                    "price": price.json(),
+                    "positions": [long.json(), short.json()],
+                    "orders": [order.json() for order in orders],
+                    "orderHistory": [order.json() for order in order_history],
+                },
+                "client_id": self.client_id,
+            }
+        )
 
         self.websocket.send(message)

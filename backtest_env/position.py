@@ -4,9 +4,8 @@ from abc import ABC, abstractmethod
 
 
 class Position(ABC):
-
     def __init__(self):
-        self.side = ''
+        self.side = ""
         self.quantity = 0.0
         self.average_price = 0.0
 
@@ -27,15 +26,20 @@ class Position(ABC):
             self.average_price = 0.0
 
     def increase(self, order: Order):
-        self.average_price = round(((self.quantity * self.average_price + order.quantity * order.price) /
-                                    (self.quantity + order.quantity)), 4)
+        self.average_price = round(
+            (
+                (self.quantity * self.average_price + order.quantity * order.price)
+                / (self.quantity + order.quantity)
+            ),
+            4,
+        )
         self.quantity += order.quantity
 
     def json(self):
         return {
             "side": self.side,
             "quantity": self.quantity,
-            "averagePrice": self.average_price
+            "averagePrice": self.average_price,
         }
 
     @abstractmethod
@@ -52,7 +56,6 @@ class Position(ABC):
 
 
 class LongPosition(Position):
-
     def __init__(self):
         super().__init__()
         self.side = LONG
@@ -71,7 +74,6 @@ class LongPosition(Position):
 
 
 class ShortPosition(Position):
-
     def __init__(self):
         super().__init__()
         self.side = SHORT

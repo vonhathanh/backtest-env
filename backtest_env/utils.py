@@ -8,33 +8,39 @@ from backtest_env.constants import *
 from backtest_env.order import Order, OrderType
 
 
-def create_long_order(order_type: OrderType = OrderType.Market,
-                      side: str = BUY,
-                      quantity=1.0,
-                      symbol: str = "X",
-                      price: float = 100.0,
-                      position_side: str = LONG
-                      ):
+def create_long_order(
+    order_type: OrderType = OrderType.Market,
+    side: str = BUY,
+    quantity=1.0,
+    symbol: str = "X",
+    price: float = 100.0,
+    position_side: str = LONG,
+):
     return Order(order_type, side, quantity, symbol, price, position_side)
 
 
-def create_short_order(order_type: OrderType = OrderType.Market,
-                       side: str = SELL,
-                       quantity=1.0,
-                       symbol: str = "X",
-                       price: float = 100.0,
-                       position_side: str = SHORT
-                       ):
+def create_short_order(
+    order_type: OrderType = OrderType.Market,
+    side: str = SELL,
+    quantity=1.0,
+    symbol: str = "X",
+    price: float = 100.0,
+    position_side: str = SHORT,
+):
     return Order(order_type, side, quantity, symbol, price, position_side)
 
 
-def load_price_data(data_dir: str, symbol: str, tf: str, start: int, end: int = 0) -> np.ndarray:
-    file_name = join(data_dir, symbol + '_' + tf + '.csv')
+def load_price_data(
+    data_dir: str, symbol: str, tf: str, start: int, end: int = 0
+) -> np.ndarray:
+    file_name = join(data_dir, symbol + "_" + tf + ".csv")
     # use np.genfromtxt instead of pandas.read_csv so pandas is not a dependency
-    data = np.genfromtxt(file_name, delimiter=',', skip_header=1)
+    data = np.genfromtxt(file_name, delimiter=",", skip_header=1)
     # filter data by start and end time
     # data must be in range of [start, end]
-    end = np.inf if end == 0 else end  # end's default value is zero, we have to increase it to np.inf if necessary
+    end = (
+        np.inf if end == 0 else end
+    )  # end's default value is zero, we have to increase it to np.inf if necessary
     mask = (data[:, 0] >= start) & (data[:, 0] <= end)
 
     return data[mask]
@@ -77,9 +83,9 @@ def convert_nanosecond_to_datetime(nanosecond: int | float) -> str:
 
 def extract_metadata_from_file(name: str):
     # remove .csv suffix by :-4
-    symbol, tf = name[:-4].split('_')
+    symbol, tf = name[:-4].split("_")
 
-    data = np.genfromtxt(join(DATA_DIR, name), delimiter=',', skip_header=1)
+    data = np.genfromtxt(join(DATA_DIR, name), delimiter=",", skip_header=1)
     start_time = convert_nanosecond_to_datetime(data[0, 0])
     end_time = convert_nanosecond_to_datetime(data[-1, 0])
 
@@ -87,4 +93,6 @@ def extract_metadata_from_file(name: str):
 
 
 async def extract_metadata_in_batch(filenames: list[str]):
-    return await asyncio.gather(*(asyncio.to_thread(extract_metadata_from_file, name) for name in filenames))
+    return await asyncio.gather(
+        *(asyncio.to_thread(extract_metadata_from_file, name) for name in filenames)
+    )

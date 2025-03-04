@@ -52,10 +52,12 @@ class TrendFollower(WebsocketStrategy):
 
     @classmethod
     def get_required_params(cls):
-        return {"Grid Size": {"type": "int", "defaultValue": 5},
-                "Order Size": {"type": "int", "defaultValue": 1},
-                "Interval": {"type": "int", "defaultValue": 4},
-                "Candle Cache Size": {"type": "int", "defaultValue": 5}}
+        return {
+            "Grid Size": {"type": "int", "defaultValue": 5},
+            "Order Size": {"type": "int", "defaultValue": 1},
+            "Interval": {"type": "int", "defaultValue": 4},
+            "Candle Cache Size": {"type": "int", "defaultValue": 5},
+        }
 
     def update(self):
         self.update_statistic()
@@ -106,7 +108,7 @@ class TrendFollower(WebsocketStrategy):
         self.high, self.low = 0.0, np.inf
 
     def update_step_size(self):
-        prices = np.array(self.candles[-self.candle_cache_size:])
+        prices = np.array(self.candles[-self.candle_cache_size :])
         # our formula for determine change per day is: (high - low) / open / step
         changes = np.abs(prices[:, 1] - prices[:, 2]) / prices[:, 0]
         # step_size can't be too small, so we set 0.005 as minimum
@@ -126,5 +128,12 @@ class TrendFollower(WebsocketStrategy):
 
         for i in range(0, num_unfill_orders):
             price = utils.get_tp(price, self.step_size, side)
-            order = Order(OrderType.Limit, side, self.order_size, self.symbol, price, utils.to_position(side))
+            order = Order(
+                OrderType.Limit,
+                side,
+                self.order_size,
+                self.symbol,
+                price,
+                utils.to_position(side),
+            )
             self.order_manager.add_order(order)

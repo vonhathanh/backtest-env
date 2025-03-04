@@ -33,7 +33,7 @@ app.add_middleware(
     CORSMiddleware,
     allow_origins=origins,
     allow_methods=["GET", "POST"],
-    allow_headers=["*"]
+    allow_headers=["*"],
 )
 
 
@@ -44,7 +44,10 @@ def index():
 
 @app.get("/strategies")
 def get_strategies():
-    return [{"name": strategy, "params": STRATEGIES[strategy].get_required_params()} for strategy in STRATEGIES]
+    return [
+        {"name": strategy, "params": STRATEGIES[strategy].get_required_params()}
+        for strategy in STRATEGIES
+    ]
 
 
 @app.get("/files/metadata")
@@ -89,5 +92,6 @@ async def clean_resources():
     for process in processes:
         process.join()
 
-if __name__ == '__main__':
+
+if __name__ == "__main__":
     uvicorn.run(app, host="0.0.0.0", port=8000)

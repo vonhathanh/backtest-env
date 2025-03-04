@@ -13,7 +13,9 @@ T = TypeVar("T", bound="Strategy")
 class Strategy(ABC):
     # base class for all strategies
     def __init__(self, args: Args):
-        self.data = PriceDataSet(args.symbol, args.timeframe, args.startTime, args.endTime)
+        self.data = PriceDataSet(
+            args.symbol, args.timeframe, args.startTime, args.endTime
+        )
         self.position_manager = PositionManager(self.data, args.initialBalance)
         self.order_manager = OrderManager(self.position_manager, self.data)
 

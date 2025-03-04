@@ -33,7 +33,8 @@ class OrderManager:
 
     def process_orders(self):
         for order in list(self.orders.values()):
-            handler = self.order_handlers.get(order.type, self.handle_stop_order)  # handler is just a function
+            # handler is just a function
+            handler = self.order_handlers.get(order.type, self.handle_stop_order)
             handler(order)
 
     def handle_market_order(self, order: Order):

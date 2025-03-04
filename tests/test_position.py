@@ -28,7 +28,8 @@ def test_decrease_long_position():
     p.update(create_long_order(quantity=0.6, price=500.0))
 
     with pytest.raises(AssertionError) as excinfo:
-        p.update(create_long_order(side=SELL, quantity=0.7)) # sell 0.7 while only have 0.6 bnb
+        # sell 0.7 while only have 0.6 bnb
+        p.update(create_long_order(side=SELL, quantity=0.7))
     assert excinfo.type is AssertionError
 
     p.update(create_long_order(side=SELL, quantity=0.3, price=600.0))
@@ -58,7 +59,8 @@ def test_decrease_short_position():
     p.update(create_short_order(price=500.0, quantity=0.6))
 
     with pytest.raises(AssertionError) as excinfo:
-        p.update(create_short_order(side=BUY, quantity=0.7))  # buy 0.7 while only shorted 0.6 bnb
+        # buy 0.7 while only shorted 0.6 bnb
+        p.update(create_short_order(side=BUY, quantity=0.7))
     assert excinfo.type is AssertionError
 
     p.update(create_short_order(price=600.0, quantity=0.3, side=BUY))

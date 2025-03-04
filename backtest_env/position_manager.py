@@ -38,7 +38,13 @@ class PositionManager:
 
     def get_unrealized_pnl(self, price: float = 0.0):
         price = price if price != 0.0 else self.price_dataset.get_open_price()
-        return self.long.value(price) - self.short.value(price) + self.balance - self.initial_balance + self.margin
+        return (
+            self.long.value(price)
+            - self.short.value(price)
+            + self.balance
+            - self.initial_balance
+            + self.margin
+        )
 
     def get_pnl(self):
         return self.balance - self.initial_balance

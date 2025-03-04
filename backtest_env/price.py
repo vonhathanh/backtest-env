@@ -5,7 +5,6 @@ from backtest_env.utils import load_price_data, convert_datetime_to_nanosecond
 
 
 class Price:
-
     def __init__(self, open_time, open_price, high, low, close, close_time):
         self.open_time = int(open_time)
         self.open = float(open_price)
@@ -26,7 +25,6 @@ class Price:
 
 
 class PriceDataSet:
-
     def __init__(self, symbol, tf, start_time: str, end_time: str = ""):
         start = convert_datetime_to_nanosecond(start_time)
         end = convert_datetime_to_nanosecond(end_time)

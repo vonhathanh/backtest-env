@@ -28,11 +28,21 @@ class Baseline(WebsocketStrategy):
     def look_for_opportunities(self):
         pending_orders = self.order_manager.get_all_orders()
 
-        if len(pending_orders) >= 1 or self.position_manager.get_number_of_active_positions() >= 1:
+        if (
+            len(pending_orders) >= 1
+            or self.position_manager.get_number_of_active_positions() >= 1
+        ):
             return
 
         side = BUY if random.random() <= 0.5 else SELL
 
-        order = Order(OrderType.Market, side, 1.0, self.symbol, self.data.get_open_price(), to_position(side))
+        order = Order(
+            OrderType.Market,
+            side,
+            1.0,
+            self.symbol,
+            self.data.get_open_price(),
+            to_position(side),
+        )
 
         self.order_manager.add_order(order)

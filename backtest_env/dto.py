@@ -8,7 +8,7 @@ class Args(BaseModel):
     symbol: str
     timeframe: str
     startTime: str  # YYYY-mm-dd format
-    endTime: Optional[str] # YYYY-mm-dd format
+    endTime: Optional[str]  # YYYY-mm-dd format
     strategy: str
 
 
