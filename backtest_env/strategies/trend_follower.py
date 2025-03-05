@@ -76,7 +76,7 @@ class TrendFollower(Strategy):
         # time is in millisecond, so we use 86_400_000
         # TODO: check if all daily candles start at 00:00::00 UTC
         price = self.data.get_current_price()
-        return price.open_time % 86_400_000 == 0 or self.data.idx == 0
+        return price.open_time % 86_400_000 == 0
 
     def update_statistic(self):
         self.update_candle_cache()
