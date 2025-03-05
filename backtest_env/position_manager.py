@@ -1,17 +1,15 @@
 from backtest_env.constants import LONG
 from backtest_env.order import Order
 from backtest_env.position import LongPosition, ShortPosition, Position
-from backtest_env.price import PriceDataSet
 
 
 class PositionManager:
-    def __init__(self, price_dataset: PriceDataSet, initial_balance: float):
+    def __init__(self, initial_balance: float):
         self.long = LongPosition()
         self.short = ShortPosition()
         self.initial_balance = initial_balance  # used to check real pnl
         self.balance = initial_balance
         self.margin = 0.0
-        self.price_dataset = price_dataset
 
     def fill(self, order: Order):
         if order.position_side == LONG:
@@ -23,8 +21,7 @@ class PositionManager:
             self.margin += order.quantity * order.price
             assert self.margin <= self.balance
 
-    def close_all_positions(self):
-        price = self.price_dataset.get_last_price().close
+    def close_all_positions(self, price: float):
         self.balance += (self.long.quantity - self.short.quantity) * price + self.margin
         self.margin = 0.0
         self.long.close()
@@ -36,8 +33,7 @@ class PositionManager:
     def get_number_of_active_positions(self) -> int:
         return (self.long.quantity > 0.0) + (self.short.quantity > 0.0)
 
-    def get_unrealized_pnl(self, price: float = 0.0):
-        price = price if price != 0.0 else self.price_dataset.get_open_price()
+    def get_unrealized_pnl(self, price: float) -> float:
         return (
             self.long.value(price)
             - self.short.value(price)

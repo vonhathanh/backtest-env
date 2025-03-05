@@ -17,7 +17,7 @@ class Strategy(ABC):
         self.data = PriceDataSet(
             args.symbol, args.timeframe, args.startTime, args.endTime
         )
-        self.position_manager = PositionManager(self.data, args.initialBalance)
+        self.position_manager = PositionManager(args.initialBalance)
         self.order_manager = OrderManager(self.position_manager, self.data)
         self.ws_client: WebsocketClient = None
         if args.allowLiveUpdates:
@@ -65,7 +65,7 @@ class Strategy(ABC):
 
     def cleanup(self):
         self.order_manager.cancel_all_orders()
-        self.position_manager.close_all_positions()
+        self.position_manager.close_all_positions(self.data.get_last_price().close)
 
     def report(self):
         logger.info(f"Backtest finished, pnl: {self.position_manager.get_pnl()}")

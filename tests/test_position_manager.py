@@ -1,20 +1,14 @@
-from unittest.mock import Mock
-
-
 from backtest_env.position_manager import PositionManager
-from backtest_env.price import Price
 from backtest_env.utils import create_long_order, create_short_order
 
 
 class TestPositionManager:
     def setup_method(self):
-        self.data = Mock()
         self.initial_balance = 10000.0
-        self.position_mgr = PositionManager(self.data, self.initial_balance)
+        self.position_mgr = PositionManager(self.initial_balance)
 
     def test_fill_long_order(self):
         self.position_mgr.fill(create_long_order(price=500.0))
-
         assert self.position_mgr.balance == self.initial_balance - 500.0
 
     def test_fill_short_order(self):
@@ -34,10 +28,7 @@ class TestPositionManager:
 
     def test_close_long_position(self):
         self.position_mgr.fill(create_long_order(price=500.0))
-
-        # close long position at price = 300
-        self.data.get_last_price.return_value = Price(0, 300.0, 0, 0, 0, 0)
-        self.position_mgr.close_all_positions()
+        self.position_mgr.close_all_positions(300.0)
 
         assert self.position_mgr.long.quantity == 0.0
         assert self.position_mgr.long.average_price == 0.0
@@ -45,10 +36,7 @@ class TestPositionManager:
 
     def test_close_short_position(self):
         self.position_mgr.fill(create_short_order(price=500.0))
-
-        # close long position at price = 300
-        self.data.get_last_price.return_value = Price(0, 300.0, 0, 0, 0, 0)
-        self.position_mgr.close_all_positions()
+        self.position_mgr.close_all_positions(300)
 
         assert self.position_mgr.short.quantity == 0.0
         assert self.position_mgr.short.average_price == 0.0
