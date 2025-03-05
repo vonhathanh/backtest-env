@@ -28,7 +28,6 @@ class TrendFollower(Strategy):
         self.symbol = args.symbol
         # how many grid orders will be placed
         self.grid_size = args.gridSize
-
         self.order_size = args.orderSize
 
         # the difference in percentage of the next grid order compared to current order

@@ -27,21 +27,22 @@ class Strategy(ABC):
     def run(self):
         # main event loop: getting new candle stick and then process data based on update() logic
         # child class must override update() to specify their own trading logic
-        while self.data.step():
-            self.pre_process()
-            self.update()
-            self.post_process()
+        if self.ws_client:
+            self.backtest_with_live_updates()
+        else:
+            self.backtest()
         self.cleanup()
         self.report()
 
-    def pre_process(self):
-        if self.ws_client is None:
-            return
-        self.ws_client.process_client_messages()
-        self.ws_client.emit(self.gather_status())
+    def backtest_with_live_updates(self):
+        while self.data.step():
+            self.ws_client.process_client_messages()
+            self.update()
+            self.ws_client.emit(self.gather_status())
 
-    def post_process(self):
-        pass
+    def backtest(self):
+        while self.data.step():
+            self.update()
 
     @abstractmethod
     def update(self):
