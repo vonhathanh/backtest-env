@@ -23,7 +23,7 @@ class Baseline(Strategy):
         pnl = self.position_manager.get_pnl()
 
         if pnl > 0.1:
-            self.position_manager.close_all_positions(self.data.get_open_price())
+            self.position_manager.close_all_positions(self.data.get_close_price())
 
     def look_for_opportunities(self):
         pending_orders = self.order_manager.get_all_orders()
@@ -41,7 +41,7 @@ class Baseline(Strategy):
             side,
             1.0,
             self.symbol,
-            self.data.get_open_price(),
+            self.data.get_close_price(),
             to_position(side),
         )
 

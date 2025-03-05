@@ -58,17 +58,25 @@ class TrendFollower(Strategy):
             "Candle Cache Size": {"type": "int", "defaultValue": 5},
         }
 
+    def backtest_with_live_updates(self):
+        while self.data.step():
+            self.ws_client.process_client_messages()
+            self.update()
+
     def update(self):
         self.update_statistic()
+        self.order_manager.process_orders()
+
+        if self.ws_client:
+            self.ws_client.emit(self.gather_status())
+
         if self.is_episode_end():
             self.order_manager.cancel_all_orders()
-            self.position_manager.close_all_positions(self.data.get_open_price())
+            self.position_manager.close_all_positions(self.data.get_close_price())
 
         # only start the strategy when we've collected enough daily candles
         if len(self.candles) >= self.candle_cache_size:
             self.update_grid()
-
-        self.order_manager.process_orders()
 
     def is_episode_end(self) -> bool:
         # check if current candle is the first candle in the day (open time = 00:00:00 AM GMT)
@@ -123,7 +131,7 @@ class TrendFollower(Strategy):
         assert num_unfill_orders >= 0
         # determine entry price for new order, use current price if grid is empty
         # else use the latest order's price as starting point
-        price = self.data.get_open_price() if not orders else orders[-1].price
+        price = self.data.get_close_price() if not orders else orders[-1].price
 
         for i in range(0, num_unfill_orders):
             price = utils.get_tp(price, self.step_size, side)

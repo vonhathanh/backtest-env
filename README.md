@@ -13,23 +13,23 @@
 - Include `-s` to display logs
 
 # Rules
-- Submit orders: use open price of new candle (this is equal to close price of previous candle)
+- Submit orders: use close price of current candle
 - Fill orders:
-  - Market order: use open price
+  - Market order: use close price
   - Limit/stop order: use order's price
 - Close position:
-  - Before update(): use open price
+  - Before update(): use close price
   - After update(): use close price
-  - Default: open price
-- PnL: use open price
+  - Default: close price
+- PnL: use close price
 - Every filepath string must relative with root directory (where this README is located)
 - Realtime backtest progress update flow: 
   1. FE & BE connect on the same websocket server
   2. Loop
      2.1 BE wait for ack from FE
      2.2 BE load the latest candle
-     2.3 BE act according that candle: submit orders, close positions
-     2.4 BE send that candle and system's status to FE
+     2.3 BE act according that candle close price: submit orders, close positions
+     2.4 BE send that candle, orders, positions to FE
      2.5 FE render according to data from BE
      2.6 FE send ack to BE
 
