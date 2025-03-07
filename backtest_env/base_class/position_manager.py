@@ -1,15 +1,22 @@
+from socketio import SimpleClient
+
+from backtest_env.base_class.event_emitter import EventEmitter
 from backtest_env.constants import LONG
 from backtest_env.order import Order
 from backtest_env.position import LongPosition, ShortPosition, Position
 
 
-class PositionManager:
-    def __init__(self, initial_balance: float):
+class PositionManager(EventEmitter):
+    def __init__(self, initial_balance: float, sio: SimpleClient = None):
+        super().__init__(sio)
         self.long = LongPosition()
         self.short = ShortPosition()
         self.initial_balance = initial_balance  # used to check real pnl
         self.balance = initial_balance
         self.margin = 0.0
+
+    def emit_positions(self):
+        self.emit("positions", [pos.json() for pos in [self.long, self.short]])
 
     def fill(self, order: Order):
         if order.position_side == LONG:
@@ -20,12 +27,14 @@ class PositionManager:
             self.short.update(order)
             self.margin += order.quantity * order.price
             assert self.margin <= self.balance
+        self.emit_positions()
 
     def close_all_positions(self, price: float):
         self.balance += (self.long.quantity - self.short.quantity) * price + self.margin
         self.margin = 0.0
         self.long.close()
         self.short.close()
+        self.emit_positions()
 
     def get_positions(self) -> tuple[Position, Position]:
         return self.long, self.short
