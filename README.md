@@ -6,6 +6,9 @@
   - Close price: new candle -> fill open orders, submit new orders
   - Open price: new candle -> submit new orders, fill open orders
   - We'll use Close price because most of our strategies react based on previous candle
+- Use StrategyFactory to manage strategy creation
+  - Input: strategy name, strategy params, allow_live_update
+  - Strategy never call methods of websocket client, only get/post orders, positions
 
 # Testing
 - Run `python -m pytest` in root folder to run all unit tests
