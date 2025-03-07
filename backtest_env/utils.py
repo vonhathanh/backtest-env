@@ -1,8 +1,13 @@
 import asyncio
+import os
+from contextlib import asynccontextmanager
+
 import numpy as np
 
 from datetime import datetime
 from os.path import join
+
+from fastapi import FastAPI
 
 from backtest_env.constants import BUY, SELL, LONG, SHORT, DATA_DIR
 from backtest_env.order import Order, OrderType
@@ -96,3 +101,9 @@ async def extract_metadata_in_batch(filenames: list[str]):
     return await asyncio.gather(
         *(asyncio.to_thread(extract_metadata_from_file, name) for name in filenames)
     )
+
+
+@asynccontextmanager
+async def lifespan(application: FastAPI):
+    os.makedirs(DATA_DIR, exist_ok=True)
+    yield
