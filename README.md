@@ -46,3 +46,10 @@ We can add hacky methods like try catch, append sys.path, install this as a modu
 - Add logging functionality: order history
 - Hook to update orders, position automatically
 - Order side should be in USD, not asset quantity for consistent pnl
+
+# Installation
+- Python >= 3.10
+- Run `pip install -r requirements.txt`
+- Install ruff for precommit hook and linter: `pip install ruff`
+- Run `fastapi dev backtest_env/app.py` to run API server only (old command)
+- Run `uvicorn backtest_env.app:socketio_app --reload` to run the server as both API and socketio endpoint
