@@ -1,12 +1,15 @@
+import time
 from typing import TypeVar, Type
 from abc import ABC, abstractmethod
 
+from socketio import Client
+
+from backtest_env.constants import SOCKETIO_URL
 from backtest_env.dto import Args
-from backtest_env.order_manager import OrderManager
-from backtest_env.position_manager import PositionManager
+from backtest_env.base_class.order_manager import OrderManager
+from backtest_env.base_class.position_manager import PositionManager
 from backtest_env.price import PriceDataSet
 from backtest_env.logger import logger
-from backtest_env.websocket_client import WebsocketClient
 
 T = TypeVar("T", bound="Strategy")
 
@@ -14,34 +17,37 @@ T = TypeVar("T", bound="Strategy")
 class Strategy(ABC):
     # base class for all strategies
     def __init__(self, args: Args):
+        self.socketio = None
+        self.init_socketio(args)
         self.data = PriceDataSet(
-            args.symbol, args.timeframe, args.startTime, args.endTime
+            args.symbol, args.timeframe, args.startTime, args.endTime, self.socketio
         )
-        self.position_manager = PositionManager(args.initialBalance)
-        self.order_manager = OrderManager(self.position_manager, self.data)
-        self.ws_client: WebsocketClient = None
-        if args.allowLiveUpdates:
-            # add 0.5 second buffer for FE to render + transfer messages
-            self.ws_client = WebsocketClient(self.__class__.__name__, args.delay + 0.5)
+        self.position_manager = PositionManager(args.initialBalance, self.socketio)
+        self.order_manager = OrderManager(
+            self.position_manager, self.data, self.socketio
+        )
+
+    def init_socketio(self, args: Args):
+        if not args.allowLiveUpdates:
+            return
+        self.socketio = Client()
+        self.socketio.connect(SOCKETIO_URL)
+        self.socketio.on("render_finished", self.next())
 
     def run(self):
         # main event loop: getting new candle stick and then process data based on update() logic
         # child class must override update() to specify their own trading logic
-        if self.ws_client:
-            self.backtest_with_live_updates()
-        else:
-            self.backtest()
-        self.cleanup()
-        self.report()
-
-    def backtest_with_live_updates(self):
         while self.data.step():
-            self.ws_client.process_client_messages()
             self.update()
-            self.ws_client.emit(self.gather_status())
+        self.close()
 
-    def backtest(self):
-        while self.data.step():
+    def run_with_live_updates(self):
+        while self.data.next():
+            time.sleep(1)
+        self.close()
+
+    def next(self):
+        if self.data.step():
             self.update()
 
     @abstractmethod
@@ -51,18 +57,9 @@ class Strategy(ABC):
         # determine the next action: submit buy/sell order, cancel orders, close positions, ...
         pass
 
-    def gather_status(self):
-        price = self.data.get_current_price()
-        long, short = self.position_manager.get_positions()
-        orders = self.order_manager.get_all_orders()
-        order_history = self.order_manager.get_order_history()
-
-        return {
-            "price": price.json(),
-            "positions": [long.json(), short.json()],
-            "orders": [order.json() for order in orders],
-            "orderHistory": [order.json() for order in order_history],
-        }
+    def close(self):
+        self.cleanup()
+        self.report()
 
     def cleanup(self):
         self.order_manager.cancel_all_orders()

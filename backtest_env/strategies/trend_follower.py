@@ -3,7 +3,7 @@ import numpy as np
 import backtest_env.utils as utils
 from backtest_env.dto import TrendFollowerArgs
 from backtest_env.order import OrderType, Order
-from backtest_env.strategies.strategy import Strategy
+from backtest_env.base_class.strategy import Strategy
 from backtest_env.constants import BUY, SELL
 
 
@@ -58,17 +58,9 @@ class TrendFollower(Strategy):
             "Candle Cache Size": {"type": "int", "defaultValue": 5},
         }
 
-    def backtest_with_live_updates(self):
-        while self.data.step():
-            self.ws_client.process_client_messages()
-            self.update()
-
     def update(self):
         self.update_statistic()
         self.order_manager.process_orders()
-
-        if self.ws_client:
-            self.ws_client.emit(self.gather_status())
 
         if self.is_episode_end():
             self.order_manager.cancel_all_orders()
