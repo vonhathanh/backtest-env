@@ -1,9 +1,9 @@
-from backtest_env.order_manager import OrderManager
-from backtest_env.position_manager import PositionManager
+from backtest_env.base_class.order_manager import OrderManager
+from backtest_env.base_class.position_manager import PositionManager
 from backtest_env.utils import create_long_order, create_short_order
 
 
-position_manager = PositionManager(None, 10000)
+position_manager = PositionManager(10000)
 order_manager = OrderManager(position_manager, None)
 
 first_order = create_long_order(price=100.0, quantity=1.0)
