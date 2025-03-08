@@ -7,14 +7,13 @@ from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 
 from backtest_env.constants import DATA_DIR
-from backtest_env.dto import Args
 from backtest_env.strategies import STRATEGIES
 from backtest_env.utils import extract_metadata_in_batch, lifespan
 from backtest_env.logger import logger
 
 processes: list[Process] = []
 
-origins = ["http://localhost:5173"]
+origins = ["http://localhost:5173", "http://localhost:8000"]
 
 app = FastAPI(lifespan=lifespan)
 app.add_middleware(
@@ -67,13 +66,14 @@ def backtest(sid, data: dict):
 
 
 @sio.on("*")
-def generic_event_handler(event, sid, data):
-    sio.emit(event, data, skip_sid=sid)
+async def generic_event_handler(event, sid, data):
+    await sio.emit(event, data, skip_sid=sid)
 
 
-def start(args: Args):
+def start(args: dict):
+    logger.info(f"{args=}")
     strategy = STRATEGIES[args["strategy"]].from_cfg(args)
-    if args.allowLiveUpdates:
+    if args["allowLiveUpdates"]:
         strategy.run_with_live_updates()
     else:
         strategy.run()
