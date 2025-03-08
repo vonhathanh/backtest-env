@@ -2,6 +2,7 @@ numpy>=2.0.0
 fastapi>=0.115.0
 fastapi[standard]
 python-socketio[asyncio]>=5.12.1
+python-socketio[client]>=1.8.0
 pytest>=8.0.0
 pydantic~=2.10.3
 pre-commit
