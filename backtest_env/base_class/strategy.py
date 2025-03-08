@@ -47,7 +47,7 @@ class Strategy(ABC):
             time.sleep(1)
         self.close()
 
-    def next(self):
+    def next(self, data):
         if self.data.step():
             self.update()
 
@@ -65,6 +65,8 @@ class Strategy(ABC):
     def cleanup(self):
         self.order_manager.cancel_all_orders()
         self.position_manager.close_all_positions(self.data.get_last_price().close)
+        if self.socketio:
+            self.socketio.disconnect()
 
     def report(self):
         logger.info(f"Backtest finished, pnl: {self.position_manager.get_pnl()}")
