@@ -57,7 +57,7 @@ async def get_files_metadata():
 
 @sio.event
 def connect(sid, environ, auth):
-    logger.info(f"Client: {sid} connected, {environ=}, {auth=}")
+    logger.info(f"Client: {sid} connected")
 
 
 @sio.event
