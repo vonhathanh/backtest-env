@@ -1,4 +1,5 @@
 import os
+from contextlib import asynccontextmanager
 from multiprocessing import Process
 
 import uvicorn
@@ -8,12 +9,21 @@ from fastapi.middleware.cors import CORSMiddleware
 
 from backtest_env.constants import DATA_DIR
 from backtest_env.strategies import STRATEGIES
-from backtest_env.utils import extract_metadata_in_batch, lifespan
+from backtest_env.utils import extract_metadata_in_batch
 from backtest_env.logger import logger
 
 processes: list[Process] = []
 
 origins = ["http://localhost:5173", "http://localhost:8000"]
+
+
+@asynccontextmanager
+async def lifespan(application: FastAPI):
+    os.makedirs(DATA_DIR, exist_ok=True)
+    yield
+    for process in processes:
+        process.join()
+
 
 app = FastAPI(lifespan=lifespan)
 app.add_middleware(
@@ -62,8 +72,6 @@ def backtest(sid, data: dict):
 
     processes.append(backtest_process)
 
-    return {"msg": "OK"}
-
 
 @sio.on("*")
 async def generic_event_handler(event, sid, data):
@@ -71,12 +79,8 @@ async def generic_event_handler(event, sid, data):
 
 
 def start(args: dict):
-    logger.info(f"{args=}")
     strategy = STRATEGIES[args["strategy"]].from_cfg(args)
-    if args["allowLiveUpdates"]:
-        strategy.run_with_live_updates()
-    else:
-        strategy.run()
+    strategy.run_with_live_updates() if args["allowLiveUpdates"] else strategy.run()
 
 
 if __name__ == "__main__":
