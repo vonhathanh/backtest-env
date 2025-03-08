@@ -26,13 +26,11 @@ class Position(ABC):
             self.average_price = 0.0
 
     def increase(self, order: Order):
-        self.average_price = round(
-            (
-                (self.quantity * self.average_price + order.quantity * order.price)
-                / (self.quantity + order.quantity)
-            ),
-            4,
+        total_value_in_usd = (
+            self.quantity * self.average_price + order.quantity * order.price
         )
+        total_quantity = self.quantity + order.quantity
+        self.average_price = round(total_value_in_usd / total_quantity, 4)
         self.quantity += order.quantity
 
     def json(self):
@@ -64,9 +62,9 @@ class LongPosition(Position):
         return round(self.quantity * (price - self.average_price), 4)
 
     def validate(self, order: Order):
-        assert order.quantity > 0
         if order.side == SELL:
             assert order.quantity <= self.quantity
+        assert order.quantity > 0
 
     def update(self, order: Order):
         self.validate(order)
@@ -82,9 +80,9 @@ class ShortPosition(Position):
         return round(self.quantity * (self.average_price - price), 4)
 
     def validate(self, order: Order):
-        assert order.quantity > 0
         if order.side == BUY:
             assert order.quantity <= self.quantity
+        assert order.quantity > 0
 
     def update(self, order: Order):
         self.validate(order)

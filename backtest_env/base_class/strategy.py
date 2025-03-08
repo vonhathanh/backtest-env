@@ -42,7 +42,9 @@ class Strategy(ABC):
         self.close()
 
     def run_with_live_updates(self):
+        # manually emit the first `new_candle` event using data.step() because FE needs BE to initial first
         self.data.step()
+        # waits for all data to be consumed by `render_finished` event
         while self.data.next():
             time.sleep(1)
         self.close()
