@@ -1,4 +1,4 @@
-from socketio import SimpleClient
+from socketio import Client
 
 from backtest_env.base_class.event_emitter import EventEmitter
 from backtest_env.constants import LONG
@@ -7,7 +7,7 @@ from backtest_env.position import LongPosition, ShortPosition, Position
 
 
 class PositionManager(EventEmitter):
-    def __init__(self, initial_balance: float, sio: SimpleClient = None):
+    def __init__(self, initial_balance: float, sio: Client = None):
         super().__init__(sio)
         self.long = LongPosition()
         self.short = ShortPosition()

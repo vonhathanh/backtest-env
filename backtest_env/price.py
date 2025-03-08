@@ -1,5 +1,5 @@
 import numpy as np
-from socketio import SimpleClient
+from socketio import Client
 
 from backtest_env.base_class.event_emitter import EventEmitter
 from backtest_env.constants import DATA_DIR
@@ -28,7 +28,7 @@ class Price:
 
 class PriceDataSet(EventEmitter):
     def __init__(
-        self, symbol, tf, start_time: str, end_time: str = "", sio: SimpleClient = None
+        self, symbol, tf, start_time: str, end_time: str = "", sio: Client = None
     ):
         super().__init__(sio)
         start = convert_datetime_to_nanosecond(start_time)

@@ -1,4 +1,4 @@
-from socketio import SimpleClient
+from socketio import Client
 
 from backtest_env.base_class.event_emitter import EventEmitter
 from backtest_env.order import OrderType, Order
@@ -11,7 +11,7 @@ class OrderManager(EventEmitter):
         self,
         position_manager: PositionManager,
         price_dataset: PriceDataSet,
-        sio: SimpleClient = None,
+        sio: Client = None,
     ):
         super().__init__(sio)
         self.orders = {}
