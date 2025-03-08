@@ -2,7 +2,7 @@ from socketio import Client
 
 from backtest_env.base_class.event_emitter import EventEmitter
 from backtest_env.order import OrderType, Order
-from backtest_env.base_class.position_manager import PositionManager
+from backtest_env.position_manager import PositionManager
 from backtest_env.price import PriceDataSet
 
 

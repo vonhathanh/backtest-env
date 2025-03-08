@@ -6,8 +6,8 @@ from socketio import Client
 
 from backtest_env.constants import SOCKETIO_URL
 from backtest_env.dto import Args
-from backtest_env.base_class.order_manager import OrderManager
-from backtest_env.base_class.position_manager import PositionManager
+from backtest_env.order_manager import OrderManager
+from backtest_env.position_manager import PositionManager
 from backtest_env.price import PriceDataSet
 from backtest_env.logger import logger
 
