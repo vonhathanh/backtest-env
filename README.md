@@ -30,10 +30,15 @@
   1. FE & BE connect on the same websocket server
   2. Loop
      2.1 BE wait for ack from FE
+  
      2.2 BE load the latest candle
+  
      2.3 BE act according that candle close price: submit orders, close positions
+  
      2.4 BE send that candle, orders, positions to FE
+  
      2.5 FE render according to data from BE
+  
      2.6 FE send ack to BE
 
 # Scripting
