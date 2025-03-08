@@ -39,7 +39,7 @@ class Strategy(ABC):
         # child class must override update() to specify their own trading logic
         while self.data.step():
             self.update()
-        self.close()
+        self.cleanup()
 
     def run_with_live_updates(self):
         # manually emit the first `new_candle` event using data.step() because FE needs BE to initial first
@@ -47,7 +47,7 @@ class Strategy(ABC):
         # waits for all data to be consumed by `render_finished` event
         while self.data.next():
             time.sleep(1)
-        self.close()
+        self.cleanup()
 
     def next(self, data):
         is_ended = self.data.step()
@@ -60,11 +60,11 @@ class Strategy(ABC):
         # determine the next action: submit buy/sell order, cancel orders, close positions, ...
         pass
 
-    def close(self):
-        self.cleanup()
+    def cleanup(self):
+        self.clean_resources()
         self.report()
 
-    def cleanup(self):
+    def clean_resources(self):
         self.order_manager.cancel_all_orders()
         self.position_manager.close_all_positions(self.data.get_last_price().close)
         self.socketio.disconnect() if self.socketio else None
