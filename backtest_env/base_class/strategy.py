@@ -17,7 +17,7 @@ T = TypeVar("T", bound="Strategy")
 class Strategy(ABC):
     # base class for all strategies
     def __init__(self, args: Args):
-        self.socketio = None
+        self.socketio: Client = None
         self.init_socketio(args)
         self.data = PriceDataSet(
             args.symbol, args.timeframe, args.startTime, args.endTime, self.socketio
@@ -32,7 +32,7 @@ class Strategy(ABC):
             return
         self.socketio = Client()
         self.socketio.connect(SOCKETIO_URL)
-        self.socketio.on("render_finished", self.next())
+        self.socketio.on("render_finished", self.next)
 
     def run(self):
         # main event loop: getting new candle stick and then process data based on update() logic
@@ -42,6 +42,7 @@ class Strategy(ABC):
         self.close()
 
     def run_with_live_updates(self):
+        self.data.step()
         while self.data.next():
             time.sleep(1)
         self.close()
