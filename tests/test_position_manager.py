@@ -22,16 +22,16 @@ class TestPositionManager:
         self.position_mgr.fill(create_short_order(price=250.0, quantity=0.5))
 
         assert self.get_current_balance() == self.initial_balance
-        assert self.get_current_margin() == 125
+        assert self.get_current_margin() == 250 * 0.5
 
     def test_get_number_of_active_positions(self):
-        assert self.position_mgr.get_number_of_active_positions() == 0
+        assert self.position_mgr.get_total_active_positions() == 0
 
         self.position_mgr.long.quantity += 1.0
-        assert self.position_mgr.get_number_of_active_positions() == 1
+        assert self.position_mgr.get_total_active_positions() == 1
 
         self.position_mgr.short.quantity += 1.0
-        assert self.position_mgr.get_number_of_active_positions() == 2
+        assert self.position_mgr.get_total_active_positions() == 2
 
     def test_close_long_position(self):
         self.position_mgr.fill(create_long_order(price=500.0))

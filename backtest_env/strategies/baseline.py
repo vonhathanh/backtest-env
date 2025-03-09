@@ -30,7 +30,7 @@ class Baseline(Strategy):
 
         if (
             len(pending_orders) >= 1
-            or self.position_manager.get_number_of_active_positions() >= 1
+            or self.position_manager.get_total_active_positions() >= 1
         ):
             return
 

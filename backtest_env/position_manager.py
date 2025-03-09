@@ -32,7 +32,7 @@ class PositionManager(EventEmitter):
     def get_positions(self) -> tuple[Position, Position]:
         return self.long, self.short
 
-    def get_number_of_active_positions(self) -> int:
+    def get_total_active_positions(self) -> int:
         return self.long.is_active() + self.short.is_active()
 
     def get_unrealized_pnl(self, price: float) -> float:
