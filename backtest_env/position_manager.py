@@ -43,13 +43,7 @@ class PositionManager(EventEmitter):
         return (self.long.quantity > 0.0) + (self.short.quantity > 0.0)
 
     def get_unrealized_pnl(self, price: float) -> float:
-        return (
-            self.long.value(price)
-            - self.short.value(price)
-            + self.balance
-            - self.initial_balance
-            + self.margin
-        )
+        return round(self.long.get_pnl(price) + self.short.get_pnl(price), 4)
 
     def get_pnl(self):
         return self.balance - self.initial_balance
