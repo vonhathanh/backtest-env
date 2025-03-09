@@ -1,26 +1,22 @@
+from backtest_env.balance import Balance
 from backtest_env.order import Order
 from backtest_env.constants import LONG, SHORT, BUY, SELL
 from abc import ABC, abstractmethod
 
 
 class Position(ABC):
-    def __init__(self):
+    def __init__(self, balance: Balance):
         self.side = ""
         self.quantity = 0.0
         self.average_price = 0.0
+        self.balance = balance
 
-    def close(self):
+    def close(self, price: float):
         self.quantity = 0.0
         self.average_price = 0.0
 
-    def cost(self) -> float:
-        return self.quantity * self.average_price
-
-    def value(self, price: float):
-        return self.quantity * price
-
-    def decrease(self, delta: float):
-        self.quantity -= delta
+    def decrease(self, order: Order):
+        self.quantity -= order.quantity
 
         if self.quantity == 0.0:
             self.average_price = 0.0
@@ -40,6 +36,9 @@ class Position(ABC):
             "averagePrice": self.average_price,
         }
 
+    def is_active(self) -> bool:
+        return self.quantity > 0
+
     @abstractmethod
     def get_pnl(self, price: float) -> float:
         pass
@@ -54,8 +53,8 @@ class Position(ABC):
 
 
 class LongPosition(Position):
-    def __init__(self):
-        super().__init__()
+    def __init__(self, balance: Balance):
+        super().__init__(balance)
         self.side = LONG
 
     def get_pnl(self, price: float) -> float:
@@ -68,12 +67,25 @@ class LongPosition(Position):
 
     def update(self, order: Order):
         self.validate(order)
-        self.increase(order) if order.side == BUY else self.decrease(order.quantity)
+        self.increase(order) if order.side == BUY else self.decrease(order)
+
+    def increase(self, order: Order):
+        super().increase(order)
+        self.balance.current -= order.quantity * order.price
+        assert self.balance.current >= 0
+
+    def decrease(self, order: Order):
+        super().decrease(order)
+        self.balance.current += order.quantity * order.price
+
+    def close(self, price: float):
+        self.balance.current += self.quantity * price
+        super().close(price)
 
 
 class ShortPosition(Position):
-    def __init__(self):
-        super().__init__()
+    def __init__(self, balance: Balance):
+        super().__init__(balance)
         self.side = SHORT
 
     def get_pnl(self, price: float) -> float:
@@ -86,4 +98,18 @@ class ShortPosition(Position):
 
     def update(self, order: Order):
         self.validate(order)
-        self.increase(order) if order.side == SELL else self.decrease(order.quantity)
+        self.increase(order) if order.side == SELL else self.decrease(order)
+
+    def increase(self, order: Order):
+        super().increase(order)
+        self.balance.margin += order.quantity * order.price
+
+    def decrease(self, order: Order):
+        super().decrease(order)
+        self.balance.margin -= order.quantity * order.price
+
+    def close(self, price: float):
+        self.balance.margin -= self.quantity * price
+        self.balance.current += self.balance.margin
+        self.balance.margin = 0
+        super().close(price)
