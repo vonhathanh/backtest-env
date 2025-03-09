@@ -39,9 +39,8 @@ def load_price_data(
     data = np.genfromtxt(file_name, delimiter=",", skip_header=1)
     # filter data by start and end time
     # data must be in range of [start, end]
-    end = (
-        np.inf if end == 0 else end
-    )  # end's default value is zero, we have to increase it to np.inf if necessary
+    # end's default value is zero, we have to increase it to np.inf if necessary
+    end = np.inf if end == 0 else end
     mask = (data[:, 0] >= start) & (data[:, 0] <= end)
 
     return data[mask]

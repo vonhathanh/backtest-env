@@ -53,15 +53,19 @@ class TestPositionManager:
         self.position_mgr.fill(create_long_order(price=123.45))
         assert self.position_mgr.get_unrealized_pnl(333.12) == round(333.12 - 123.45, 4)
         assert self.position_mgr.get_unrealized_pnl(100.12) == round(100.12 - 123.45, 4)
+
         # fill another order at the same current price, expect pnl unchanged
         self.position_mgr.fill(create_long_order(price=333.12))
         assert self.position_mgr.get_unrealized_pnl(333.12) == round(333.12 - 123.45, 4)
+
         # price goes down by 100
         assert self.position_mgr.get_unrealized_pnl(233.12) == round(
             233.12 - 123.45 - 100, 4
         )
+
         # reduce position by 0.5, pnl is reduced
         self.position_mgr.fill(create_long_order(price=233.12, quantity=0.5, side=SELL))
+
         # 228.285 is average price
         assert self.position_mgr.get_unrealized_pnl(233.12) == round(
             (233.12 - 228.285) * 1.5, 4
@@ -71,11 +75,14 @@ class TestPositionManager:
         self.position_mgr.fill(create_short_order(price=200.0))
         assert self.position_mgr.get_unrealized_pnl(300.5) == round(-100.5, 4)
         assert self.position_mgr.get_unrealized_pnl(155.3) == round(200 - 155.3, 4)
+
         # fill another order at the same current price, expect pnl unchanged
         self.position_mgr.fill(create_short_order(price=300.5))
         assert self.position_mgr.get_unrealized_pnl(300.5) == round(-100.5, 4)
+
         # price goes down by 100, our profit is increased by 2*100
         assert self.position_mgr.get_unrealized_pnl(200.5) == round(-100.5 + 200, 4)
+
         # reduce position by 0.5, pnl is reduced
         self.position_mgr.fill(create_short_order(price=200.5, quantity=0.5, side=BUY))
         assert self.position_mgr.get_unrealized_pnl(200.5) == round(
@@ -91,6 +98,7 @@ class TestPositionManager:
         self.position_mgr.fill(create_long_order(price=200.0))
         self.position_mgr.fill(create_short_order(price=200.0))
         assert self.position_mgr.get_unrealized_pnl(200.0) == 0.0
+
         self.position_mgr.close_all_positions(300)
         assert self.position_mgr.get_pnl() == 0
 

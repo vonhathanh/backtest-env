@@ -36,7 +36,6 @@ class PriceDataSet(EventEmitter):
 
         self.prices: np.ndarray = load_price_data(DATA_DIR, symbol, tf, start, end)
         self.idx = -1
-        self.sio = sio
 
     def get_current_price(self) -> Price:
         assert self.idx != -1

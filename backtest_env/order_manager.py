@@ -32,6 +32,7 @@ class OrderManager(EventEmitter):
 
     def add_orders(self, orders: list[Order]):
         for order in orders:
+            # we don't call self.add_order() because want to trigger the new_orders event in bulk
             self.orders[order.id] = order
         self.emit("new_orders", [order.json() for order in orders])
 
