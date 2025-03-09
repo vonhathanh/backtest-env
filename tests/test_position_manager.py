@@ -8,15 +8,21 @@ class TestPositionManager:
         self.initial_balance = 10000.0
         self.position_mgr = PositionManager(self.initial_balance)
 
+    def get_current_balance(self):
+        return self.position_mgr.balance.current
+
+    def get_current_margin(self):
+        return self.position_mgr.balance.margin
+
     def test_fill_long_order(self):
         self.position_mgr.fill(create_long_order(price=500.0))
-        assert self.position_mgr.balance == self.initial_balance - 500.0
+        assert self.get_current_balance() == self.initial_balance - 500.0
 
     def test_fill_short_order(self):
         self.position_mgr.fill(create_short_order(price=250.0, quantity=0.5))
 
-        assert self.position_mgr.balance == self.initial_balance
-        assert self.position_mgr.margin == 125
+        assert self.get_current_balance() == self.initial_balance
+        assert self.get_current_margin() == 125
 
     def test_get_number_of_active_positions(self):
         assert self.position_mgr.get_number_of_active_positions() == 0
@@ -33,7 +39,7 @@ class TestPositionManager:
 
         assert self.position_mgr.long.quantity == 0.0
         assert self.position_mgr.long.average_price == 0.0
-        assert self.position_mgr.balance == self.initial_balance - 200
+        assert self.get_current_balance() == self.initial_balance - 200
 
     def test_close_short_position(self):
         self.position_mgr.fill(create_short_order(price=500.0))
@@ -41,7 +47,7 @@ class TestPositionManager:
 
         assert self.position_mgr.short.quantity == 0.0
         assert self.position_mgr.short.average_price == 0.0
-        assert self.position_mgr.balance == self.initial_balance + 200
+        assert self.get_current_balance() == self.initial_balance + 200
 
     def test_get_long_unrealized_pnl(self):
         self.position_mgr.fill(create_long_order(price=123.45))
@@ -82,9 +88,11 @@ class TestPositionManager:
         assert self.position_mgr.get_unrealized_pnl(300) == 75.0
 
     def test_long_and_short_neutralized_each_other(self):
-        self.position_mgr.fill(create_short_order(price=200.0))
+        self.position_mgr.fill(create_long_order(price=200.0))
         self.position_mgr.fill(create_short_order(price=200.0))
         assert self.position_mgr.get_unrealized_pnl(200.0) == 0.0
+        self.position_mgr.close_all_positions(300)
+        assert self.position_mgr.get_pnl() == 0
 
     def test_buy_low_sell_high(self):
         self.position_mgr.fill(create_long_order(price=200.0))
@@ -92,3 +100,34 @@ class TestPositionManager:
         # price is not important as we buy low and sell high
         assert self.position_mgr.get_unrealized_pnl(220) == 100.0
         assert self.position_mgr.get_unrealized_pnl(280) == 100.0
+
+        self.position_mgr.close_all_positions(300)
+        assert self.position_mgr.get_pnl() == 100.0
+
+    def test_long_pnl(self):
+        self.position_mgr.fill(create_long_order(price=200.0))
+        self.position_mgr.close_all_positions(123.45)
+        assert self.position_mgr.get_pnl() == round(123.45 - 200, 4)
+
+        self.position_mgr.fill(create_long_order(price=200.0))
+        self.position_mgr.close_all_positions(321.44)
+        assert self.position_mgr.get_pnl() == round(-76.55 + 321.44 - 200.0, 4)
+
+    def test_short_pnl(self):
+        self.position_mgr.fill(create_short_order(price=300.0))
+        self.position_mgr.close_all_positions(123.45)
+        assert self.position_mgr.get_pnl() == round(300 - 123.45, 4)
+
+        self.position_mgr.fill(create_short_order(price=123.45))
+        self.position_mgr.close_all_positions(200)
+        assert self.position_mgr.get_pnl() == round(300 - 200, 4)
+
+    def test_long_and_short_pnl(self):
+        self.position_mgr.fill(create_short_order(price=300.0))
+        self.position_mgr.fill(create_long_order(price=200.0, quantity=0.5))
+        # pnl += 25.0
+        self.position_mgr.fill(create_short_order(price=250.0, side=BUY, quantity=0.5))
+        self.position_mgr.close_all_positions(225.0)
+        # 0.5 short at 300, pnl += 37.5
+        # 0.5 long at 200, pnl += 12.5
+        assert self.position_mgr.get_pnl() == 37.5 + 25 + 12.5

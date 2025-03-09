@@ -1,12 +1,15 @@
 import pytest
 
+from backtest_env.balance import Balance
 from backtest_env.constants import BUY, SELL
 from backtest_env.position import LongPosition, ShortPosition
 from backtest_env.utils import create_short_order, create_long_order
 
+b = Balance(100000, 100000, 0)
+
 
 def test_increase_long_position():
-    p = LongPosition()
+    p = LongPosition(b)
 
     with pytest.raises(AssertionError) as excinfo:
         p.update(create_long_order(quantity=0.0))
@@ -23,7 +26,7 @@ def test_increase_long_position():
 
 
 def test_decrease_long_position():
-    p = LongPosition()
+    p = LongPosition(b)
 
     p.update(create_long_order(quantity=0.6, price=500.0))
 
@@ -37,7 +40,7 @@ def test_decrease_long_position():
 
 
 def test_increase_short_position():
-    p = ShortPosition()
+    p = ShortPosition(b)
 
     with pytest.raises(AssertionError) as excinfo:
         p.update(create_short_order(quantity=0.0))  # quantity = 0
@@ -54,7 +57,7 @@ def test_increase_short_position():
 
 
 def test_decrease_short_position():
-    p = ShortPosition()
+    p = ShortPosition(b)
 
     p.update(create_short_order(price=500.0, quantity=0.6))
 
@@ -68,7 +71,7 @@ def test_decrease_short_position():
 
 
 def test_get_long_pnl():
-    p = LongPosition()
+    p = LongPosition(b)
 
     p.update(create_long_order(price=500.0))
     assert p.get_pnl(500.0) == 0.0
@@ -77,7 +80,7 @@ def test_get_long_pnl():
 
 
 def test_get_short_pnl():
-    p = ShortPosition()
+    p = ShortPosition(b)
 
     p.update(create_short_order(price=500.0))
 
@@ -87,7 +90,7 @@ def test_get_short_pnl():
 
 
 def test_pnl_after_multiple_long_orders():
-    p = LongPosition()
+    p = LongPosition(b)
 
     p.update(create_long_order(price=500.0))
     p.update(create_long_order(price=560.0, quantity=2.0))
@@ -96,7 +99,7 @@ def test_pnl_after_multiple_long_orders():
 
 
 def test_pnl_after_multiple_short_orders():
-    p = ShortPosition()
+    p = ShortPosition(b)
 
     p.update(create_short_order(price=500.0))
     p.update(create_short_order(price=560.0, quantity=0.5))
