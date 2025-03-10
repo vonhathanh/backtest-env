@@ -31,9 +31,7 @@ def create_short_order(
     return Order(order_type, side, quantity, symbol, price, position_side)
 
 
-def load_price_data(
-    data_dir: str, symbol: str, tf: str, start: int, end: int = 0
-) -> np.ndarray:
+def load_price_data(data_dir: str, symbol: str, tf: str, start: int, end: int = 0) -> np.ndarray:
     file_name = join(data_dir, symbol + "_" + tf + ".csv")
     # use np.genfromtxt instead of pandas.read_csv so pandas is not a dependency
     data = np.genfromtxt(file_name, delimiter=",", skip_header=1)

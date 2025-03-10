@@ -28,10 +28,7 @@ class Baseline(Strategy):
     def look_for_opportunities(self):
         pending_orders = self.order_manager.get_all_orders()
 
-        if (
-            len(pending_orders) >= 1
-            or self.position_manager.get_total_active_positions() >= 1
-        ):
+        if len(pending_orders) >= 1 or self.position_manager.get_total_active_positions() >= 1:
             return
 
         side = BUY if random.random() <= 0.5 else SELL

@@ -27,9 +27,7 @@ class Price:
 
 
 class PriceDataSet(EventEmitter):
-    def __init__(
-        self, symbol, tf, start_time: str, end_time: str = "", sio: Client = None
-    ):
+    def __init__(self, symbol, tf, start_time: str, end_time: str = "", sio: Client = None):
         super().__init__(sio)
         start = convert_datetime_to_nanosecond(start_time)
         end = convert_datetime_to_nanosecond(end_time)

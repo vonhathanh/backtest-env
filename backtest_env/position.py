@@ -22,9 +22,7 @@ class Position(ABC):
             self.average_price = 0.0
 
     def increase(self, order: Order):
-        total_value_in_usd = (
-            self.quantity * self.average_price + order.quantity * order.price
-        )
+        total_value_in_usd = self.quantity * self.average_price + order.quantity * order.price
         total_quantity = self.quantity + order.quantity
         self.average_price = round(total_value_in_usd / total_quantity, 4)
         self.quantity += order.quantity

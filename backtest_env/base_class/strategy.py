@@ -23,9 +23,7 @@ class Strategy(ABC):
             args.symbol, args.timeframe, args.startTime, args.endTime, self.socketio
         )
         self.position_manager = PositionManager(args.initialBalance, self.socketio)
-        self.order_manager = OrderManager(
-            self.position_manager, self.data, self.socketio
-        )
+        self.order_manager = OrderManager(self.position_manager, self.data, self.socketio)
 
     def init_socketio(self, args: Args):
         if not args.allowLiveUpdates:
