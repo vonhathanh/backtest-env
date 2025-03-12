@@ -64,7 +64,7 @@ class Strategy(ABC):
 
     def clean_resources(self):
         self.order_manager.cancel_all_orders()
-        self.position_manager.close_all_positions(self.data.get_last_price().close)
+        self.order_manager.close_all_positions(self.data.get_last_price().close)
         self.socketio.disconnect() if self.socketio else None
 
     def report(self):

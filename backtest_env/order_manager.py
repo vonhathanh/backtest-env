@@ -1,6 +1,7 @@
 from socketio import Client
 
 from backtest_env.base_class.event_emitter import EventEmitter
+from backtest_env.constants import LONG, SHORT, SELL, BUY
 from backtest_env.order import OrderType, Order
 from backtest_env.position_manager import PositionManager
 from backtest_env.price import PriceDataSet
@@ -40,6 +41,23 @@ class OrderManager(EventEmitter):
         self.orders = {}
         self.emit("current_orders", [])
 
+    def process_filled_order(self, order: Order):
+        self.filled_orders.append(order)
+        self.emit("order_filled", order.json())
+
+    def close_all_positions(self, price: float):
+        [long, short] = self.position_manager.get_positions()
+        if long.is_active():
+            self.close_position(LONG, long.quantity, price)
+        if short.is_active():
+            self.close_position(SHORT, short.quantity, price)
+
+    def close_position(self, position_side: str, quantity: float, price: float):
+        side = SELL if position_side == LONG else BUY
+        order = Order(OrderType.Market, side, quantity, "", price, position_side)
+        self.position_manager.fill(order)
+        self.process_filled_order(order)
+
     def get_orders_by_side(self, side: str) -> list[Order]:
         orders = filter(lambda order: order.side == side, self.orders.values())
         return sorted(orders, key=lambda x: x.created_at)
@@ -52,9 +70,8 @@ class OrderManager(EventEmitter):
 
     def handle_market_order(self, order: Order):
         self.position_manager.fill(order)
-        self.filled_orders.append(order)
+        self.process_filled_order(order)
         del self.orders[order.id]
-        self.emit("order_filled", order.json())
 
     def handle_stop_order(self, order):
         p = self.price_dataset.get_current_price()

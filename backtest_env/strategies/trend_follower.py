@@ -64,7 +64,7 @@ class TrendFollower(Strategy):
 
         if self.is_episode_end():
             self.order_manager.cancel_all_orders()
-            self.position_manager.close_all_positions(self.data.get_close_price())
+            self.order_manager.close_all_positions(self.data.get_close_price())
 
         # only start the strategy when we've collected enough daily candles
         if len(self.candles) >= self.candle_cache_size:
