@@ -17,12 +17,11 @@ class Price:
 
     def json(self):
         return {
-            "open_time": self.open_time,
             "open": self.open,
             "high": self.high,
             "low": self.low,
             "close": self.close,
-            "close_time": self.close_time,
+            "time": self.close_time,
         }
 
 
