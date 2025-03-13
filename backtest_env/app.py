@@ -12,7 +12,7 @@ from backtest_env.strategies import STRATEGIES
 from backtest_env.utils import extract_metadata_in_batch
 from backtest_env.logger import logger
 
-processes: list[Process] = []
+processes: dict[str, Process] = {}
 
 origins = ["http://localhost:5173", "http://localhost:8000"]
 
@@ -21,7 +21,7 @@ origins = ["http://localhost:5173", "http://localhost:8000"]
 async def lifespan(application: FastAPI):
     os.makedirs(DATA_DIR, exist_ok=True)
     yield
-    for process in processes:
+    for process in processes.values():
         process.join()
 
 
@@ -63,14 +63,18 @@ def connect(sid, environ, auth):
 @sio.event
 def disconnect(sid, reason):
     logger.info(f"Client: {sid} disconnected, reason: {reason}")
+    if sid in processes:
+        processes[sid].terminate()
+        del processes[sid]
 
 
 @sio.on("backtest")
 def backtest(sid, data: dict):
+    logger.info(f"Start backtest process {sid} with params: {data}")
     backtest_process = Process(target=start, args=(data,))
     backtest_process.start()
 
-    processes.append(backtest_process)
+    processes[sid] = backtest_process
 
 
 @sio.on("*")
