@@ -4,7 +4,7 @@ from backtest_env.base_class.event_emitter import EventEmitter
 from backtest_env.constants import LONG, SHORT, SELL, BUY
 from backtest_env.order import OrderType, Order
 from backtest_env.position_manager import PositionManager
-from backtest_env.price import PriceDataSet
+from backtest_env.price import PriceDataSet, Price
 
 
 class OrderManager(EventEmitter):
@@ -45,16 +45,24 @@ class OrderManager(EventEmitter):
         self.filled_orders.append(order)
         self.emit("order_filled", order.json())
 
-    def close_all_positions(self, price: float):
+    def close_all_positions(self, price: Price):
         [long, short] = self.position_manager.get_positions()
         if long.is_active():
             self.close_position(LONG, long.quantity, price)
         if short.is_active():
             self.close_position(SHORT, short.quantity, price)
 
-    def close_position(self, position_side: str, quantity: float, price: float):
+    def close_position(self, position_side: str, quantity: float, price: Price):
         side = SELL if position_side == LONG else BUY
-        order = Order(OrderType.Market, side, quantity, "", price, position_side)
+        order = Order(
+            OrderType.Market,
+            side,
+            quantity,
+            "",
+            price.close,
+            position_side,
+            created_at=price.close_time,
+        )
         self.position_manager.fill(order)
         self.process_filled_order(order)
 
