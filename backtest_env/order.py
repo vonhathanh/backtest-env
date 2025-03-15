@@ -50,5 +50,5 @@ class Order:
             "price": self.price,
             "positionSide": self.position_side,
             "id": self.id,
-            "createdAt": self.created_at,
+            "createdAt": self.created_at // 1000,
         }

@@ -21,7 +21,7 @@ class Price:
             "high": self.high,
             "low": self.low,
             "close": self.close,
-            "time": self.close_time,
+            "time": self.close_time // 1000,
         }
 
 
