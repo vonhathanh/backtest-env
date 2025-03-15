@@ -134,6 +134,6 @@ class TrendFollower(Strategy):
                 self.symbol,
                 price,
                 utils.to_position(side),
-                created_at=self.data.get_current_price().close_time,
+                self.data.get_close_time(),
             )
             self.order_manager.add_order(order)

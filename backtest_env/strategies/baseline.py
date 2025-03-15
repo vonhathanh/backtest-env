@@ -40,7 +40,7 @@ class Baseline(Strategy):
             self.symbol,
             self.data.get_close_price(),
             to_position(side),
-            created_at=self.data.get_current_price().close,
+            self.data.get_close_time(),
         )
 
         self.order_manager.add_order(order)

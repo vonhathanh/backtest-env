@@ -61,7 +61,7 @@ class OrderManager(EventEmitter):
             "",
             price.close,
             position_side,
-            created_at=price.close_time,
+            price.close_time,
         )
         self.position_manager.fill(order)
         self.process_filled_order(order)

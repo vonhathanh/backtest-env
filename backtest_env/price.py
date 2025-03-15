@@ -44,6 +44,9 @@ class PriceDataSet(EventEmitter):
     def get_close_price(self):
         return self.get_current_price().close
 
+    def get_close_time(self):
+        return self.get_current_price().close_time
+
     def get_last_price(self):
         return self[-1]
 

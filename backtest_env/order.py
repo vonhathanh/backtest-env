@@ -1,4 +1,3 @@
-import time
 from enum import Enum
 from uuid import uuid4
 
@@ -20,17 +19,16 @@ class Order:
         symbol: str,
         price: float,
         position_side: str,
-        order_id: str = "",
-        created_at: int = 0.0,
+        created_at: int,
     ):
+        self.id = uuid4().hex[:16]
         self.type = order_type
         self.side = side
         self.quantity = quantity
         self.symbol = symbol
         self.price = price
         self.position_side = position_side
-        self.id = order_id if order_id else uuid4().hex[:16]
-        self.created_at = created_at if created_at != 0.0 else int(time.time_ns())
+        self.created_at = created_at
 
     def __str__(self):
         return (
