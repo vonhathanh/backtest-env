@@ -13,6 +13,7 @@ class OrderManager(EventEmitter):
         position_manager: PositionManager,
         price_dataset: PriceDataSet,
         sio: Client = None,
+        symbol: str = "",
     ):
         super().__init__(sio)
         self.orders = {}
@@ -20,6 +21,7 @@ class OrderManager(EventEmitter):
         self.order_handlers = {OrderType.Market: self.handle_market_order}
         self.position_manager = position_manager
         self.price_dataset = price_dataset
+        self.symbol = symbol
 
     def get_all_orders(self) -> list[Order]:
         return list(self.orders.values())
@@ -43,6 +45,7 @@ class OrderManager(EventEmitter):
 
     def process_filled_order(self, order: Order):
         self.filled_orders.append(order)
+        order.filled_at = self.price_dataset.get_close_time()
         self.emit("order_filled", order.json())
 
     def close_all_positions(self, price: Price):
@@ -58,7 +61,7 @@ class OrderManager(EventEmitter):
             OrderType.Market,
             side,
             quantity,
-            "",
+            self.symbol,
             price.close,
             position_side,
             price.close_time,

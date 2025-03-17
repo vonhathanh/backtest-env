@@ -29,6 +29,7 @@ class Order:
         self.price = price
         self.position_side = position_side
         self.created_at = created_at
+        self.filled_at = -1
 
     def __str__(self):
         return (
@@ -49,4 +50,5 @@ class Order:
             "positionSide": self.position_side,
             "id": self.id,
             "createdAt": self.created_at // 1000,
+            "filledAt": self.filled_at // 1000,
         }
