@@ -17,13 +17,16 @@ T = TypeVar("T", bound="Strategy")
 class Strategy(ABC):
     # base class for all strategies
     def __init__(self, args: Args):
+        self.symbol = args.symbol
         self.socketio: Client = None
         self.init_socketio(args)
         self.data = PriceDataSet(
             args.symbol, args.timeframe, args.startTime, args.endTime, self.socketio
         )
         self.position_manager = PositionManager(args.initialBalance, self.socketio)
-        self.order_manager = OrderManager(self.position_manager, self.data, self.socketio)
+        self.order_manager = OrderManager(
+            self.position_manager, self.data, self.socketio, args.symbol
+        )
 
     def init_socketio(self, args: Args):
         if not args.allowLiveUpdates:

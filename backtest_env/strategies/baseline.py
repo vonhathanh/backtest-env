@@ -11,7 +11,6 @@ class Baseline(Strategy):
     # this strategy represents as an example of real trading strategy
     def __init__(self, args: Args):
         super().__init__(args)
-        self.symbol = args.symbol
 
     def update(self):
         self.update_orders_and_positions()

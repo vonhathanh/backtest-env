@@ -25,7 +25,6 @@ class TrendFollower(Strategy):
 
     def __init__(self, args: TrendFollowerArgs):
         super().__init__(args)
-        self.symbol = args.symbol
         # how many grid orders will be placed
         self.grid_size = args.gridSize
         self.order_size = args.orderSize
