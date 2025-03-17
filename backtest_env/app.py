@@ -66,6 +66,7 @@ def disconnect(sid, reason):
     if sid in processes:
         processes[sid].terminate()
         del processes[sid]
+        logger.info(f"Stopped backtest process of Client: {sid}")
 
 
 @sio.on("backtest")
