@@ -18,7 +18,10 @@ class OrderManager(EventEmitter):
         super().__init__(sio)
         self.orders = {}
         self.filled_orders = []
-        self.order_handlers = {OrderType.Market: self.handle_market_order}
+        self.order_handlers = {
+            OrderType.Market: self.handle_market_order,
+            OrderType.ClosePosition: self.handle_market_order,
+        }
         self.position_manager = position_manager
         self.price_dataset = price_dataset
         self.symbol = symbol
@@ -58,7 +61,7 @@ class OrderManager(EventEmitter):
     def close_position(self, position_side: str, quantity: float, price: Price):
         side = SELL if position_side == LONG else BUY
         order = Order(
-            OrderType.Market,
+            OrderType.ClosePosition,
             side,
             quantity,
             self.symbol,
