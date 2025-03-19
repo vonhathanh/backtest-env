@@ -11,10 +11,6 @@ class Position(ABC):
         self.average_price = 0.0
         self.balance = balance
 
-    def close(self, price: float):
-        self.quantity = 0.0
-        self.average_price = 0.0
-
     def decrease(self, order: Order):
         self.quantity -= order.quantity
 
@@ -36,6 +32,9 @@ class Position(ABC):
 
     def is_active(self) -> bool:
         return self.quantity > 0
+
+    def value(self, price: float) -> float:
+        return round(self.quantity * price, 4)
 
     @abstractmethod
     def get_pnl(self, price: float) -> float:
@@ -76,10 +75,6 @@ class LongPosition(Position):
         super().decrease(order)
         self.balance.current += order.quantity * order.price
 
-    def close(self, price: float):
-        self.balance.current += self.quantity * price
-        super().close(price)
-
 
 class ShortPosition(Position):
     def __init__(self, balance: Balance):
@@ -105,9 +100,6 @@ class ShortPosition(Position):
     def decrease(self, order: Order):
         super().decrease(order)
         self.balance.margin -= order.quantity * order.price
-
-    def close(self, price: float):
-        self.balance.margin -= self.quantity * price
-        self.balance.current += self.balance.margin
-        self.balance.margin = 0
-        super().close(price)
+        if self.quantity == 0:
+            self.balance.current += self.balance.margin
+            self.balance.margin = 0
