@@ -35,7 +35,6 @@ class PriceDataSet(EventEmitter):
         self.idx = -1
 
     def get_current_price(self) -> Price:
-        assert self.idx != -1
         return self[self.idx]
 
     def get_open_price(self):
@@ -55,10 +54,10 @@ class PriceDataSet(EventEmitter):
 
     def step(self):
         self.idx += 1
-        is_ended = self.idx >= len(self.prices)
-        if not is_ended:
-            self.emit("new_candle", self.get_current_price().json())
-        return is_ended
+        price = self.get_current_price()
+        if price:
+            self.emit("new_candle", price.json())
+        return price
 
     def __len__(self):
         return len(self.prices)
