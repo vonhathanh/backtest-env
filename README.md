@@ -1,6 +1,15 @@
 # backtest-env
 - Act as API server, FE call request -> server creates a new back-test process and run with the input params
 
+# How to calculate different types of PnL
+- Position value: quantity * price
+- Unrealized PnL:
+  - Long: (current price - avg_price) * quantity
+  - Short: (avg_price - current price) * quantity
+- PnL:
+  - All position are closed: current balance - initial balance
+  - Positions still open: current balance + long's value + short's value - margin - initial balance
+
 # Decision choices
 - Use close price or open price when new candle arrives?
   -> We'll use Close price because most of our strategies react based on previous candle
