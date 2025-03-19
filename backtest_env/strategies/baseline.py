@@ -11,6 +11,7 @@ class Baseline(Strategy):
     # this strategy represents as an example of real trading strategy
     def __init__(self, args: Args):
         super().__init__(args)
+        random.seed(1993)
 
     def update(self):
         self.update_orders_and_positions()
@@ -19,10 +20,10 @@ class Baseline(Strategy):
     def update_orders_and_positions(self):
         self.order_manager.process_orders()
 
-        pnl = self.position_manager.get_pnl()
+        pnl = self.position_manager.get_unrealized_pnl(self.data.get_close_price())
 
-        if pnl > 0.1:
-            self.position_manager.close_all_positions(self.data.get_close_price())
+        if pnl > 1:
+            self.order_manager.close_all_positions(self.data.get_current_price())
 
     def look_for_opportunities(self):
         pending_orders = self.order_manager.get_all_orders()
