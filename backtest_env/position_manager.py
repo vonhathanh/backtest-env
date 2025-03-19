@@ -17,16 +17,14 @@ class PositionManager(EventEmitter):
     def emit_positions(self):
         self.emit("positions", [pos.json() for pos in [self.long, self.short]])
 
+    def emit_pnl(self, price: float):
+        self.emit("pnl", self.get_pnl(price))
+
     def fill(self, order: Order):
         if order.position_side == LONG:
             self.long.update(order)
         else:
             self.short.update(order)
-        self.emit_positions()
-
-    def close_all_positions(self, price: float):
-        self.long.close(price)
-        self.short.close(price)
         self.emit_positions()
 
     def get_positions(self) -> tuple[Position, Position]:
@@ -38,5 +36,9 @@ class PositionManager(EventEmitter):
     def get_unrealized_pnl(self, price: float) -> float:
         return round(self.long.get_pnl(price) + self.short.get_pnl(price), 4)
 
-    def get_pnl(self):
-        return self.balance.get_pnl()
+    def get_pnl(self, price: float):
+        pnl = self.balance.get_pnl()
+        # testing is not ended, so we must account for pnl of long & short position
+        if price:
+            pnl += self.long.value(price) + self.balance.margin - self.short.value(price)
+        return pnl
