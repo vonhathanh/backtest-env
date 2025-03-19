@@ -79,18 +79,19 @@ class Strategy(ABC):
         pass
 
     def cleanup(self):
-        self.clean_resources()
-        self.report()
-        time.sleep(1)  # small sleep so FE can receive all remain events before disconnection
-        self.socketio.disconnect() if self.socketio else None
-
-    def clean_resources(self):
         self.order_manager.cancel_all_orders()
         self.order_manager.close_all_positions(self.data.get_current_price())
-        self.position_manager.emit_pnl(0.0)
+        self.report()
+        self.close_socketio()
 
     def report(self):
         logger.info(f"Backtest finished, pnl: {self.position_manager.get_pnl(0.0)}")
+
+    def close_socketio(self):
+        if not self.socketio:
+            return
+        pnl = self.position_manager.get_pnl(0.0)
+        self.socketio.emit("pnl", pnl, callback=self.socketio.disconnect)
 
     @classmethod
     def from_cfg(cls: Type[T], kwargs):
