@@ -3,10 +3,14 @@ from uuid import uuid4
 
 
 class OrderType(Enum):
-    Market = 1
-    Limit = 2
-    TakeProfit = 3
-    Stoploss = 4
+    Market = "Market"
+    Limit = "Limit"
+    TakeProfit = "TakeProfit"
+    Stoploss = "Stoploss"
+    ClosePosition = "ClosePosition"
+
+    def __str__(self):
+        return self.value
 
 
 class Order:
@@ -43,6 +47,7 @@ class Order:
 
     def json(self):
         return {
+            "type": str(self.type),
             "side": self.side,
             "quantity": self.quantity,
             "symbol": self.symbol,
