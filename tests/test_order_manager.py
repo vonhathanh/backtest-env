@@ -12,6 +12,10 @@ class TestOrderManager:
     position_mgr = Mock()
     order_mgr = OrderManager(position_mgr, data)
 
+    def setup_method(self):
+        self.data.get_current_price.return_value = Price(0, 100, 100, 100, 100, 0)
+        self.data.get_close_time.return_value = 100
+
     def test_get_open_orders(self):
         # empty orders
         orders = self.order_mgr.get_orders_by_side(BUY)
@@ -35,7 +39,7 @@ class TestOrderManager:
 
     def test_process_orders(self):
         market_order = create_long_order(side=BUY, price=100.0)
-        limit_order = Order(OrderType.Limit, BUY, 1.0, "X", 120.0, LONG)
+        limit_order = Order(OrderType.Limit, BUY, 1.0, "X", 120.0, LONG, 100)
 
         self.order_mgr.add_orders([market_order, limit_order])
 
