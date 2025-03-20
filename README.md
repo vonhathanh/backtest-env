@@ -28,10 +28,8 @@ The reason is that python treats script as top-level module, it won't be able to
 We can add hacky methods like try catch, append sys.path, install this as a module using setup.py but I don't like them
 
 # TODOs
-- Add stop/pause button
-- Add logging functionality: order history
 - Order side should be in USD, not asset quantity for consistent pnl
-- Fix too many hardcoded values in unitests
+- OCO & trail sl order
 
 # Installation
 - Python >= 3.10
