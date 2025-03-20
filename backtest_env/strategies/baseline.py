@@ -22,7 +22,7 @@ class Baseline(Strategy):
 
         pnl = self.position_manager.get_unrealized_pnl(self.data.get_close_price())
 
-        if pnl > 1:
+        if pnl > 1 or pnl < -1:
             self.order_manager.close_all_positions(self.data.get_current_price())
 
     def look_for_opportunities(self):
