@@ -1,5 +1,4 @@
 import time
-from enum import Enum
 from typing import TypeVar, Type
 from abc import ABC, abstractmethod
 
@@ -15,11 +14,6 @@ from backtest_env.logger import logger
 T = TypeVar("T", bound="Strategy")
 
 
-class State(Enum):
-    READY = (1,)
-    PROCESSING = 2
-
-
 class Strategy(ABC):
     # base class for all strategies
     def __init__(self, args: Args):
@@ -33,7 +27,6 @@ class Strategy(ABC):
         self.order_manager = OrderManager(
             self.position_manager, self.data, self.socketio, args.symbol
         )
-        self.state = State.READY
 
     def init_socketio(self, args: Args):
         if not args.allowLiveUpdates:
@@ -56,13 +49,6 @@ class Strategy(ABC):
             time.sleep(1)
 
     def next(self, data):
-        if self.state != State.READY:
-            return
-        self.state = State.PROCESSING
-        self.process()
-        self.state = State.READY
-
-    def process(self):
         self.data.step()
         if self.data.next():
             self.update()
@@ -90,8 +76,9 @@ class Strategy(ABC):
     def close_socketio(self):
         if not self.socketio:
             return
-        pnl = self.position_manager.get_pnl(0.0)
-        self.socketio.emit("pnl", pnl, callback=self.socketio.disconnect)
+        self.socketio.emit(
+            "pnl", self.position_manager.get_pnl(0.0), callback=self.socketio.disconnect
+        )
 
     @classmethod
     def from_cfg(cls: Type[T], kwargs):
