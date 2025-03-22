@@ -1,5 +1,4 @@
 import asyncio
-import time
 
 import numpy as np
 
@@ -18,7 +17,7 @@ def create_long_order(
     price: float = 100.0,
     position_side: str = LONG,
 ):
-    return Order(order_type, side, quantity, symbol, price, position_side, int(time.time()))
+    return Order(order_type, side, quantity, symbol, price, position_side)
 
 
 def create_short_order(
@@ -29,7 +28,7 @@ def create_short_order(
     price: float = 100.0,
     position_side: str = SHORT,
 ):
-    return Order(order_type, side, quantity, symbol, price, position_side, int(time.time()))
+    return Order(order_type, side, quantity, symbol, price, position_side)
 
 
 def load_price_data(data_dir: str, symbol: str, tf: str, start: int, end: int = 0) -> np.ndarray:

@@ -1,3 +1,4 @@
+import time
 from enum import Enum
 from uuid import uuid4
 
@@ -23,7 +24,7 @@ class Order:
         symbol: str,
         price: float,
         position_side: str,
-        created_at: int,
+        created_at: int = int(time.time()),
     ):
         self.id = uuid4().hex[:16]
         self.type = order_type
