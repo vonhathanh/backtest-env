@@ -6,7 +6,7 @@ from datetime import datetime
 from os.path import join
 
 from backtest_env.constants import BUY, SELL, LONG, SHORT, DATA_DIR
-from backtest_env.order import Order, OrderType
+from backtest_env.base.order import Order, OrderType
 
 
 def create_long_order(

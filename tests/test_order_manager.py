@@ -1,6 +1,6 @@
 from unittest.mock import Mock
 
-from backtest_env.order import Order, OrderType
+from backtest_env.base.order import Order, OrderType
 from backtest_env.order_manager import OrderManager
 from backtest_env.price import Price
 from backtest_env.constants import LONG, BUY, SELL

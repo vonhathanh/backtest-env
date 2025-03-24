@@ -3,7 +3,7 @@ from socketio import Client
 from backtest_env.balance import Balance
 from backtest_env.base.event_emitter import EventEmitter
 from backtest_env.constants import LONG
-from backtest_env.order import Order
+from backtest_env.base.order import Order
 from backtest_env.position import LongPosition, ShortPosition, Position
 
 
