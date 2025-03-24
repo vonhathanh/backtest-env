@@ -1,7 +1,7 @@
 import numpy as np
 from socketio import Client
 
-from backtest_env.base_class.event_emitter import EventEmitter
+from backtest_env.base.event_emitter import EventEmitter
 from backtest_env.constants import DATA_DIR
 from backtest_env.utils import load_price_data, convert_datetime_to_nanosecond
 

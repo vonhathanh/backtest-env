@@ -1,6 +1,6 @@
 from socketio import Client
 
-from backtest_env.base_class.event_emitter import EventEmitter
+from backtest_env.base.event_emitter import EventEmitter
 from backtest_env.constants import LONG, SHORT, SELL, BUY
 from backtest_env.order import OrderType, Order
 from backtest_env.position_manager import PositionManager

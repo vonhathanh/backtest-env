@@ -2,7 +2,7 @@ import random
 
 from backtest_env.dto import Args
 from backtest_env.order import OrderType, Order
-from backtest_env.base_class.strategy import Strategy
+from backtest_env.base.strategy import Strategy
 from backtest_env.constants import BUY, SELL
 from backtest_env.utils import to_position
 

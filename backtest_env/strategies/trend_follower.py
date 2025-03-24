@@ -3,7 +3,7 @@ import numpy as np
 import backtest_env.utils as utils
 from backtest_env.dto import TrendFollowerArgs
 from backtest_env.order import OrderType, Order
-from backtest_env.base_class.strategy import Strategy
+from backtest_env.base.strategy import Strategy
 from backtest_env.constants import BUY, SELL
 
 
