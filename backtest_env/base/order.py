@@ -1,38 +1,42 @@
-import time
-from enum import Enum
+from abc import ABC, abstractmethod
+from enum import StrEnum
 from uuid import uuid4
 
+from backtest_env.base.side import OrderSide, PositionSide
+from backtest_env.base.event_hub import EventHub
 
-class OrderType(Enum):
+
+class OrderType(StrEnum):
     Market = "Market"
     Limit = "Limit"
     TakeProfit = "TakeProfit"
     Stoploss = "Stoploss"
     ClosePosition = "ClosePosition"
+    OCO = "OCO"
 
     def __str__(self):
         return self.value
 
 
-class Order:
+class Order(ABC, EventHub):
     # common sense: limit buy 1.0 bnb at price = 500.0
     def __init__(
         self,
-        order_type: OrderType,
-        side: str,
+        side: OrderSide,
         quantity: float,
         symbol: str,
         price: float,
-        position_side: str,
-        created_at: int = int(time.time()),
+        position_side: PositionSide = None,
+        created_at: int = 0,
     ):
+        super().__init__(None)
         self.id = uuid4().hex[:16]
-        self.type = order_type
+        self.type = ""
         self.side = side
         self.quantity = quantity
         self.symbol = symbol
         self.price = price
-        self.position_side = position_side
+        self.position_side = position_side if position_side else side.to_position()
         self.created_at = created_at
         self.filled_at = -1
 
@@ -48,7 +52,7 @@ class Order:
 
     def json(self):
         return {
-            "type": str(self.type),
+            "type": self.type,
             "side": self.side,
             "quantity": self.quantity,
             "symbol": self.symbol,
@@ -58,3 +62,11 @@ class Order:
             "createdAt": self.created_at // 1000,
             "filledAt": self.filled_at // 1000,
         }
+
+    @abstractmethod
+    def update(self, price):
+        pass
+
+    def emit_order_filled(self, filled_at: int):
+        self.filled_at = filled_at
+        self.emit("order.filled", self.json())
