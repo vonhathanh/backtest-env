@@ -1,7 +1,8 @@
 from backtest_env.balance import Balance
 from backtest_env.base.order import Order
-from backtest_env.constants import LONG, SHORT, BUY, SELL
 from abc import ABC, abstractmethod
+
+from backtest_env.base.side import PositionSide, OrderSide
 
 
 class Position(ABC):
@@ -52,19 +53,19 @@ class Position(ABC):
 class LongPosition(Position):
     def __init__(self, balance: Balance):
         super().__init__(balance)
-        self.side = LONG
+        self.side = PositionSide.LONG
 
     def get_pnl(self, price: float) -> float:
         return round(self.quantity * (price - self.average_price), 4)
 
     def validate(self, order: Order):
-        if order.side == SELL:
+        if order.side == OrderSide.SELL:
             assert order.quantity <= self.quantity
         assert order.quantity > 0
 
     def update(self, order: Order):
         self.validate(order)
-        self.increase(order) if order.side == BUY else self.decrease(order)
+        self.increase(order) if order.side == OrderSide.BUY else self.decrease(order)
 
     def increase(self, order: Order):
         super().increase(order)
@@ -79,19 +80,19 @@ class LongPosition(Position):
 class ShortPosition(Position):
     def __init__(self, balance: Balance):
         super().__init__(balance)
-        self.side = SHORT
+        self.side = PositionSide.SHORT
 
     def get_pnl(self, price: float) -> float:
         return round(self.quantity * (self.average_price - price), 4)
 
     def validate(self, order: Order):
-        if order.side == BUY:
+        if order.side == OrderSide.BUY:
             assert order.quantity <= self.quantity
         assert order.quantity > 0
 
     def update(self, order: Order):
         self.validate(order)
-        self.increase(order) if order.side == SELL else self.decrease(order)
+        self.increase(order) if order.side == OrderSide.SELL else self.decrease(order)
 
     def increase(self, order: Order):
         super().increase(order)
