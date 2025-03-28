@@ -1,7 +1,7 @@
 import numpy as np
 from socketio import Client
 
-from backtest_env.base.event_emitter import EventEmitter
+from backtest_env.base.event_hub import EventHub
 from backtest_env.constants import DATA_DIR
 from backtest_env.utils import load_price_data, convert_datetime_to_nanosecond
 
@@ -25,7 +25,7 @@ class Price:
         }
 
 
-class PriceDataSet(EventEmitter):
+class PriceDataSet(EventHub):
     def __init__(self, symbol, tf, start_time: str, end_time: str = "", sio: Client = None):
         super().__init__(sio)
         start = convert_datetime_to_nanosecond(start_time)
@@ -56,7 +56,7 @@ class PriceDataSet(EventEmitter):
         self.idx += 1
         price = self.get_current_price()
         if price:
-            self.emit("new_candle", price.json())
+            self.emit_to_frontend("new_candle", price.json())
         return price
 
     def __len__(self):
