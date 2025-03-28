@@ -29,7 +29,7 @@ def get_sl(price: float, percent: float, side: str) -> float:
     :param side: current trading side of the parent order that we want to make SL for
     :return: entry price for stop-loss to be triggered
     """
-    return round(price * (1 - percent) if side == "BUY" else price * (1 + percent), 4)
+    return round(price * (1 - percent) if side == "Buy" else price * (1 + percent), 4)
 
 
 def get_tp(price: float, percent: float, side: str) -> float:
@@ -40,7 +40,7 @@ def get_tp(price: float, percent: float, side: str) -> float:
     :param side: current trading side of the parent order that we want to make TP for
     :return: entry price for take-profit to be triggered
     """
-    return round(price * (1 + percent) if side == "BUY" else price * (1 - percent), 4)
+    return round(price * (1 + percent) if side == "Buy" else price * (1 - percent), 4)
 
 
 def convert_datetime_to_nanosecond(date: str, date_format: str = "%Y-%m-%d") -> int:
