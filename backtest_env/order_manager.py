@@ -66,7 +66,8 @@ class OrderManager(EventHub):
             position_side,
             price.close_time,
         )
-        self.position_manager.fill(order)
+        self.add_order(order)
+        order.update(price)
 
     def get_orders_by_side(self, side: str) -> list[Order]:
         orders = filter(lambda order: order.side == side, self.orders.values())
@@ -78,7 +79,6 @@ class OrderManager(EventHub):
 
     def on_order_filled(self, event: Event):
         order: Order = event.data
-        print("order ", order)
         self.position_manager.fill(order)
         self.filled_orders.append(order)
         self.emit_to_frontend("order_filled", order.json())
