@@ -1,10 +1,10 @@
 import numpy as np
 
-import backtest_env.utils as utils
+from backtest_env.base.side import OrderSide
+from backtest_env.utils import get_tp
 from backtest_env.dto import TrendFollowerArgs
-from backtest_env.base.order import OrderType, Order
 from backtest_env.base.strategy import Strategy
-from backtest_env.constants import BUY, SELL
+from backtest_env.orders.limit import LimitOrder
 
 
 class TrendFollower(Strategy):
@@ -113,26 +113,24 @@ class TrendFollower(Strategy):
         self.step_size = round(max(np.mean(changes) / self.interval, 0.005), 3)
 
     def update_grid(self):
-        self.place_grid_orders(BUY)
-        self.place_grid_orders(SELL)
+        self.place_grid_orders(OrderSide.BUY)
+        self.place_grid_orders(OrderSide.SELL)
 
-    def place_grid_orders(self, side: str):
-        orders = self.order_manager.get_orders_by_side(side=side)
-        num_unfill_orders = self.grid_size - len(orders)
-        assert num_unfill_orders >= 0
+    def place_grid_orders(self, order_side: str):
+        orders = self.order_manager.get_orders_by_side(side=order_side)
+        num_pending_orders = self.grid_size - len(orders)
+        assert num_pending_orders >= 0
         # determine entry price for new order, use current price if grid is empty
         # else use the latest order's price as starting point
         price = self.data.get_close_price() if not orders else orders[-1].price
 
-        for i in range(0, num_unfill_orders):
-            price = utils.get_tp(price, self.step_size, side)
-            order = Order(
-                OrderType.Limit,
-                side,
+        for i in range(0, num_pending_orders):
+            price = get_tp(price, self.step_size, order_side)
+            order = LimitOrder(
+                order_side,
                 self.order_size,
                 self.symbol,
                 price,
-                utils.to_position(side),
-                self.data.get_close_time(),
+                created_at=self.data.get_close_time(),
             )
             self.order_manager.add_order(order)

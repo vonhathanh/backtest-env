@@ -5,30 +5,7 @@ import numpy as np
 from datetime import datetime
 from os.path import join
 
-from backtest_env.constants import BUY, SELL, LONG, SHORT, DATA_DIR
-from backtest_env.base.order import Order, OrderType
-
-
-def create_long_order(
-    order_type: OrderType = OrderType.Market,
-    side: str = BUY,
-    quantity=1.0,
-    symbol: str = "X",
-    price: float = 100.0,
-    position_side: str = LONG,
-):
-    return Order(order_type, side, quantity, symbol, price, position_side)
-
-
-def create_short_order(
-    order_type: OrderType = OrderType.Market,
-    side: str = SELL,
-    quantity=1.0,
-    symbol: str = "X",
-    price: float = 100.0,
-    position_side: str = SHORT,
-):
-    return Order(order_type, side, quantity, symbol, price, position_side)
+from backtest_env.constants import DATA_DIR
 
 
 def load_price_data(data_dir: str, symbol: str, tf: str, start: int, end: int = 0) -> np.ndarray:
@@ -52,7 +29,7 @@ def get_sl(price: float, percent: float, side: str) -> float:
     :param side: current trading side of the parent order that we want to make SL for
     :return: entry price for stop-loss to be triggered
     """
-    return round(price * (1 - percent) if side == "BUY" else price * (1 + percent), 4)
+    return round(price * (1 - percent) if side == "Buy" else price * (1 + percent), 4)
 
 
 def get_tp(price: float, percent: float, side: str) -> float:
@@ -63,12 +40,7 @@ def get_tp(price: float, percent: float, side: str) -> float:
     :param side: current trading side of the parent order that we want to make TP for
     :return: entry price for take-profit to be triggered
     """
-    return round(price * (1 + percent) if side == "BUY" else price * (1 - percent), 4)
-
-
-def to_position(side: str) -> str:
-    # convert order side to position side
-    return LONG if side == BUY else SHORT
+    return round(price * (1 + percent) if side == "Buy" else price * (1 - percent), 4)
 
 
 def convert_datetime_to_nanosecond(date: str, date_format: str = "%Y-%m-%d") -> int:
