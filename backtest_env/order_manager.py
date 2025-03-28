@@ -78,6 +78,7 @@ class OrderManager(EventHub):
 
     def on_order_filled(self, event: Event):
         order: Order = event.data
+        print("order ", order)
         self.position_manager.fill(order)
         self.filled_orders.append(order)
         self.emit_to_frontend("order_filled", order.json())
