@@ -3,6 +3,7 @@ from socketio import Client
 from backtest_env.base.event_hub import EventHub
 from backtest_env.base.order import Order
 from backtest_env.base.side import PositionSide, OrderSide
+from backtest_env.orders.close_position import ClosePositionOrder
 from backtest_env.position_manager import PositionManager
 from backtest_env.price import PriceDataSet, Price
 
@@ -56,7 +57,7 @@ class OrderManager(EventHub):
 
     def close_position(self, position_side: str, quantity: float, price: Price):
         side = OrderSide.SELL if position_side == PositionSide.LONG else OrderSide.BUY
-        order = Order(
+        order = ClosePositionOrder(
             side,
             quantity,
             self.symbol,
