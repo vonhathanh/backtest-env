@@ -69,4 +69,4 @@ class Order(ABC, EventHub):
 
     def emit_order_filled(self, filled_at: int):
         self.filled_at = filled_at
-        self.emit("order.filled", self.json())
+        self.emit("order.filled", self)

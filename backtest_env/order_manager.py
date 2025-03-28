@@ -1,3 +1,4 @@
+from eventure import Event
 from socketio import Client
 
 from backtest_env.base.event_hub import EventHub
@@ -25,8 +26,8 @@ class OrderManager(EventHub):
         self.setup_event_handlers()
 
     def setup_event_handlers(self):
-        self.event_bus.subscribe("order_filled", self.on_order_filled)
-        self.event_bus.subscribe("oco_order_filled", self.on_oco_order_filled)
+        self.event_bus.subscribe("order.filled", self.on_order_filled)
+        self.event_bus.subscribe("oco_order.filled", self.on_oco_order_filled)
 
     def get_all_orders(self) -> list[Order]:
         return list(self.orders.values())
@@ -75,7 +76,8 @@ class OrderManager(EventHub):
         for order in list(self.orders.values()):
             order.update(self.price_dataset.get_current_price())
 
-    def on_order_filled(self, order: Order):
+    def on_order_filled(self, event: Event):
+        order: Order = event.data
         self.position_manager.fill(order)
         self.filled_orders.append(order)
         self.emit_to_frontend("order_filled", order.json())
