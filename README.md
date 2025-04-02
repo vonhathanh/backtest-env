@@ -29,7 +29,7 @@ We can add hacky methods like try catch, append sys.path, install this as a modu
 
 # TODOs
 - Order side should be in USD, not asset quantity for consistent pnl
-- OCO & trail sl order
+- OCO & trail sl order (doing)
 
 # Installation
 - Python >= 3.10

@@ -60,7 +60,7 @@ class OrderManager(EventHub):
         side = OrderSide.SELL if position_side == PositionSide.LONG else OrderSide.BUY
         order = ClosePositionOrder(
             side,
-            quantity,
+            quantity * price.close,
             self.symbol,
             price.close,
             position_side,
