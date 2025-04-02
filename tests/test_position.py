@@ -1,9 +1,9 @@
 import pytest
 
 from backtest_env.balance import Balance
-from backtest_env.constants import BUY, SELL
 from backtest_env.position import LongPosition, ShortPosition
-from backtest_env.utils import create_short_order, create_long_order
+from backtest_env.base.order import OrderSide
+from utils import create_short_order, create_long_order
 
 b = Balance(100000, 100000, 0)
 
@@ -32,10 +32,10 @@ def test_decrease_long_position():
 
     with pytest.raises(AssertionError) as excinfo:
         # sell 0.7 while only have 0.6 bnb
-        p.update(create_long_order(side=SELL, quantity=0.7))
+        p.update(create_long_order(side=OrderSide.SELL, quantity=0.7))
     assert excinfo.type is AssertionError
 
-    p.update(create_long_order(side=SELL, quantity=0.3, price=600.0))
+    p.update(create_long_order(side=OrderSide.SELL, quantity=0.3, price=600.0))
     assert p.quantity == 0.3 and p.average_price == 500.0
 
 
@@ -63,10 +63,10 @@ def test_decrease_short_position():
 
     with pytest.raises(AssertionError) as excinfo:
         # buy 0.7 while only shorted 0.6 bnb
-        p.update(create_short_order(side=BUY, quantity=0.7))
+        p.update(create_short_order(side=OrderSide.BUY, quantity=0.7))
     assert excinfo.type is AssertionError
 
-    p.update(create_short_order(price=600.0, quantity=0.3, side=BUY))
+    p.update(create_short_order(price=600.0, quantity=0.3, side=OrderSide.BUY))
     assert p.quantity == 0.3 and p.average_price == 500.0
 
 

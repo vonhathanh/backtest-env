@@ -8,7 +8,7 @@ def create_long_order(
     symbol: str = "X",
     price: float = 100.0,
 ):
-    return MarketOrder(side, quantity, symbol, price)
+    return MarketOrder(side, quantity * price, symbol, price)
 
 
 def create_short_order(
@@ -17,4 +17,4 @@ def create_short_order(
     symbol: str = "X",
     price: float = 100.0,
 ):
-    return MarketOrder(side, quantity, symbol, price)
+    return MarketOrder(side, quantity * price, symbol, price)
