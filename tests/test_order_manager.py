@@ -1,5 +1,7 @@
 from unittest.mock import Mock
 
+import pytest
+
 from backtest_env.base.order import OrderType, OrderSide, PositionSide
 from backtest_env.order_manager import OrderManager
 from backtest_env.orders.limit import LimitOrder
@@ -8,13 +10,19 @@ from utils import create_long_order
 
 
 class TestOrderManager:
-    data = Mock()
-    position_mgr = Mock()
-    order_mgr = OrderManager(position_mgr, data)
-
-    def setup_method(self):
+    @pytest.fixture(autouse=True)
+    def setup(self):
+        self.data = Mock()
+        self.position_mgr = Mock()
+        self.order_mgr = OrderManager(self.position_mgr, self.data)
         self.data.get_current_price.return_value = Price(0, 100, 100, 100, 100, 0)
         self.data.get_close_time.return_value = 100
+        yield
+        # Teardown code
+        self.order_mgr.unsubscribe()
+        self.order_mgr = None
+        self.position_mgr = None
+        self.data = None
 
     def test_get_open_orders(self):
         # empty orders
