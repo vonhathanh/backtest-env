@@ -1,4 +1,4 @@
-from backtest_env.base.side import OrderSide
+from backtest_env.base.side import OrderSide, PositionSide
 from backtest_env.orders.market import MarketOrder
 
 
@@ -8,7 +8,7 @@ def create_long_order(
     symbol: str = "X",
     price: float = 100.0,
 ):
-    return MarketOrder(side, quantity * price, symbol, price)
+    return MarketOrder(side, quantity * price, symbol, price, PositionSide.LONG)
 
 
 def create_short_order(
@@ -17,4 +17,4 @@ def create_short_order(
     symbol: str = "X",
     price: float = 100.0,
 ):
-    return MarketOrder(side, quantity * price, symbol, price)
+    return MarketOrder(side, quantity * price, symbol, price, PositionSide.SHORT)
