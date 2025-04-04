@@ -28,7 +28,6 @@ The reason is that python treats script as top-level module, it won't be able to
 We can add hacky methods like try catch, append sys.path, install this as a module using setup.py, but I don't like them
 
 # TODOs
-- Order side should be in USD, not asset quantity for consistent pnl (doing)
 - OCO & trail sl order (doing)
 - Store backtest results to compare, validation
 
