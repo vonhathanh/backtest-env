@@ -4,6 +4,7 @@ from backtest_env.base.side import OrderSide
 from backtest_env.dto import Args
 from backtest_env.base.strategy import Strategy
 from backtest_env.orders.market import MarketOrder
+from backtest_env.constants import ORDER_SIZE
 
 
 class Baseline(Strategy):
@@ -34,7 +35,7 @@ class Baseline(Strategy):
 
         order = MarketOrder(
             side,
-            1.0,
+            ORDER_SIZE,
             self.symbol,
             self.data.get_close_price(),
             created_at=self.data.get_close_time(),

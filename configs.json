@@ -1,3 +1,4 @@
 {
-  "socketio_url": "http://localhost:8000"
+  "socketio_url": "http://localhost:8000",
+  "order_size": 100
 }

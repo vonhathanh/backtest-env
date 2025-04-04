@@ -10,3 +10,4 @@ with open(CONFIG_PATH, "r") as f:
 
 DATA_DIR = os.path.join(BASE_DIR, "..", "data")
 SOCKETIO_URL = str(config["socketio_url"])
+ORDER_SIZE = int(config["order_size"])

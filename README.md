@@ -25,15 +25,15 @@
 # Scripting
 - Run `python -m scripts.your_script_name_without.py_extension` to run the script.
 The reason is that python treats script as top-level module, it won't be able to find backtest_env.
-We can add hacky methods like try catch, append sys.path, install this as a module using setup.py but I don't like them
+We can add hacky methods like try catch, append sys.path, install this as a module using setup.py, but I don't like them
 
 # TODOs
-- Order side should be in USD, not asset quantity for consistent pnl
-- OCO & trail sl order
+- OCO & trail sl order (doing)
+- Store backtest results to compare, validation
 
 # Installation
 - Python >= 3.10
 - Run `pip install -r requirements.txt`
-- Install ruff for precommit hook and linter: `pip install ruff`
+- Install ruff for pre-commit hook and linter: `pip install ruff`
 - Run `fastapi dev backtest_env/app.py` to run API server only (old command)
 - Run `uvicorn backtest_env.app:socketio_app --reload` to run the server as both API and socketio endpoint

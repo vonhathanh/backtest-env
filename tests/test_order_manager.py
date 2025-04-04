@@ -1,45 +1,53 @@
 from unittest.mock import Mock
 
-from backtest_env.base.order import Order, OrderType
+import pytest
+
+from backtest_env.base.order import OrderType, OrderSide, PositionSide
 from backtest_env.order_manager import OrderManager
+from backtest_env.orders.limit import LimitOrder
 from backtest_env.price import Price
-from backtest_env.constants import LONG, BUY, SELL
-from backtest_env.utils import create_long_order
+from utils import create_long_order
 
 
 class TestOrderManager:
-    data = Mock()
-    position_mgr = Mock()
-    order_mgr = OrderManager(position_mgr, data)
-
-    def setup_method(self):
+    @pytest.fixture(autouse=True)
+    def setup(self):
+        self.data = Mock()
+        self.position_mgr = Mock()
+        self.order_mgr = OrderManager(self.position_mgr, self.data)
         self.data.get_current_price.return_value = Price(0, 100, 100, 100, 100, 0)
         self.data.get_close_time.return_value = 100
+        yield
+        # Teardown code
+        self.order_mgr.unsubscribe()
+        self.order_mgr = None
+        self.position_mgr = None
+        self.data = None
 
     def test_get_open_orders(self):
         # empty orders
-        orders = self.order_mgr.get_orders_by_side(BUY)
+        orders = self.order_mgr.get_orders_by_side(OrderSide.BUY)
         assert len(orders) == 0
 
         # 1 buy and 0 sell order
-        self.order_mgr.add_order(create_long_order(side=BUY))
-        long_orders = self.order_mgr.get_orders_by_side(BUY)
-        short_orders = self.order_mgr.get_orders_by_side(SELL)
+        self.order_mgr.add_order(create_long_order(side=OrderSide.BUY))
+        long_orders = self.order_mgr.get_orders_by_side(OrderSide.BUY)
+        short_orders = self.order_mgr.get_orders_by_side(OrderSide.SELL)
         assert len(long_orders) == 1 and len(short_orders) == 0
 
         # add new sell order
-        self.order_mgr.add_order(create_long_order(side=SELL))
-        short_orders = self.order_mgr.get_orders_by_side(SELL)
+        self.order_mgr.add_order(create_long_order(side=OrderSide.SELL))
+        short_orders = self.order_mgr.get_orders_by_side(OrderSide.SELL)
         assert len(short_orders) == 1
 
         # more than 1 sell order
-        self.order_mgr.add_order(create_long_order(side=SELL))
-        short_orders = self.order_mgr.get_orders_by_side(SELL)
+        self.order_mgr.add_order(create_long_order(side=OrderSide.SELL))
+        short_orders = self.order_mgr.get_orders_by_side(OrderSide.SELL)
         assert len(short_orders) == 2
 
     def test_process_orders(self):
-        market_order = create_long_order(side=BUY, price=100.0)
-        limit_order = Order(OrderType.Limit, BUY, 1.0, "X", 120.0, LONG, 100)
+        market_order = create_long_order(side=OrderSide.BUY, price=100.0)
+        limit_order = LimitOrder(OrderSide.BUY, 120.0, "X", 120.0, PositionSide.LONG)
 
         self.order_mgr.add_orders([market_order, limit_order])
 

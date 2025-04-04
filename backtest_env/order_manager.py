@@ -26,8 +26,8 @@ class OrderManager(EventHub):
         self.setup_event_handlers()
 
     def setup_event_handlers(self):
-        self.event_bus.subscribe("order.filled", self.on_order_filled)
-        self.event_bus.subscribe("oco_order.filled", self.on_oco_order_filled)
+        self.subscribe("order.filled", self.on_order_filled)
+        self.subscribe("oco_order.filled", self.on_oco_order_filled)
 
     def get_all_orders(self) -> list[Order]:
         return list(self.orders.values())
@@ -60,7 +60,7 @@ class OrderManager(EventHub):
         side = OrderSide.SELL if position_side == PositionSide.LONG else OrderSide.BUY
         order = ClosePositionOrder(
             side,
-            quantity,
+            quantity * price.close,
             self.symbol,
             price.close,
             position_side,

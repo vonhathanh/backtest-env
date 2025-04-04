@@ -7,13 +7,13 @@ class MarketOrder(Order):
     def __init__(
         self,
         side: OrderSide,
-        quantity: float,
+        amount_in_usd: float,
         symbol: str,
         price: float,
         position_side: PositionSide = None,
         created_at: int = 0,
     ):
-        super().__init__(side, quantity, symbol, price, position_side, created_at)
+        super().__init__(side, amount_in_usd, symbol, price, position_side, created_at)
         self.type = OrderType.Market
 
     def update(self, price: Price):

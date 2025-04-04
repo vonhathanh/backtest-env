@@ -23,7 +23,7 @@ class Order(ABC, EventHub):
     def __init__(
         self,
         side: OrderSide,
-        quantity: float,
+        amount_in_usd: float,
         symbol: str,
         price: float,
         position_side: PositionSide = None,
@@ -33,12 +33,20 @@ class Order(ABC, EventHub):
         self.id = uuid4().hex[:16]
         self.type = ""
         self.side = side
-        self.quantity = quantity
+        self.quantity = round(amount_in_usd / price, 4)
         self.symbol = symbol
         self.price = price
         self.position_side = position_side if position_side else side.to_position()
         self.created_at = created_at
         self.filled_at = -1
+
+    @abstractmethod
+    def update(self, price):
+        pass
+
+    def emit_order_filled(self, filled_at: int):
+        self.filled_at = filled_at
+        self.emit("order.filled", self)
 
     def __str__(self):
         return (
@@ -62,11 +70,3 @@ class Order(ABC, EventHub):
             "createdAt": self.created_at // 1000,
             "filledAt": self.filled_at // 1000,
         }
-
-    @abstractmethod
-    def update(self, price):
-        pass
-
-    def emit_order_filled(self, filled_at: int):
-        self.filled_at = filled_at
-        self.emit("order.filled", self)
