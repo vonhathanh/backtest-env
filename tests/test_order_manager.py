@@ -2,9 +2,10 @@ from unittest.mock import Mock
 
 import pytest
 
-from backtest_env.base.order import OrderType, OrderSide, PositionSide
+from backtest_env.base.order import OrderType, OrderSide, PositionSide, Order
 from backtest_env.order_manager import OrderManager
 from backtest_env.orders.limit import LimitOrder
+from backtest_env.orders.oco import OneCancelOtherOrder
 from backtest_env.price import Price
 from utils import create_long_order
 
@@ -23,6 +24,14 @@ class TestOrderManager:
         self.order_mgr = None
         self.position_mgr = None
         self.data = None
+
+    @staticmethod
+    def assert_order_eq(src_order: Order, tgt_order: Order):
+        assert src_order.side == tgt_order.side
+        assert src_order.price == tgt_order.price
+        assert src_order.quantity == tgt_order.quantity
+        assert src_order.position_side == tgt_order.position_side
+        assert src_order.type == tgt_order.type
 
     def test_get_open_orders(self):
         # empty orders
@@ -68,3 +77,66 @@ class TestOrderManager:
 
         self.order_mgr.process_orders()
         assert len(self.order_mgr.get_all_orders()) == 0
+
+    def test_oco_stoploss(self):
+        order = OneCancelOtherOrder(
+            90,
+            0,
+            OrderSide.BUY,
+            amount_in_usd=300.0,
+            symbol="X",
+            price=100.0,
+            position_side=PositionSide.LONG,
+        )
+        self.order_mgr.add_order(order)
+        self.order_mgr.process_orders()
+
+        orders = self.order_mgr.get_all_orders()
+        # stoploss & take-profit are added after oco is filled
+        assert len(orders) == 1
+        self.assert_order_eq(
+            orders[0], LimitOrder(OrderSide.SELL, 270.0, "X", 90, PositionSide.LONG)
+        )
+
+    def test_oco_take_profit(self):
+        order = OneCancelOtherOrder(
+            0,
+            110,
+            OrderSide.BUY,
+            amount_in_usd=300.0,
+            symbol="X",
+            price=100.0,
+            position_side=PositionSide.LONG,
+        )
+        self.order_mgr.add_order(order)
+        self.order_mgr.process_orders()
+
+        orders = self.order_mgr.get_all_orders()
+        # stoploss & take-profit are added after oco is filled
+        assert len(orders) == 1
+        self.assert_order_eq(
+            orders[0], LimitOrder(OrderSide.SELL, 330.0, "X", 110, PositionSide.LONG)
+        )
+
+    def test_oco_both_sl_and_tp(self):
+        order = OneCancelOtherOrder(
+            90,
+            110,
+            OrderSide.BUY,
+            amount_in_usd=300.0,
+            symbol="X",
+            price=100.0,
+            position_side=PositionSide.LONG,
+        )
+        self.order_mgr.add_order(order)
+        self.order_mgr.process_orders()
+
+        orders = self.order_mgr.get_all_orders()
+        # stoploss & take-profit are added after oco is filled
+        assert len(orders) == 2
+        self.assert_order_eq(
+            orders[0], LimitOrder(OrderSide.SELL, 270.0, "X", 90, PositionSide.LONG)
+        )
+        self.assert_order_eq(
+            orders[1], LimitOrder(OrderSide.SELL, 330.0, "X", 110, PositionSide.LONG)
+        )
