@@ -4,6 +4,13 @@ from backtest_env.price import Price
 
 
 class LimitOrder(Order):
+    """
+    A limit order is designed to execute a trade at a specific price or better,
+    ensuring that a buyer does not pay more than a desired price or a seller receives at least a specified price.
+    This type of order is useful when targeting a specific price point,
+    although it does not guarantee execution if the market does not reach the set price
+    """
+
     def __init__(
         self,
         side: OrderSide,
