@@ -14,13 +14,18 @@ from backtest_env.logger import logger
 
 processes: dict[str, Process] = {}
 
-origins = ["http://localhost:5173", "http://localhost:8000"]
+origins = [
+    "http://localhost:5173",  # FE
+    "http://localhost:8000",  # BE
+]
 
 
 @asynccontextmanager
 async def lifespan(application: FastAPI):
+    # start server routines
     os.makedirs(DATA_DIR, exist_ok=True)
     yield
+    # stop server routines
     for process in processes.values():
         process.join()
 
