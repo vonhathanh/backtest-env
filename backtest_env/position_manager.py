@@ -1,13 +1,13 @@
 from socketio import Client
 
 from backtest_env.balance import Balance
-from backtest_env.base.event_hub import EventHub
+from backtest_env.base.event_hub import SocketIoEventHub
 from backtest_env.base.order import Order
 from backtest_env.base.side import PositionSide
 from backtest_env.position import LongPosition, ShortPosition, Position
 
 
-class PositionManager(EventHub):
+class PositionManager(SocketIoEventHub):
     def __init__(self, initial_balance: float, sio: Client = None):
         super().__init__(sio)
         self.balance = Balance(initial_balance, initial_balance, 0)
@@ -15,10 +15,10 @@ class PositionManager(EventHub):
         self.short = ShortPosition(self.balance)
 
     def emit_positions(self):
-        self.emit_to_frontend("positions", [pos.json() for pos in [self.long, self.short]])
+        self.emit("positions", [pos.json() for pos in [self.long, self.short]])
 
     def emit_pnl(self, price: float):
-        self.emit_to_frontend("pnl", self.get_pnl(price))
+        self.emit("pnl", self.get_pnl(price))
 
     def fill(self, order: Order):
         if order.position_side == PositionSide.LONG:

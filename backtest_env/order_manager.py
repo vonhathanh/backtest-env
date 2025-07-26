@@ -1,7 +1,7 @@
 from eventure import Event
 from socketio import Client
 
-from backtest_env.base.event_hub import EventHub
+from backtest_env.base.event_hub import EventHub, SocketIoEventHub
 from backtest_env.base.order import Order
 from backtest_env.base.side import PositionSide, OrderSide
 from backtest_env.orders.close_position import ClosePositionOrder
@@ -14,15 +14,16 @@ class OrderManager(EventHub):
         self,
         position_manager: PositionManager,
         price_dataset: PriceDataSet,
-        sio: Client = None,
+        socket_io: Client = None,
         symbol: str = "",
     ):
-        super().__init__(sio)
+        super().__init__()
         self.orders: dict[str, Order] = {}
         self.filled_orders: list[Order] = []
         self.position_manager = position_manager
         self.price_dataset = price_dataset
         self.symbol = symbol
+        self.socket_io = SocketIoEventHub(socket_io)
         self.setup_event_handlers()
 
     def setup_event_handlers(self):
@@ -37,17 +38,17 @@ class OrderManager(EventHub):
 
     def add_order(self, order: Order):
         self.orders[order.id] = order
-        self.emit_to_frontend("new_orders", [order.json()])
+        self.socket_io.emit("new_orders", [order.json()])
 
     def add_orders(self, orders: list[Order]):
         for order in orders:
             # we don't call self.add_order() because want to trigger the new_orders event in bulk
             self.orders[order.id] = order
-        self.emit_to_frontend("new_orders", [order.json() for order in orders])
+        self.socket_io.emit("new_orders", [order.json() for order in orders])
 
     def cancel_all_orders(self):
         self.orders = {}
-        self.emit_to_frontend("current_orders", [])
+        self.socket_io.emit("current_orders", [])
 
     def close_all_positions(self, price: Price):
         [long, short] = self.position_manager.get_positions()
@@ -81,7 +82,7 @@ class OrderManager(EventHub):
         order: Order = event.data
         self.position_manager.fill(order)
         self.filled_orders.append(order)
-        self.emit_to_frontend("order_filled", order.json())
+        self.socket_io.emit("order_filled", order.json())
         del self.orders[order.id]
 
     def on_new_order(self, event: Event):
