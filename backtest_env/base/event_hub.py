@@ -5,18 +5,10 @@ event_bus = EventBus(EventLog())
 
 
 class EventHub:
-    """
-    regular event will be handled by components in our system
-    socketio_event will be handled by Front-end
-    """
-
-    def __init__(self, sio: Client = None):
-        self.sio = sio
+    # used to communicate between components in our system
+    def __init__(self):
         self.event_bus = event_bus
         self.subscriptions = []
-
-    def emit_to_frontend(self, event, data):
-        self.sio.emit(event, data) if self.sio else None
 
     def emit(self, event, data):
         self.event_bus.publish(event, data)
@@ -27,3 +19,12 @@ class EventHub:
     def unsubscribe(self):
         for unsubscribe in self.subscriptions:
             unsubscribe()
+
+
+class SocketIoEventHub:
+    # used to communicate with external components (Front-end, chat system, Exchange API server)
+    def __init__(self, sio: Client):
+        self.sio = sio
+
+    def emit(self, event, data):
+        self.sio.emit(event, data)
