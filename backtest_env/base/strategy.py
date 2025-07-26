@@ -35,10 +35,10 @@ class Strategy(ABC):
         self.socketio.connect(SOCKETIO_URL)
         self.socketio.on("next", self.next)
 
-    def run(self, live_update: bool = False):
+    def run(self, allow_live_update: bool = False):
         # main event loop: getting new candle stick and then process data based on update() logic
         # child class must override update() to specify their own trading logic
-        if live_update:
+        if allow_live_update:
             self.run_with_live_updates()
         else:
             while self.data.step():
