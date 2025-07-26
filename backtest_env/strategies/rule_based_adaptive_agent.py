@@ -36,7 +36,7 @@ class RuleBasedAdaptiveAgent(Strategy):
         - Current entry_ratio at that time
         - Time between order filled time vs creation time
         - profit and loss when order is finished
-        Order evauluation's criterias:
+        Order evaluation's criterias:
         - Small time to reach the entry price
         - Number of TPs hit is > number of SLs
         - If a position is not winning/losing, it's not a good order.
