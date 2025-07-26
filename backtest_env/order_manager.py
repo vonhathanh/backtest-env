@@ -27,7 +27,7 @@ class OrderManager(EventHub):
 
     def setup_event_handlers(self):
         self.subscribe("order.filled", self.on_order_filled)
-        self.subscribe("oco_order.filled", self.on_oco_order_filled)
+        self.subscribe("order.new", self.on_new_order)
 
     def get_all_orders(self) -> list[Order]:
         return list(self.orders.values())
@@ -84,5 +84,6 @@ class OrderManager(EventHub):
         self.emit_to_frontend("order_filled", order.json())
         del self.orders[order.id]
 
-    def on_oco_order_filled(self, order: Order):
-        pass
+    def on_new_order(self, event: Event):
+        order: Order = event.data
+        self.add_order(order)

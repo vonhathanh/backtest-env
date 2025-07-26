@@ -3,12 +3,13 @@ from backtest_env.base.side import PositionSide, OrderSide
 from backtest_env.price import Price
 
 
-class LimitOrder(Order):
+class StopOrder(Order):
     """
-    A limit order is designed to execute a trade at a specific price or better,
-    ensuring that a buyer does not pay more than a desired price or a seller receives at least a specified price.
-    This type of order is useful when targeting a specific price point,
-    although it does not guarantee execution if the market does not reach the set price
+    stop order triggers a market order once a specified price, known as the stop price, is reached.
+    This means that once the stop price is met, the order will be filled at the best available market price,
+    which may be different from the stop price.
+    Stop orders are often used to limit losses or to capture gains by exiting a position
+    once a certain price level is breached, but they do not guarantee the final execution price
     """
 
     def __init__(
@@ -21,7 +22,7 @@ class LimitOrder(Order):
         created_at: int = 0,
     ):
         super().__init__(side, amount_in_usd, symbol, price, position_side, created_at)
-        self.type = OrderType.Limit
+        self.type = OrderType.Stop
 
     def update(self, price: Price):
         self.emit_order_filled(price.close_time) if price.low <= self.price <= price.high else None

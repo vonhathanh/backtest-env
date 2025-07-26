@@ -7,6 +7,7 @@ import socketio
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 
+from backtest_env.base.strategy import Strategy
 from backtest_env.constants import DATA_DIR
 from backtest_env.strategies import STRATEGIES
 from backtest_env.utils import extract_metadata_in_batch
@@ -14,13 +15,18 @@ from backtest_env.logger import logger
 
 processes: dict[str, Process] = {}
 
-origins = ["http://localhost:5173", "http://localhost:8000"]
+origins = [
+    "http://localhost:5173",  # FE
+    "http://localhost:8000",  # BE
+]
 
 
 @asynccontextmanager
 async def lifespan(application: FastAPI):
+    # start server routines
     os.makedirs(DATA_DIR, exist_ok=True)
     yield
+    # stop server routines
     for process in processes.values():
         process.join()
 
@@ -84,8 +90,8 @@ async def generic_event_handler(event, sid, data):
 
 
 def start(args: dict):
-    strategy = STRATEGIES[args["strategy"]].from_cfg(args)
-    strategy.run_with_live_updates() if args["allowLiveUpdates"] else strategy.run()
+    strategy: Strategy = STRATEGIES[args["strategy"]].from_cfg(args)
+    strategy.run(args["allowLiveUpdates"])
 
 
 if __name__ == "__main__":

@@ -35,11 +35,14 @@ class Strategy(ABC):
         self.socketio.connect(SOCKETIO_URL)
         self.socketio.on("next", self.next)
 
-    def run(self):
+    def run(self, allow_live_update: bool = False):
         # main event loop: getting new candle stick and then process data based on update() logic
         # child class must override update() to specify their own trading logic
-        while self.data.step():
-            self.update() if self.data.next() else self.cleanup()
+        if allow_live_update:
+            self.run_with_live_updates()
+        else:
+            while self.data.step():
+                self.update() if self.data.next() else self.cleanup()
 
     def run_with_live_updates(self):
         # manually emit the first `ready` event using data.step() because FE needs BE to go first

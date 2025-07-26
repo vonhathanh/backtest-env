@@ -109,7 +109,7 @@ class TrendFollower(Strategy):
         prices = np.array(self.candles[-self.candle_cache_size :])
         # our formula for determine change per day is: (high - low) / open / step
         changes = np.abs(prices[:, 1] - prices[:, 2]) / prices[:, 0]
-        # step_size can't be too small, so we set 0.005 as minimum
+        # step_size can't be too small, so we set 0.005 (0.5%) as minimum
         self.step_size = round(max(np.mean(changes) / self.interval, 0.005), 3)
 
     def update_grid(self):

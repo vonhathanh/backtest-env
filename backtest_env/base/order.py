@@ -13,6 +13,7 @@ class OrderType(StrEnum):
     Stoploss = "Stoploss"
     ClosePosition = "ClosePosition"
     OCO = "OCO"
+    Stop = "Stop"
 
     def __str__(self):
         return self.value

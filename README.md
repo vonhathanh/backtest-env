@@ -37,3 +37,9 @@ We can add hacky methods like try catch, append sys.path, install this as a modu
 - Install ruff for pre-commit hook and linter: `pip install ruff`
 - Run `fastapi dev backtest_env/app.py` to run API server only (old command)
 - Run `uvicorn backtest_env.app:socketio_app --reload` to run the server as both API and socketio endpoint
+
+# Roadmap for adaptive agent
+- Rule based adaptive agent (simplest)
+- ML based adaptive agent
+- RL based adaptive agent
+- Hybrid adaptive agent
