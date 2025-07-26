@@ -29,8 +29,9 @@ class Order(ABC, EventHub):
         price: float,
         position_side: PositionSide = None,
         created_at: int = 0,
+        priceAtCreation: float = -1.0,
     ):
-        super().__init__(None)
+        super().__init__()
         self.id = uuid4().hex[:16]
         self.type = ""
         self.side = side
@@ -40,6 +41,7 @@ class Order(ABC, EventHub):
         self.position_side = position_side if position_side else side.to_position()
         self.created_at = created_at
         self.filled_at = -1
+        self.priceAtCreation = priceAtCreation
 
     @abstractmethod
     def update(self, price):
@@ -70,4 +72,5 @@ class Order(ABC, EventHub):
             "id": self.id,
             "createdAt": self.created_at // 1000,
             "filledAt": self.filled_at // 1000,
+            "priceAtCreation": self.priceAtCreation,
         }
