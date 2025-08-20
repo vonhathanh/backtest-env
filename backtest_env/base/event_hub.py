@@ -1,5 +1,6 @@
-from eventure import EventBus, EventLog
 from socketio import Client
+from backtest_env.eventure import EventBus, EventLog
+
 
 event_bus = EventBus(EventLog())
 

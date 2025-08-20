@@ -7,7 +7,7 @@ This module provides the EventLog class for managing and storing events in the g
 from datetime import datetime, timezone
 from typing import Any, Dict, List, Optional
 
-from eventure.event import Event
+from backtest_env.eventure.event import Event
 
 
 class EventLog:

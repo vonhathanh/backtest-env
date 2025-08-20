@@ -6,8 +6,8 @@ This module provides the EventBus class for publishing events and subscribing to
 
 from typing import Any, Callable, Dict, List, Optional
 
-from eventure.event import Event
-from eventure.event_log import EventLog
+from backtest_env.eventure.event import Event
+from backtest_env.eventure.event_log import EventLog
 
 
 class EventBus:

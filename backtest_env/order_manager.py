@@ -1,6 +1,6 @@
-from eventure import Event
 from socketio import Client
 
+from backtest_env.eventure import Event
 from backtest_env.base.event_hub import EventHub, SocketIoEventHub
 from backtest_env.base.order import Order
 from backtest_env.base.side import PositionSide, OrderSide
