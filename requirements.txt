@@ -7,4 +7,6 @@ pytest>=8.0.0
 pydantic~=2.10.3
 pre-commit
 requests
-eventure==0.4.4
+sqlmodel==0.0.24
+asyncpg==0.30.0
+greenlet==3.2.4
