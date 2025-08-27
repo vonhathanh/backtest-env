@@ -29,19 +29,20 @@ class Order(ABC, EventHub):
         price: float,
         position_side: PositionSide = None,
         created_at: int = 0,
-        priceAtCreation: float = -1.0,
+        price_at_creation: float = -1.0,
     ):
         super().__init__()
         self.id = uuid4().hex[:16]
-        self.type = ""
-        self.side = side
-        self.quantity = round(amount_in_usd / price, 4)
-        self.symbol = symbol
-        self.price = price
-        self.position_side = position_side if position_side else side.to_position()
-        self.created_at = created_at
-        self.filled_at = -1
-        self.priceAtCreation = priceAtCreation
+        self.type: str = ""
+        self.side: OrderSide = side
+        self.quantity: float = round(amount_in_usd / price, 4)
+        self.symbol: str = symbol
+        self.price: float = price
+        self.position_side: PositionSide = position_side if position_side else side.to_position()
+        self.created_at: int = created_at
+        self.filled_at: int = -1
+        self.price_at_creation: float = price_at_creation
+        self.reasons: str = "" # reasons why we made this order
 
     @abstractmethod
     def update(self, price):

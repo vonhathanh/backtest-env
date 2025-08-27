@@ -1,14 +1,18 @@
+from datetime import datetime
 import os
 from contextlib import asynccontextmanager
 from multiprocessing import Process
 
+from sqlmodel.ext.asyncio.session import AsyncSession
 import uvicorn
 import socketio
-from fastapi import FastAPI
+from fastapi import Depends, FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 
 from backtest_env.base.strategy import Strategy
 from backtest_env.constants import DATA_DIR
+from backtest_env.database import async_session, init_db
+from backtest_env.models import Order
 from backtest_env.strategies import STRATEGIES
 from backtest_env.utils import extract_metadata_in_batch
 from backtest_env.logger import logger
@@ -20,11 +24,16 @@ origins = [
     "http://localhost:8000",  # BE
 ]
 
+# Dependency
+async def get_session() -> AsyncSession:
+    async with async_session() as session:
+        yield session
 
 @asynccontextmanager
 async def lifespan(application: FastAPI):
     # start server routines
     os.makedirs(DATA_DIR, exist_ok=True)
+    await init_db()
     yield
     # stop server routines
     for process in processes.values():
@@ -59,6 +68,16 @@ def get_strategies():
 @app.get("/files/metadata")
 async def get_files_metadata():
     return await extract_metadata_in_batch(os.listdir(DATA_DIR))
+
+@app.post("/orders/", response_model=Order)
+async def create_order(order: Order, session: AsyncSession = Depends(get_session)):
+    print(f"{order=}")
+    order.created_at = datetime.strptime(order.created_at, '%Y-%m-%dT%H:%M:%S.%fZ')
+    order.filled_at = datetime.strptime(order.filled_at, '%Y-%m-%dT%H:%M:%S.%fZ') if order.filled_at else None
+    session.add(order)
+    await session.commit()
+    await session.refresh(order)
+    return order
 
 
 @sio.event
