@@ -30,6 +30,7 @@ We can add hacky methods like try catch, append sys.path, install this as a modu
 # TODOs
 - OCO & trail sl order (doing)
 - Store backtest results to compare, validation
+- Create script to seed trading data
 
 # Installation
 - Python >= 3.10
