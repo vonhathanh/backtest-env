@@ -7,4 +7,3 @@ pytest>=8.0.0
 pydantic~=2.10.3
 pre-commit
 requests
-eventure==0.4.4
