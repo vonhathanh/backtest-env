@@ -1,7 +1,35 @@
-from eventure import EventBus, EventLog
+from time import time_ns
 from socketio import Client
 
-event_bus = EventBus(EventLog())
+class Event:
+    def __init__(self, data: any):
+        self.data = data
+        # Use time_ns() to avoid the precision loss caused by the float type.
+        # divide by 1 million to get millisecond
+        # use floor division to avoid the risk of being in the future
+        self.timestamp = time_ns() // 1_000_000
+
+class EventBus:
+    def __init__(self):
+        self.handlers: dict[str, list[callable]] = {}
+
+    def subscribe(self, event_name: str, handler: callable):
+        handlers = self.handlers.get(event_name, [])
+        handlers.append(handler)
+        return event_name, handler
+    
+    def unsubcribe(self, subscription: tuple[str, callable]):
+        event_name, handler = subscription
+        handlers = self.handlers[event_name]
+        handlers = [h for h in handlers if h != handler]
+
+    def publish(self, event_name: str, data: any):
+        handlers = self.handlers[event_name]
+        for fn in handlers:
+            fn(Event(data))
+
+
+event_bus = EventBus()
 
 
 class EventHub:
@@ -21,9 +49,9 @@ class EventHub:
     def emit(self, event, data):
         self.event_bus.publish(event, data)
 
-    def subscribe(self, event_name: str, handler):
+    def subscribe(self, event_name: str, handler: callable):
         self.subscriptions.append(self.event_bus.subscribe(event_name, handler))
 
     def unsubscribe(self):
-        for unsubscribe in self.subscriptions:
-            unsubscribe()
+        for subscrition in self.subscriptions:
+            self.event_bus.unsubcribe(subscrition)
