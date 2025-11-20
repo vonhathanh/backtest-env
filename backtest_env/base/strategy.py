@@ -52,6 +52,7 @@ class Strategy(ABC):
             time.sleep(1)
 
     def next(self, data):
+        # <data> is unused because next() is an event handler, that parameter is required
         self.data.step()
         if self.data.next():
             self.update()

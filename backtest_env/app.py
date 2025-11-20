@@ -60,7 +60,7 @@ def get_strategies():
 async def get_files_metadata():
     return await extract_metadata_in_batch(os.listdir(DATA_DIR))
 
-
+# sio.event and sio.on('event_name') are equivalent
 @sio.event
 def connect(sid, environ, auth):
     logger.info(f"Client: {sid} connected")
