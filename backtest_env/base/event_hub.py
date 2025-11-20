@@ -14,17 +14,20 @@ class EventBus:
         self.handlers: dict[str, list[callable]] = {}
 
     def subscribe(self, event_name: str, handler: callable):
+
         handlers = self.handlers.get(event_name, [])
         handlers.append(handler)
+        self.handlers[event_name] = handlers
         return event_name, handler
     
     def unsubcribe(self, subscription: tuple[str, callable]):
         event_name, handler = subscription
-        handlers = self.handlers[event_name]
+        handlers = self.handlers.get(event_name, [])
         handlers = [h for h in handlers if h != handler]
+        self.handlers[event_name] = handlers
 
     def publish(self, event_name: str, data: any):
-        handlers = self.handlers[event_name]
+        handlers = self.handlers.get(event_name, [])
         for fn in handlers:
             fn(Event(data))
 
