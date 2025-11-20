@@ -31,6 +31,7 @@ We can add hacky methods like try catch, append sys.path, install this as a modu
 - OCO & trail sl order (doing)
 - Store backtest results to compare, validation
 - Create script to seed trading data
+- Add spot and future env to simulate real exchanges
 
 # Installation
 - Python >= 3.10
