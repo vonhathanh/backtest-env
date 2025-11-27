@@ -14,7 +14,6 @@ class EventBus:
         self.handlers: dict[str, list[callable]] = {}
 
     def subscribe(self, event_name: str, handler: callable):
-
         handlers = self.handlers.setdefault(event_name, [])
         handlers.append(handler)
         return event_name, handler
@@ -22,7 +21,7 @@ class EventBus:
     def unsubcribe(self, subscription: tuple[str, callable]):
         event_name, handler = subscription
         handlers = self.handlers.setdefault(event_name, [])
-        handlers = [h for h in handlers if h != handler]
+        self.handlers[event_name] = [h for h in handlers if h != handler]
 
     def publish(self, event_name: str, data: any):
         handlers = self.handlers.get(event_name, [])
@@ -56,3 +55,5 @@ class EventHub:
     def unsubscribe(self):
         for subscrition in self.subscriptions:
             self.event_bus.unsubcribe(subscrition)
+        self.subscriptions = []
+        
