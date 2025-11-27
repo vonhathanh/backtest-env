@@ -23,7 +23,8 @@ class EventBus:
     def unsubcribe(self, subscription: tuple[str, callable]):
         event_name, handler = subscription
         handlers = self.handlers.setdefault(event_name, [])
-        # setdefault does not work as we intended if we do something like: handlers = [h for h in handlers if h != handler]
+        # setdefault does not work as we intended (update self.handlers[event_name]) 
+        # if we do something like: handlers = [h for h in handlers if h != handler]
         self.handlers[event_name] = [h for h in handlers if h != handler]
 
     def publish(self, event_name: str, data: any):
