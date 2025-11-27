@@ -16,7 +16,7 @@
 
 # Testing
 - Run `python -m pytest` in root folder to run all unit tests
-- Run `python -m pytest/file/directory` to run tests of single file
+- Run `python -m pytest /file/directory` to run tests of single file
 - Include `-s` to display logs
 
 # Rules
