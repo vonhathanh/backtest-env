@@ -14,6 +14,8 @@ class EventBus:
         self.handlers: dict[str, list[callable]] = {}
 
     def subscribe(self, event_name: str, handler: callable):
+        # use setdefault instead of get() so we don't have to reassign handlers like this:
+        # self.handlers = handlers 
         handlers = self.handlers.setdefault(event_name, [])
         handlers.append(handler)
         return event_name, handler
@@ -21,6 +23,7 @@ class EventBus:
     def unsubcribe(self, subscription: tuple[str, callable]):
         event_name, handler = subscription
         handlers = self.handlers.setdefault(event_name, [])
+        # setdefault does not work as we intended if we do something like: handlers = [h for h in handlers if h != handler]
         self.handlers[event_name] = [h for h in handlers if h != handler]
 
     def publish(self, event_name: str, data: any):
