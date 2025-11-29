@@ -40,6 +40,11 @@ We can add hacky methods like try catch, append sys.path, install this as a modu
 - Run `fastapi dev backtest_env/app.py` to run API server only (old command)
 - Run `uvicorn backtest_env.app:socketio_app --reload` to run the server as both API and socketio endpoint
 
+# Seeding data
+- Backtest data will be stored at huggingface. It has larger storage capacity (> 100GB) compared to github (5GB)
+- Repo: https://huggingface.co/datasets/hanhvn/binance-data-collection
+- Run python3 -m scripts.seed_data to download all csv files to /data folder
+
 # Roadmap for adaptive agent
 - Rule based adaptive agent (simplest)
 - ML based adaptive agent
