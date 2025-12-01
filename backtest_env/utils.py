@@ -1,4 +1,5 @@
 import asyncio
+import os
 
 import numpy as np
 
@@ -53,11 +54,24 @@ def convert_nanosecond_to_datetime(nanosecond: int | float) -> str:
 
 def extract_metadata_from_file(name: str):
     # remove .csv suffix by :-4
-    symbol, tf = name[:-4].split("_")
+    tokens = name[:-4].split("_")
+    symbol, tf = tokens[0], tokens[1]
 
-    data = np.genfromtxt(join(DATA_DIR, name), delimiter=",", skip_header=1)
-    start_time = convert_nanosecond_to_datetime(data[0, 0])
-    end_time = convert_nanosecond_to_datetime(data[-1, 0])
+    # filename contains start_time and end_time data
+    if len(tokens) == 4:
+        start_time = tokens[2]
+        end_time = tokens[3]
+    else: 
+        # find start_time, end_time manually by reading the file and cache that information
+        # to filename
+        full_path = join(DATA_DIR, name)
+
+        data = np.genfromtxt(full_path, delimiter=",", skip_header=1)
+        
+        start_time = convert_nanosecond_to_datetime(data[0, 0])
+        end_time = convert_nanosecond_to_datetime(data[-1, 0])
+
+        os.rename(full_path, join(DATA_DIR, f"{symbol}_{tf}_{start_time}_{end_time}.csv"))
 
     return {"start_time": start_time, "end_time": end_time, "symbol": symbol, "tf": tf}
 
